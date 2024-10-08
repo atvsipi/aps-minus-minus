@@ -13,7 +13,8 @@ const mimeTypes: {[key: string]: string} = {
 };
 
 function GetMimeType(file: string) {
-    const ext = path.extname(file).toLowerCase();
+    let ext = path.extname(file).toLowerCase();
+    if (ext.startsWith('.')) ext = ext.slice(1);
     return mimeTypes[ext as keyof typeof mimeTypes] || 'application/octet-stream';
 }
 
@@ -88,7 +89,7 @@ export function Listen(port: number, cb: () => void) {
                             return;
                         }
 
-                        const data = ws.getUserData() as string;
+                        const data = (ws.getUserData() as {uuid: string}).uuid;
 
                         if (!isValidUUID(data)) {
                             ws.send('Please give me a valid UUID!', true);
@@ -96,20 +97,22 @@ export function Listen(port: number, cb: () => void) {
                         }
 
                         const uint8Array = new Uint8Array(msg);
-                        message(data, uint8Array, ws.send.bind(ws));
+                        message(data, uint8Array, (msg: Uint8Array | string) => {
+                            ws.send(msg, typeof msg === 'string' ? false : true);
+                        });
                     },
                     open: (ws) => {
                         ws.send('w');
                     },
                     close: (ws) => {
-                        const data = ws.getUserData() as string;
+                        const data = (ws.getUserData() as {uuid: string}).uuid;
 
                         close(data);
                     },
                     upgrade: (res, req, context) => {
                         const uuid = req.getQuery('uuid');
                         if (uuid === '0' || isValidUUID(uuid)) {
-                            res.upgrade(uuid, req.getHeader('sec-websocket-key'), req.getHeader('sec-websocket-protocol'), req.getHeader('sec-websocket-extensions'), context);
+                            res.upgrade({uuid}, req.getHeader('sec-websocket-key'), req.getHeader('sec-websocket-protocol'), req.getHeader('sec-websocket-extensions'), context);
                         } else {
                             res.writeStatus('400 Bad Request').end('Invalid UUID');
                         }
@@ -117,28 +120,22 @@ export function Listen(port: number, cb: () => void) {
                 })
                 .get('/*', (res, req) => {
                     return new Promise((r) => {
+                        res.onAborted(() => {
+                            res.aborted = true;
+                        });
+
                         const urlPath = req.getUrl();
-
                         const file = urlPath.slice(1);
-
                         const filePath = path.resolve('./public', file.split(/[\?#]/)[0] === '' ? 'index.html' : file);
 
-                        fs.stat(filePath, (err, stat) => {
-                            if (err || !stat.isFile()) {
-                                res.writeStatus('404 Not Found').end('File not found');
-                                return;
-                            }
-
-                            const mimeType = GetMimeType(filePath);
-                            res.writeHeader('Content-Type', mimeType);
-
-                            fs.readFile(filePath, (err, data) => {
+                        fs.readFile(filePath, (err, data) => {
+                            res.cork(() => {
                                 if (err) {
-                                    res.writeStatus('500 Internal Server Error').end('Error reading file');
-                                    return;
+                                    res.writeStatus('404 Not Found').end('File not found');
+                                } else {
+                                    const mimeType = GetMimeType(filePath);
+                                    res.writeHeader('Content-Type', mimeType).end(data);
                                 }
-                                res.end(data);
-                                r();
                             });
                         });
                     });
