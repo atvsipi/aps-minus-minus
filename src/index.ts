@@ -1,3 +1,9 @@
+import {ClassLoader} from './entity/class';
+
+await import('./definitions/tanks');
+
+ClassLoader();
+
 import {Listen} from './network/web-server';
 import {Logger} from './util/logger';
 import {room} from './room/room';
@@ -5,8 +11,6 @@ import {RoomConfig} from './room/roomconfig';
 import {Entity} from './entity/entity';
 import {Color} from './definitions/color';
 import {Vector} from './physics/vector';
-
-await import('./definitions/tanks');
 
 Listen(3003, () => {
     Logger.success('Web server is listen on 3003!');

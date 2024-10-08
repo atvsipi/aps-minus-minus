@@ -19,11 +19,15 @@ export class Entity extends EventEmitter {
         active: boolean;
         min: [number, number];
         max: [number, number];
-    } = () => ({
-        active: true,
-        min: [this.pos.x - this.size, this.pos.y - this.size],
-        max: [this.pos.x + this.size, this.pos.y + this.size],
-    });
+    } = () => {
+        const size = this.size;
+
+        return {
+            active: true,
+            min: [this.pos.x - size, this.pos.y - size],
+            max: [this.pos.x + size, this.pos.y + size],
+        };
+    };
 
     public active: boolean = true;
 
@@ -43,6 +47,7 @@ export class Entity extends EventEmitter {
         isFixed: boolean;
         airplane: boolean;
         bullet: boolean;
+        independent: boolean;
     } = {
         size: 10,
         mass: 1,
@@ -50,6 +55,7 @@ export class Entity extends EventEmitter {
         isFixed: false,
         airplane: false,
         bullet: false,
+        independent: false,
     };
 
     public guns: Gun[] = [];
@@ -62,10 +68,15 @@ export class Entity extends EventEmitter {
 
     public tick: number = 0;
 
+    public master?: Entity;
+    public children: Entity[] = [];
+
     public lastSend = {
         angle: 0,
         size: 0,
     };
+
+    public die: boolean = false;
 
     public get size() {
         return this.setting.size;
@@ -77,12 +88,6 @@ export class Entity extends EventEmitter {
 
     constructor() {
         super();
-
-        this.on('damage', () => {
-            if (this.skill.health <= 0) {
-                room.remove(this);
-            }
-        });
     }
 
     public init(Class: ProcessedClass) {
@@ -107,6 +112,8 @@ export class Entity extends EventEmitter {
     public update() {
         this.tick++;
         this.emit('tick', this.tick);
+
+        if (!this.setting.independent && this.master?.die) return room.remove(this);
 
         const speed = this.skill.values.speed + 0.5;
         for (const move of this.move) {

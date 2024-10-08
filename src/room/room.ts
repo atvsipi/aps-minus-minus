@@ -29,6 +29,8 @@ export class RoomLoop extends EventEmitter {
 
         this.idToEntity.delete(entity.id);
 
+        entity.die = true;
+
         this.emit('remove', entity);
     }
 
@@ -37,9 +39,18 @@ export class RoomLoop extends EventEmitter {
 
         other.skill.health -= entity.skill.values.bodyDamage * 7;
         other.emit('damage', entity.skill.values.bodyDamage * 7);
+        if (other.skill.health <= 0) {
+            other.emit('dead', entity);
+            this.remove(other);
+        }
+
         if (!god) {
             entity.skill.health -= other.skill.values.bodyDamage * 7;
             entity.emit('damage', other.skill.values.bodyDamage * 7);
+            if (entity.skill.health <= 0) {
+                entity.emit('dead', other);
+                this.remove(entity);
+            }
         }
     }
 
@@ -57,17 +68,17 @@ export class RoomLoop extends EventEmitter {
                 if (other.setting.isFixed) continue;
                 if (other.setting.airplane) continue;
 
-                if (other.setting.bullet) {
-                    room.remove(other);
-
-                    continue;
-                }
-
                 const min = new Vector(entity.pos).sub(entity.size);
                 const max = new Vector(entity.pos).add(entity.size);
 
                 if (other.pos.x < max.x && other.pos.x > min.x) {
                     if (other.pos.y < max.y && other.pos.y > min.y) {
+                        if (other.setting.bullet) {
+                            room.remove(other);
+
+                            continue;
+                        }
+
                         if (Math.abs(other.pos.x - entity.pos.x) < Math.abs(other.pos.y - entity.pos.y)) {
                             if (other.pos.y < entity.pos.y) {
                                 other.pos.y = min.y;

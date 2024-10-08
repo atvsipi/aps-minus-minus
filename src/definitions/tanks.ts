@@ -1,7 +1,7 @@
-import {AddClass} from '../entity/class';
+import {Class} from '../entity/class';
 import {Color} from './color';
 
-AddClass('Player', {
+Class.Player = {
     sides: 0,
     guns: [
         {
@@ -14,14 +14,14 @@ AddClass('Player', {
             color: Color.LightGrey,
             border: Color.AutoBorder,
             strokeWidth: 4,
-            alpha: 1,
+            alpha: 0.5,
             layer: -1,
         },
     ],
-});
+};
 
-AddClass('Bullet', {
+Class.Bullet = {
     sides: 0,
     size: 5,
     bullet: true,
-});
+};

@@ -28,7 +28,7 @@ export interface HSHGEntity {
 type Offset = [number, number, number, number, number, number, number, number, number] | [];
 
 function testAABBOverlap(objA: HSHGEntity, objB: HSHGEntity): boolean {
-    var a = objA.getAABB(),
+    const a = objA.getAABB(),
         b = objB.getAABB();
 
     if (!a.active && !b.active) return false;
@@ -54,7 +54,7 @@ export class HSHG {
     }
 
     addObject(obj: HSHGEntity) {
-        var objAABB = obj.getAABB(),
+        let objAABB = obj.getAABB(),
             objSize = getLongestAABBEdge(objAABB.min, objAABB.max),
             newGrid: Grid;
 
@@ -105,15 +105,14 @@ export class HSHG {
         }
     }
     checkIfInHSHG(obj: HSHGEntity) {
-        var meta = obj.HSHG;
+        const meta = obj.HSHG;
 
         if (meta === undefined) return false;
         return true;
     }
     removeObject(obj: HSHGEntity) {
-        var meta = obj.HSHG,
-            globalObjectsIndex: number,
-            replacementObj: HSHGEntity;
+        const meta = obj.HSHG;
+        let globalObjectsIndex: number, replacementObj: HSHGEntity;
 
         if (meta === undefined) {
             return;
@@ -307,7 +306,7 @@ class Grid {
     }
 
     toHash(x: number, y: number) {
-        var i: number, xHash: number, yHash: number;
+        let i: number, xHash: number, yHash: number;
 
         if (x < 0) {
             i = -x * this.inverseCellSize;

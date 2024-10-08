@@ -1,6 +1,7 @@
 import {Color} from '../definitions/color';
+import {Logger} from '../util/logger';
 
-export interface Class {
+export interface ClassType {
     parent?: string;
     size?: number;
     mass?: number;
@@ -75,10 +76,15 @@ const defaultEntity: ProcessedClass = {
     ],
 };
 
-export const Classes: {[key: string]: ProcessedClass} = {};
+export const Class: {[key: string]: ClassType} = {};
+export const EntityClass: {[key: string]: ProcessedClass} = {};
 
-function processClass(entityClass: Class, defaultEntity: ProcessedClass) {
-    let processed = Object.assign({}, defaultEntity, entityClass);
+const Cache: {[key: string]: ProcessedClass} = {};
+
+function ProcessClass(name: string, entityClass: ClassType, basic: ProcessedClass) {
+    if (Cache[name]) return Cache[name];
+
+    let processed = Object.assign({}, basic, entityClass);
 
     processed.guns = [];
 
@@ -88,14 +94,21 @@ function processClass(entityClass: Class, defaultEntity: ProcessedClass) {
         }
 
     if (entityClass.parent) {
-        processed = processClass(processed, Classes[entityClass.parent]);
+        processed = ProcessClass(entityClass.parent, processed, ProcessClass(entityClass.parent, Class[entityClass.parent], defaultEntity));
     }
 
     return processed;
 }
 
-export function AddClass(name: string, target: Class) {
-    Classes[name] = processClass(target, defaultEntity);
+export function ClassLoader() {
+    Logger.info('Loading class...');
 
-    return Classes[name];
+    const keys = Object.keys(Class);
+
+    for (let i = 0; i < keys.length; i++) {
+        EntityClass[keys[i]] = ProcessClass(keys[i], Class[keys[i]], defaultEntity);
+        if (i % 10 === 0) Logger.info(`Class loaded ${i + 1}/${keys.length}`);
+    }
+
+    Logger.success('All classes loaded!');
 }

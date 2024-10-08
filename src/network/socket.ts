@@ -4,7 +4,7 @@ import {Entity} from '../entity/entity';
 import {RoomConfig} from '../room/roomconfig';
 import {room} from '../room/room';
 import {Logger} from '../util/logger';
-import {Classes} from '../entity/class';
+import {EntityClass} from '../entity/class';
 import {Vector} from '../physics/vector';
 import {setInterval} from 'timers';
 
@@ -33,7 +33,7 @@ export function message(uuid: string, data: Uint8Array, send: (msg: Uint8Array |
             case 0: {
                 const entity = new Entity();
 
-                entity.init(Classes.Player);
+                entity.init(EntityClass.Player);
 
                 RoomConfig.spawn(entity);
 

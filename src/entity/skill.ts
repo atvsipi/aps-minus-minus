@@ -10,6 +10,8 @@ export namespace Skill {
         public name: string = 'Skill';
         public color: string | Color = Color.Green;
 
+        protected events: {[key: string]: (...args: unknown[]) => unknown} = {};
+
         protected _value: number = 0;
         public set value(value: number) {
             this._value = value;
@@ -96,6 +98,9 @@ export namespace Skill {
     }
 
     export class BodyDamage extends Base {
+        protected events = {
+            damage: () => {},
+        };
         public set value(value: number) {
             this.entity.skill.values.bodyDamage = value;
         }
@@ -138,6 +143,8 @@ export class SkillSystem {
 
     public health: number = 100;
 
+    public entity!: Entity;
+
     public values = {
         reload: 0,
         bulletPen: 0,
@@ -151,6 +158,12 @@ export class SkillSystem {
     };
 
     public max: number = 9;
+
+    public init(entity: Entity) {
+        this.entity = entity;
+
+        for (const skill of this.skills) skill.init(entity);
+    }
 
     public getSkills() {
         return this.skills.map((skill) => ({
@@ -176,5 +189,10 @@ export class SkillSystem {
         }
 
         for (const skill of this.skills) skill.update();
+    }
+
+    public getScore(entity: Entity) {
+        if (!this.entity.master || this.entity.setting.independent) this.score += entity.skill.score / 2;
+        if (this.entity.master) this.entity.master.skill.score += entity.skill.score / 2;
     }
 }

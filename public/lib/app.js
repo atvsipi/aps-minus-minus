@@ -4,7 +4,7 @@ import {RGBColor} from './rgb.js';
 import {Team, TeamColor} from './team.js';
 import {Vector} from './vector.js';
 
-const fadeDuration = 500;
+const fadeDuration = 250;
 
 let entity;
 const entities = new Set();
@@ -278,9 +278,11 @@ const drawGun = (entity, gun) => {
     ctx.lineTo(p1.x, p1.y);
     ctx.fillStyle = gun.color;
     ctx.strokeStyle = gun.border;
+    ctx.globalAlpha = gun.alpha;
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
+    ctx.globalAlpha = 1;
 };
 
 function drawEntityShape(entity) {
@@ -336,10 +338,12 @@ function drawStar(entity) {
 
 function drawRegularPolygon(entity) {
     const angle = entity.angle + Math.PI / entity.sides;
-    ctx.moveTo(entity.size * Math.cos(angle), entity.size * Math.sin(angle));
-    for (let i = 1; i < entity.sides + 1; i++) {
-        const theta = (i / entity.sides) * 2 * Math.PI + angle;
-        ctx.lineTo(entity.size * Math.cos(theta), entity.size * Math.sin(theta));
+    for (let i = 0; i < entity.sides + 1; i++) {
+        const theta = (i * (2 * Math.PI)) / entity.sides;
+        const xPos = entity.size * Math.cos(theta + angle);
+        const yPos = entity.size * Math.sin(theta + angle);
+        if (i === 0) ctx.moveTo(xPos, yPos);
+        else ctx.lineTo(xPos, yPos);
     }
 }
 
