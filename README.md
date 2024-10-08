@@ -22,4 +22,4 @@ To run:
 bun src/index.ts
 ```
 
-If you use Node.js, use ts-node
+If you use Node.js, use `tsx src/index.ts`
