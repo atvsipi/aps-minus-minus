@@ -5,6 +5,7 @@ export const RoomConfig = {
     width: 1000,
     tick: 1000 / 60,
     runSpeed: 1.2,
+    maxGiveScore: 99999999,
     spawn(entity: Entity) {
         entity.pos.x = Math.random() * this.height;
         entity.pos.y = Math.random() * this.width;

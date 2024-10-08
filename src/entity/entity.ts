@@ -7,11 +7,13 @@ import {EventEmitter} from 'events';
 import {ProcessedClass} from './class';
 import {room} from '../room/room';
 import {RoomConfig} from '../room/roomconfig';
+import {Controller} from './controller';
 
 export interface EntitySetting {
     showHealth: boolean;
     showName: boolean;
     showScore: boolean;
+    giveScore: boolean;
     name: null | string;
     size: number;
     mass: number;
@@ -19,7 +21,9 @@ export interface EntitySetting {
     isFixed: boolean;
     airplane: boolean;
     bullet: boolean;
+    food: boolean;
     independent: boolean;
+    controllers: Controller[];
     skill: {
         speed: number;
         health: number;
@@ -44,6 +48,8 @@ export class Entity extends EventEmitter {
     public levelScore: number = 0;
 
     public health: number = 100;
+
+    public controllers: Controller[] = [];
 
     public changed: boolean = false;
 
@@ -70,12 +76,25 @@ export class Entity extends EventEmitter {
     public angle: number = 0;
 
     public move = new Set<0 | 1 | 2 | 3>();
-    public target: Vector | null = null;
+    public control: {
+        target: Vector | null;
+        goal: Vector | null;
+        main: boolean;
+        fire: boolean;
+        alt: boolean;
+    } = {
+        target: null,
+        goal: null,
+        main: false,
+        fire: false,
+        alt: false,
+    };
 
     public setting: EntitySetting = {
         showHealth: true,
         showName: true,
         showScore: true,
+        giveScore: true,
         name: null,
         size: 10,
         mass: 1,
@@ -83,7 +102,9 @@ export class Entity extends EventEmitter {
         isFixed: false,
         airplane: false,
         bullet: false,
+        food: false,
         independent: false,
+        controllers: [],
         skill: {
             speed: 0.5,
             health: 100,
@@ -169,23 +190,44 @@ export class Entity extends EventEmitter {
         }
 
         const speed = this.setting.skill.speed;
-        for (const move of this.move) {
-            switch (move) {
-                case 0:
-                    this.vel.add({x: 0, y: -speed});
-                    break;
 
-                case 1:
-                    this.vel.add({x: 0, y: speed});
-                    break;
+        for (const controller of this.controllers) {
+            if (controller.entity !== this) controller.entity = this;
 
-                case 2:
-                    this.vel.add({x: -speed, y: 0});
-                    break;
+            const think = controller.think();
 
-                case 3:
-                    this.vel.add({x: speed, y: 0});
-                    break;
+            if (controller.acceptsFromTop) continue;
+
+            if (think.target) this.control.target = think.target;
+            if (think.goal) this.control.goal = think.goal;
+            if (think.main) this.control.main = think.main;
+            if (think.alt) this.control.alt = think.alt;
+            if (think.fire) this.control.fire = think.fire;
+        }
+
+        for (const gun of this.guns) gun.update();
+
+        if (this.control.main && this.control.target) {
+            this.vel.add(this.control.target.clone().normalize().mult(speed));
+        } else {
+            for (const move of this.move) {
+                switch (move) {
+                    case 0:
+                        this.vel.add({x: 0, y: -speed});
+                        break;
+
+                    case 1:
+                        this.vel.add({x: 0, y: speed});
+                        break;
+
+                    case 2:
+                        this.vel.add({x: -speed, y: 0});
+                        break;
+
+                    case 3:
+                        this.vel.add({x: speed, y: 0});
+                        break;
+                }
             }
         }
 
@@ -196,10 +238,6 @@ export class Entity extends EventEmitter {
         this.vel.mult(this.setting.bullet ? 0.98 : 0.9);
         this.vel.add(this.acc);
         this.acc.mult(0);
-
-        if (this.target !== null) {
-            for (const gun of this.guns) gun.firing(this.target.clone().add(this.pos));
-        }
     }
 
     public static isSameTeam(entity: Entity, other: Entity) {

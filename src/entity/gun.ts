@@ -128,7 +128,7 @@ export class Gun {
         }
     }
 
-    public firing(target: Vector) {
+    public firing() {
         if (this.maxChildren !== false && this.maxChildren <= this.children.filter(Boolean).length) {
             if (this.setting.properties.destroyOldestChild) {
                 const entity = this.children[0];
@@ -181,6 +181,12 @@ export class Gun {
             setTimeout(() => {
                 room.remove(bullet);
             }, this.setting.properties.skill.range * 1000);
+        }
+    }
+
+    public update() {
+        if (this.setting.properties.autofire || (this.setting.properties.altFire && this.body.control.alt) || (!this.setting.properties.altFire && this.body.control.fire)) {
+            this.firing();
         }
     }
 }

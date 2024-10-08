@@ -145,8 +145,11 @@ export function message(uuid: string, data: Uint8Array, send: (msg: Uint8Array |
                 if (!user.body) break;
 
                 if (msg.readBoolean()) {
-                    user.body.target = new Vector(msg.readFloat(), msg.readFloat());
-                } else user.body.target = null;
+                    user.body.control.fire = true;
+                    user.body.control.target = new Vector(msg.readFloat(), msg.readFloat());
+                } else {
+                    user.body.control.fire = false;
+                }
                 break;
             }
 

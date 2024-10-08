@@ -34,6 +34,12 @@ export class RoomLoop extends EventEmitter {
         this.emit('remove', entity);
     }
 
+    protected giveScore(entity: Entity, other: Entity) {
+        if (!other.setting.giveScore) return;
+
+        entity.score += other.setting.food ? other.score : Math.min(other.score, RoomConfig.maxGiveScore);
+    }
+
     protected doDamage(entity: Entity, other: Entity, god: boolean) {
         if (Entity.isSameTeam(entity, other)) return;
 
@@ -42,6 +48,7 @@ export class RoomLoop extends EventEmitter {
         if (other.health <= 0) {
             other.emit('dead', entity);
             this.remove(other);
+            this.giveScore(entity, other);
         }
 
         if (!god) {
@@ -50,6 +57,7 @@ export class RoomLoop extends EventEmitter {
             if (entity.health <= 0) {
                 entity.emit('dead', other);
                 this.remove(entity);
+                this.giveScore(other, entity);
             }
         }
     }

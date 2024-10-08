@@ -1,6 +1,7 @@
 import {Color} from '../definitions/color';
 import {Vector} from '../physics/vector';
 import {Logger} from '../util/logger';
+import {Controller} from './controller';
 import {EntitySetting} from './entity';
 import {GunSetting} from './gun';
 
@@ -9,14 +10,17 @@ export interface ClassType {
     showHealth?: boolean;
     showName?: boolean;
     showScore?: boolean;
+    giveScore?: boolean;
     name?: null | string;
     size?: number;
     mass?: number;
     sides?: string | number | Vector[];
     isFixed?: boolean;
     airplane?: boolean;
+    food?: boolean;
     bullet?: boolean;
     independent?: boolean;
+    controllers?: Controller[];
     skill?: {
         speed?: number;
         health?: number;
@@ -73,6 +77,7 @@ const defaultEntity: ProcessedClass = {
     showHealth: true,
     showName: true,
     showScore: true,
+    giveScore: true,
     name: null,
     size: 10,
     mass: 1,
@@ -80,7 +85,9 @@ const defaultEntity: ProcessedClass = {
     isFixed: false,
     airplane: false,
     bullet: false,
+    food: false,
     independent: false,
+    controllers: [],
     skill: {
         speed: 0.5,
         health: 100,
