@@ -116,27 +116,30 @@ export function Listen(port: number, cb: () => void) {
                     },
                 })
                 .get('/*', (res, req) => {
-                    const urlPath = req.getUrl();
+                    return new Promise((r) => {
+                        const urlPath = req.getUrl();
 
-                    const file = urlPath.slice(1);
+                        const file = urlPath.slice(1);
 
-                    const filePath = path.resolve('./public', file.split(/[\?#]/)[0] === '' ? 'index.html' : file);
+                        const filePath = path.resolve('./public', file.split(/[\?#]/)[0] === '' ? 'index.html' : file);
 
-                    fs.stat(filePath, (err, stat) => {
-                        if (err || !stat.isFile()) {
-                            res.writeStatus('404 Not Found').end('File not found');
-                            return;
-                        }
-
-                        const mimeType = GetMimeType(filePath);
-                        res.writeHeader('Content-Type', mimeType);
-
-                        fs.readFile(filePath, (err, data) => {
-                            if (err) {
-                                res.writeStatus('500 Internal Server Error').end('Error reading file');
+                        fs.stat(filePath, (err, stat) => {
+                            if (err || !stat.isFile()) {
+                                res.writeStatus('404 Not Found').end('File not found');
                                 return;
                             }
-                            res.end(data);
+
+                            const mimeType = GetMimeType(filePath);
+                            res.writeHeader('Content-Type', mimeType);
+
+                            fs.readFile(filePath, (err, data) => {
+                                if (err) {
+                                    res.writeStatus('500 Internal Server Error').end('Error reading file');
+                                    return;
+                                }
+                                res.end(data);
+                                r();
+                            });
                         });
                     });
                 })

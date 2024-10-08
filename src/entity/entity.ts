@@ -49,8 +49,6 @@ export class Entity extends EventEmitter {
 
     public health: number = 100;
 
-    public controllers: Controller[] = [];
-
     public changed: boolean = false;
 
     public getAABB: () => {
@@ -191,7 +189,7 @@ export class Entity extends EventEmitter {
 
         const speed = this.setting.skill.speed;
 
-        for (const controller of this.controllers) {
+        for (const controller of this.setting.controllers) {
             if (controller.entity !== this) controller.entity = this;
 
             const think = controller.think();

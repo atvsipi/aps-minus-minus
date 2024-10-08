@@ -3,6 +3,7 @@ import {Vector} from '../physics/vector';
 import {room} from '../room/room';
 import {RoomConfig} from '../room/roomconfig';
 import {EntityClass} from './class';
+import {Controller} from './controller';
 import {Entity} from './entity';
 
 export interface GunSetting {
@@ -25,6 +26,7 @@ export interface GunSetting {
         maxChildren: false | number;
         independentChildren: boolean;
         destroyOldestChild: boolean;
+        controllers: Controller[];
         skill: {
             reload: number;
             recoil: number;
@@ -60,6 +62,7 @@ export class Gun {
             maxChildren: false,
             independentChildren: false,
             destroyOldestChild: false,
+            controllers: [],
             skill: {
                 reload: 1,
                 recoil: 1,

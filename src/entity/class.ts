@@ -52,6 +52,7 @@ export interface ClassType {
             maxChildren?: false | number;
             independentChildren?: boolean;
             destroyOldestChild?: boolean;
+            controllers?: Controller[];
             skill?: {
                 reload?: number;
                 recoil?: number;
@@ -120,6 +121,7 @@ const defaultEntity: ProcessedClass = {
                 maxChildren: false,
                 independentChildren: false,
                 destroyOldestChild: false,
+                controllers: [],
                 skill: {
                     reload: 1,
                     recoil: 1,

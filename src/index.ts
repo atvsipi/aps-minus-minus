@@ -11,6 +11,7 @@ import {RoomConfig} from './room/roomconfig';
 import {Entity} from './entity/entity';
 import {Color} from './definitions/color';
 import {Vector} from './physics/vector';
+import {Nearest} from './entity/controller';
 
 Listen(3003, () => {
     Logger.success('Web server is listen on 3003!');
@@ -68,12 +69,7 @@ setInterval(() => {
 {
     const entity = new Entity();
 
-    entity.setting.sides = 5;
-    entity.setting.isFixed = true;
-    entity.setting.size = 20;
-    entity.guns = [];
-    entity.color = Color.Lavender;
-    entity.pos = new Vector(500, 500);
+    entity.init(EntityClass.bot);
 
     room.insert(entity);
 }

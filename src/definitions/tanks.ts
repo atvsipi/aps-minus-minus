@@ -1,4 +1,5 @@
 import {Class} from '../entity/class';
+import {Nearest} from '../entity/controller';
 import {Color} from './color';
 
 Class.Player = {
@@ -98,4 +99,12 @@ Class.Wall = {
     skill: {damage: 0, health: 10000},
     guns: [],
     color: Color.LightGrey,
+};
+
+Class.bot = {
+    sides: 5,
+    size: 20,
+    guns: [],
+    color: Color.Lavender,
+    controllers: [new Nearest()],
 };
