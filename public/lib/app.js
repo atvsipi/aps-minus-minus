@@ -101,11 +101,13 @@ const socketOnMessage = async ({data}) => {
             else isNew = false;
 
             entity.id = msg.readUint();
+            entity.health = msg.readFloat();
             entity.angle = msg.readFloat();
             if (msg.readBoolean()) {
                 entity.pos = new Vector(msg.readFloat(), msg.readFloat());
                 entity.vel = new Vector(msg.readFloat(), msg.readFloat());
             }
+            entity.score = msg.readFloat();
             entity.size = msg.readFloat();
 
             idToEntity.set(entity.id, entity);
@@ -128,11 +130,13 @@ const socketOnMessage = async ({data}) => {
             else isNew = true;
 
             entity.id = id;
+            entity.health = msg.readFloat();
             entity.angle = msg.readFloat();
             if (msg.readBoolean()) {
                 entity.pos = new Vector(msg.readFloat(), msg.readFloat());
                 entity.vel = new Vector(msg.readFloat(), msg.readFloat());
             }
+            entity.score = msg.readFloat();
             entity.size = msg.readFloat();
 
             idToEntity.set(id, entity);
@@ -173,6 +177,14 @@ const socketOnMessage = async ({data}) => {
 
             obj.team = msg.readUint();
 
+            obj.maxHealth = msg.readFloat();
+
+            obj.showHealth = msg.readBoolean();
+            obj.showName = msg.readBoolean();
+            obj.showScore = msg.readBoolean();
+
+            obj.name = msg.readString();
+
             obj.color = decodeColor(msg, obj.team);
             obj.border = decodeBorder(msg, obj.team, obj.color);
 
@@ -211,6 +223,14 @@ const socketOnMessage = async ({data}) => {
                     layer: msg.readInt(),
                 });
             }
+
+            break;
+        }
+
+        case 6: {
+            entity.score = msg.readFloat();
+            entity.level = msg.readInt();
+            entity.levelScore = msg.readFloat();
 
             break;
         }
@@ -285,24 +305,26 @@ const drawGun = (entity, gun) => {
     ctx.globalAlpha = 1;
 };
 
-function drawEntityShape(entity) {
-    ctx.beginPath();
+function drawText(text, color, border, size, pos, align = 'start') {
+    ctx.save();
 
-    if (Array.isArray(entity.sides)) {
-        drawPolygon(entity);
-    } else if (typeof entity.sides === 'string') {
-        drawPath(entity);
-    } else if (!entity.sides) {
-        drawCircle(entity);
-    } else if (entity.sides < 0) {
-        drawStar(entity);
-    } else if (entity.sides > 0) {
-        drawRegularPolygon(entity);
+    ctx.fillStyle = color;
+    if (border) ctx.strokeStyle = border;
+
+    ctx.textAlign = align;
+    ctx.font = `bold ${size.toFixed(0)}px Ubuntu`;
+    ctx.lineCap = ctx.lineJoin = 'round';
+    ctx.lineWidth = 4;
+
+    if (pos === 'center') {
+        if (border) ctx.strokeText(text, canvas.width / 2, canvas.height / 2);
+        ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+    } else {
+        if (border) ctx.strokeText(text, pos.x, pos.y);
+        ctx.fillText(text, pos.x, pos.y);
     }
 
-    ctx.fill();
-    ctx.stroke();
-    ctx.closePath();
+    ctx.restore();
 }
 
 function drawPolygon(entity) {
@@ -347,6 +369,56 @@ function drawRegularPolygon(entity) {
     }
 }
 
+function drawEntityShape(obj) {
+    ctx.beginPath();
+
+    if (Array.isArray(obj.sides)) {
+        drawPolygon(obj);
+    } else if (typeof obj.sides === 'string') {
+        drawPath(obj);
+    } else if (!obj.sides) {
+        drawCircle(obj);
+    } else if (obj.sides < 0) {
+        drawStar(obj);
+    } else if (obj.sides > 0) {
+        drawRegularPolygon(obj);
+    }
+
+    ctx.fill();
+    ctx.stroke();
+    ctx.closePath();
+
+    if (obj !== entity) {
+        if (obj.showScore) {
+            drawText(obj.score, Color.Black, null, 7, new Vector(0, -obj.size - 5), 'center');
+        }
+        if (obj.showName) {
+            drawText(obj.name, Color.Black, null, 10, new Vector(0, -obj.size - 12), 'center');
+        }
+    }
+
+    if (obj.showHealth && obj.health < (obj.maxHealth || 100)) {
+        const radius = 3;
+
+        const width = obj.size * 2.3;
+        const height = 3;
+
+        const x = -(width / 2);
+        const y = obj.size + height + 1;
+
+        ctx.beginPath();
+        ctx.fillStyle = Color.Black;
+        ctx.roundRect(x, y, width, height, radius);
+        ctx.fill();
+
+        const fillWidth = (obj.health / (obj.maxHealth || 100)) * width;
+        ctx.beginPath();
+        ctx.fillStyle = Color.Green;
+        ctx.roundRect(x + 1, y + 0.75, fillWidth - 2, height - 1.5, radius);
+        ctx.fill();
+    }
+}
+
 const correction = (entity, deltaTick, t) => {
     const interpolationFactor = deltaTick * (world.tick / t);
     const velocityMagnitude = Math.sqrt(entity.vel.x * entity.vel.x + entity.vel.y * entity.vel.y);
@@ -368,86 +440,99 @@ const correction = (entity, deltaTick, t) => {
 const render = (timestamp) => {
     if (!entity || !world.width) return requestAnimationFrame(render);
 
-    const t = performance.now() - timestamp;
+    if (entity.health > 0) {
+        const t = performance.now() - timestamp;
 
-    const deltaTick = tick++ - msgTick;
+        const deltaTick = tick++ - msgTick;
 
-    if (deltaTick > 0) correction(entity, deltaTick, t);
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    ctx.globalAlpha = 0.2;
-    ctx.fillStyle = Color.Black2;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.globalAlpha = 1;
-
-    ctx.save();
-
-    ctx.scale(zoom, zoom);
-    ctx.translate(canvas.width / 2 / zoom - entity.pos.x, canvas.height / 2 / zoom - entity.pos.y);
-
-    ctx.fillStyle = Color.White;
-    ctx.fillRect(0, 0, world.width, world.height);
-
-    ctx.strokeStyle = 'rgb(0,0,0,0.1)';
-
-    for (let y = 0; y <= world.height; y += 40) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(world.width, y);
-        ctx.stroke();
-    }
-    for (let x = 0; x <= world.width; x += 40) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, world.height);
-        ctx.stroke();
-    }
-    window.entity = entity;
-
-    for (const entity of entities) {
         if (deltaTick > 0) correction(entity, deltaTick, t);
 
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        ctx.globalAlpha = 0.2;
+        ctx.fillStyle = Color.Black2;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.globalAlpha = 1;
+
         ctx.save();
-        ctx.translate(entity.pos.x, entity.pos.y);
 
-        if (entity.fadeStart) {
-            const fadeProgress = (performance.now() - entity.fadeStart) / fadeDuration;
-            if (fadeProgress >= 1) {
-                entities.delete(entity);
-                idToEntity.delete(entity.id);
-                ctx.restore();
-                continue;
-            }
-            ctx.globalAlpha = 1 - fadeProgress;
-        } else {
-            ctx.globalAlpha = 1;
+        ctx.scale(zoom, zoom);
+        ctx.translate(canvas.width / 2 / zoom - entity.pos.x, canvas.height / 2 / zoom - entity.pos.y);
+
+        ctx.fillStyle = Color.White;
+        ctx.fillRect(0, 0, world.width, world.height);
+
+        ctx.strokeStyle = 'rgb(0,0,0,0.1)';
+
+        for (let y = 0; y <= world.height; y += 40) {
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(world.width, y);
+            ctx.stroke();
         }
-
-        ctx.lineWidth = 2;
-        ctx.lineJoin = 'round';
-
-        if (entity.guns) {
-            for (const gun of entity.guns.filter((gun) => gun.layer < 0)) {
-                drawGun(entity, gun);
-            }
+        for (let x = 0; x <= world.width; x += 40) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, world.height);
+            ctx.stroke();
         }
+        window.entity = entity;
 
-        ctx.fillStyle = entity.color;
-        ctx.strokeStyle = entity.border;
+        for (const entity of entities) {
+            if (deltaTick > 0) correction(entity, deltaTick, t);
 
-        drawEntityShape(entity);
+            ctx.save();
+            ctx.translate(entity.pos.x, entity.pos.y);
 
-        if (entity.guns) {
-            for (const gun of entity.guns.filter((gun) => gun.layer > -1).sort((a, b) => a.layer - b.layer)) {
-                drawGun(entity, gun);
+            if (entity.fadeStart) {
+                const fadeProgress = (performance.now() - entity.fadeStart) / fadeDuration;
+                if (fadeProgress >= 1) {
+                    entities.delete(entity);
+                    idToEntity.delete(entity.id);
+                    ctx.restore();
+                    continue;
+                }
+                ctx.globalAlpha = 1 - fadeProgress;
+            } else {
+                ctx.globalAlpha = 1;
             }
+
+            ctx.lineWidth = 2;
+            ctx.lineJoin = 'round';
+
+            if (entity.guns) {
+                for (const gun of entity.guns.filter((gun) => gun.layer < 0)) {
+                    drawGun(entity, gun);
+                }
+            }
+
+            ctx.fillStyle = entity.color;
+            ctx.strokeStyle = entity.border;
+
+            drawEntityShape(entity);
+
+            if (entity.guns) {
+                for (const gun of entity.guns.filter((gun) => gun.layer > -1).sort((a, b) => a.layer - b.layer)) {
+                    drawGun(entity, gun);
+                }
+            }
+
+            ctx.restore();
         }
 
         ctx.restore();
-    }
+    } else {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    ctx.restore();
+        ctx.globalAlpha = 0.2;
+        ctx.fillStyle = Color.Red;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.globalAlpha = 1;
+
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        drawText('You are Die.', Color.Black, Color.White, 40, 'center', 'center');
+    }
 
     requestAnimationFrame(render);
 };

@@ -37,17 +37,17 @@ export class RoomLoop extends EventEmitter {
     protected doDamage(entity: Entity, other: Entity, god: boolean) {
         if (Entity.isSameTeam(entity, other)) return;
 
-        other.skill.health -= entity.skill.values.bodyDamage * 7;
-        other.emit('damage', entity.skill.values.bodyDamage * 7);
-        if (other.skill.health <= 0) {
+        other.health -= entity.setting.skill.damage;
+        other.emit('damage', entity.setting.skill.damage);
+        if (other.health <= 0) {
             other.emit('dead', entity);
             this.remove(other);
         }
 
         if (!god) {
-            entity.skill.health -= other.skill.values.bodyDamage * 7;
-            entity.emit('damage', other.skill.values.bodyDamage * 7);
-            if (entity.skill.health <= 0) {
+            entity.health -= other.setting.skill.damage;
+            entity.emit('damage', other.setting.skill.damage);
+            if (entity.health <= 0) {
                 entity.emit('dead', other);
                 this.remove(entity);
             }
@@ -79,6 +79,8 @@ export class RoomLoop extends EventEmitter {
                             continue;
                         }
 
+                        this.doDamage(entity, other, true);
+
                         if (Math.abs(other.pos.x - entity.pos.x) < Math.abs(other.pos.y - entity.pos.y)) {
                             if (other.pos.y < entity.pos.y) {
                                 other.pos.y = min.y;
@@ -94,21 +96,30 @@ export class RoomLoop extends EventEmitter {
                         }
                     }
                 }
-
-                this.doDamage(entity, other, true);
             } else {
                 this.doDamage(entity, other, false);
 
                 if (entity.setting.bullet || other.setting.bullet) {
+                    if (Entity.isSameTeam(entity, other)) continue;
+
+                    if (other.setting.bullet) [entity, other] = [other, entity];
+                    if (other.setting.bullet) {
+                        entity.vel.mult(0.8);
+                        other.vel.mult(0.8);
+                    } else {
+                        entity.vel.mult(0.8);
+                        other.vel.add(entity.vel.clone().mult(entity.setting.skill.pushability).mult(0.1));
+                    }
+
                     continue;
                 }
 
-                const correctionVector = Vector.sub(other.pos, entity.pos)
+                /*const correctionVector = Vector.sub(other.pos, entity.pos)
                     .normalize()
                     .mult((entity.size + other.size - Vector.distance(entity.pos, other.pos)) / 2);
 
                 other.pos.add(correctionVector);
-                entity.pos.sub(correctionVector);
+                entity.pos.sub(correctionVector);*/
 
                 const normal = Vector.sub(other.pos, entity.pos).normalize();
 
@@ -121,8 +132,12 @@ export class RoomLoop extends EventEmitter {
                 const mass1 = entity.mass;
                 const mass2 = other.mass;
 
-                entity.vel = Vector.add(normalVel1.normalize().mult((2 * mass2 * u2 + u1 * (mass1 - 1 * mass2)) / (mass1 + mass2)), Vector.sub(entity.vel, normalVel1));
-                other.vel = Vector.add(normalVel2.normalize().mult((2 * mass1 * u1 + u2 * (mass2 - 1 * mass1)) / (mass1 + mass2)), Vector.sub(other.vel, normalVel2));
+                entity.vel = Vector.add(normalVel1.normalize().mult((2 * mass2 * u2 + u1 * (mass1 - 1 * mass2)) / (mass1 + mass2)), Vector.sub(entity.vel, normalVel1)).mult(
+                    other.setting.skill.pushability,
+                );
+                other.vel = Vector.add(normalVel2.normalize().mult((2 * mass1 * u1 + u2 * (mass2 - 1 * mass1)) / (mass1 + mass2)), Vector.sub(other.vel, normalVel2)).mult(
+                    entity.setting.skill.pushability,
+                );
             }
         }
 

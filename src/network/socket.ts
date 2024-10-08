@@ -174,6 +174,13 @@ function EntityInfo(entity: Entity, msg: Protocol.Writer) {
 
     msg.writeUint(entity.team);
 
+    msg.writeFloat(entity.setting.skill.health);
+
+    msg.writeBoolean(entity.setting.showHealth);
+    msg.writeBoolean(entity.setting.showName);
+    msg.writeBoolean(entity.setting.showScore);
+    msg.writeString(entity.name);
+
     if (typeof entity.color === 'string') {
         msg.writeUint(0);
         msg.writeString(entity.color);
@@ -237,6 +244,7 @@ function EntityInfo(entity: Entity, msg: Protocol.Writer) {
 
 function EntityData(entity: Entity, msg: Protocol.Writer, active: boolean = false) {
     msg.writeUint(entity.id);
+    msg.writeFloat(entity.health);
     msg.writeFloat(entity.angle);
     if (entity.active || entity.tick < 10 || active) {
         msg.writeBoolean(true);
@@ -247,12 +255,14 @@ function EntityData(entity: Entity, msg: Protocol.Writer, active: boolean = fals
     } else {
         msg.writeBoolean(false);
     }
+    msg.writeFloat(entity.score);
     msg.writeFloat(entity.size);
 
     return msg;
 }
 
 setInterval(() => {
+    const changed = new Set<Entity>();
     for (const user of users) {
         const entity = user[1].body;
 
@@ -263,20 +273,43 @@ setInterval(() => {
 
         user[1].send(msg.make());
 
+        if (entity.tick % 20 === 0) {
+            msg.reset();
+
+            msg.writeUint(6);
+            msg.writeFloat(entity.score);
+            msg.writeInt(entity.level);
+            msg.writeFloat(entity.levelScore);
+
+            user[1].send(msg.make());
+        }
+
         for (const obj of room.entities) {
             if (obj === entity) continue;
 
             if (entity.lastSend.angle === entity.angle && entity.lastSend.size === entity.size && !entity.active && entity.tick > 10) entity.lastSend.angle = entity.angle;
             entity.lastSend.size = entity.size;
 
-            const msg = new Protocol.Writer();
+            msg.reset();
 
             msg.writeUint(2);
             EntityData(obj, msg);
 
             user[1].send(msg.make());
+
+            if (entity.changed) {
+                msg.reset();
+
+                msg.writeUint(5);
+                EntityInfo(obj, msg);
+
+                user[1].send(msg.make());
+                changed.add(entity);
+            }
         }
     }
+
+    for (const entity of changed) entity.changed = false;
 }, 1000 / 60);
 
 room.on('remove', (obj: Entity) => {

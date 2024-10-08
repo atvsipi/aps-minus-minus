@@ -12,13 +12,6 @@ export const RoomConfig = {
     levelScore(level: number) {
         return Math.ceil(level ** 3 * 0.3);
     },
-    levelSkillPoint(level: number) {
-        if (level < 2) return 0;
-        if (level <= 40) return 1;
-        if (level <= 45) return 1;
-
-        return 0;
-    },
     physics(entity: Entity) {
         if (entity.setting.bullet) return;
 

@@ -1,4 +1,4 @@
-import {ClassLoader} from './entity/class';
+import {ClassLoader, EntityClass} from './entity/class';
 
 await import('./definitions/tanks');
 
@@ -23,11 +23,7 @@ setInterval(() => {
 {
     const entity = new Entity();
 
-    entity.setting.sides = 4;
-    entity.setting.isFixed = true;
-    entity.setting.size = 49;
-    entity.guns = [];
-    entity.color = Color.LightGrey;
+    entity.init(EntityClass.Wall);
     entity.pos = new Vector(50, 50);
 
     room.insert(entity);
@@ -36,11 +32,7 @@ setInterval(() => {
 {
     const entity = new Entity();
 
-    entity.setting.sides = 4;
-    entity.setting.isFixed = true;
-    entity.setting.size = 49;
-    entity.guns = [];
-    entity.color = Color.LightGrey;
+    entity.init(EntityClass.Wall);
     entity.pos = new Vector(50, 120);
 
     room.insert(entity);
@@ -49,11 +41,7 @@ setInterval(() => {
 {
     const entity = new Entity();
 
-    entity.setting.sides = 4;
-    entity.setting.isFixed = true;
-    entity.setting.size = 49;
-    entity.guns = [];
-    entity.color = Color.LightGrey;
+    entity.init(EntityClass.Wall);
     entity.pos = new Vector(50, 180);
 
     room.insert(entity);
@@ -62,11 +50,7 @@ setInterval(() => {
 {
     const entity = new Entity();
 
-    entity.setting.sides = 4;
-    entity.setting.isFixed = true;
-    entity.setting.size = 49;
-    entity.guns = [];
-    entity.color = Color.LightGrey;
+    entity.init(EntityClass.Wall);
     entity.pos = new Vector(120, 180);
 
     room.insert(entity);
@@ -75,11 +59,7 @@ setInterval(() => {
 {
     const entity = new Entity();
 
-    entity.setting.sides = 4;
-    entity.setting.isFixed = true;
-    entity.setting.size = 49;
-    entity.guns = [];
-    entity.color = Color.LightGrey;
+    entity.init(EntityClass.Wall);
     entity.pos = new Vector(120, 50);
 
     room.insert(entity);

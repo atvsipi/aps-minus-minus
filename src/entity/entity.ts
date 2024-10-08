@@ -4,9 +4,32 @@ import {HSHGMeta} from '../physics/hshg';
 import {Vector} from '../physics/vector';
 import {Gun} from './gun';
 import {EventEmitter} from 'events';
-import {SkillSystem} from './skill';
 import {ProcessedClass} from './class';
 import {room} from '../room/room';
+import {RoomConfig} from '../room/roomconfig';
+
+export interface EntitySetting {
+    showHealth: boolean;
+    showName: boolean;
+    showScore: boolean;
+    name: null | string;
+    size: number;
+    mass: number;
+    sides: number | string | Vector[];
+    isFixed: boolean;
+    airplane: boolean;
+    bullet: boolean;
+    independent: boolean;
+    skill: {
+        speed: number;
+        health: number;
+        regen: number;
+        damage: number;
+        pen: number;
+        range: number | null;
+        pushability: number;
+    };
+}
 
 export class Entity extends EventEmitter {
     public id!: number;
@@ -14,6 +37,15 @@ export class Entity extends EventEmitter {
     public pos: Vector = new Vector();
     public vel: Vector = new Vector();
     public acc: Vector = new Vector();
+
+    public score: number = 0;
+
+    public level: number = 0;
+    public levelScore: number = 0;
+
+    public health: number = 100;
+
+    public changed: boolean = false;
 
     public getAABB: () => {
         active: boolean;
@@ -29,6 +61,8 @@ export class Entity extends EventEmitter {
         };
     };
 
+    public name: string = 'Entity';
+
     public active: boolean = true;
 
     public HSHG?: HSHGMeta;
@@ -38,17 +72,11 @@ export class Entity extends EventEmitter {
     public move = new Set<0 | 1 | 2 | 3>();
     public target: Vector | null = null;
 
-    public skill: SkillSystem = new SkillSystem();
-
-    public setting: {
-        size: number;
-        mass: number;
-        sides: number | string | Vector[];
-        isFixed: boolean;
-        airplane: boolean;
-        bullet: boolean;
-        independent: boolean;
-    } = {
+    public setting: EntitySetting = {
+        showHealth: true,
+        showName: true,
+        showScore: true,
+        name: null,
         size: 10,
         mass: 1,
         sides: 0,
@@ -56,6 +84,15 @@ export class Entity extends EventEmitter {
         airplane: false,
         bullet: false,
         independent: false,
+        skill: {
+            speed: 0.5,
+            health: 100,
+            regen: 1,
+            damage: 1,
+            pen: 10,
+            range: null,
+            pushability: 1,
+        },
     };
 
     public guns: Gun[] = [];
@@ -91,14 +128,21 @@ export class Entity extends EventEmitter {
     }
 
     public init(Class: ProcessedClass) {
+        this.setting.showHealth = Class.showHealth;
+        this.setting.showName = Class.showName;
+        this.setting.showScore = Class.showScore;
+        this.setting.name = Class.name;
         this.setting.size = Class.size;
         this.setting.mass = Class.mass;
         this.setting.sides = Class.sides;
         this.setting.isFixed = Class.isFixed;
         this.setting.airplane = Class.airplane;
         this.setting.bullet = Class.bullet;
+        this.setting.skill = Class.skill;
         this.color = Class.color;
         this.border = Class.border;
+
+        if (this.setting.name !== null) this.name = this.setting.name;
 
         for (const gunSetting of Class.guns) {
             const gun = new Gun(this);
@@ -115,7 +159,16 @@ export class Entity extends EventEmitter {
 
         if (!this.setting.independent && this.master?.die) return room.remove(this);
 
-        const speed = this.skill.values.speed + 0.5;
+        if (this.score > this.levelScore) {
+            this.level++;
+            this.levelScore = RoomConfig.levelScore(this.level);
+        }
+
+        if (this.health < this.setting.skill.health) {
+            this.health += this.setting.skill.regen;
+        }
+
+        const speed = this.setting.skill.speed;
         for (const move of this.move) {
             switch (move) {
                 case 0:

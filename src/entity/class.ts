@@ -1,14 +1,31 @@
 import {Color} from '../definitions/color';
+import {Vector} from '../physics/vector';
 import {Logger} from '../util/logger';
+import {EntitySetting} from './entity';
+import {GunSetting} from './gun';
 
 export interface ClassType {
     parent?: string;
+    showHealth?: boolean;
+    showName?: boolean;
+    showScore?: boolean;
+    name?: null | string;
     size?: number;
     mass?: number;
-    sides?: number;
+    sides?: string | number | Vector[];
     isFixed?: boolean;
     airplane?: boolean;
     bullet?: boolean;
+    independent?: boolean;
+    skill?: {
+        speed?: number;
+        health?: number;
+        regen?: number;
+        damage?: number;
+        pen?: number;
+        range?: number | null;
+        pushability?: number;
+    };
     color?: Color | string;
     border?: Color | string;
     guns?: {
@@ -23,40 +40,56 @@ export interface ClassType {
         strokeWidth?: number;
         alpha?: number;
         layer?: number;
+        properties?: {
+            type?: string;
+            autofire?: boolean;
+            altFire?: boolean;
+            delaySpawn?: number;
+            maxChildren?: false | number;
+            independentChildren?: boolean;
+            destroyOldestChild?: boolean;
+            skill?: {
+                reload?: number;
+                recoil?: number;
+                size?: number;
+                health?: number;
+                damage?: number;
+                pen?: number;
+                speed?: number;
+                range?: number;
+                spray?: number;
+            };
+        };
     }[];
 }
 
-export interface ProcessedClass {
-    size: number;
-    mass: number;
-    sides: number;
-    isFixed: boolean;
-    airplane: boolean;
-    bullet: boolean;
+export interface ProcessedClass extends EntitySetting {
     color: Color | string;
     border: Color | string;
-    guns: {
-        offset: number;
-        direction: number;
-        length: number;
-        width: number;
-        aspect: number;
-        angle: number;
-        color: Color | string;
-        border: Color | string;
-        strokeWidth: number;
-        alpha: number;
-        layer: number;
-    }[];
+    guns: GunSetting[];
 }
 
 const defaultEntity: ProcessedClass = {
+    showHealth: true,
+    showName: true,
+    showScore: true,
+    name: null,
     size: 10,
     mass: 1,
     sides: 0,
     isFixed: false,
     airplane: false,
     bullet: false,
+    independent: false,
+    skill: {
+        speed: 0.5,
+        health: 100,
+        regen: 1,
+        damage: 1,
+        pen: 10,
+        range: null,
+        pushability: 1,
+    },
     color: Color.TeamColor,
     border: Color.AutoBorder,
     guns: [
@@ -72,6 +105,26 @@ const defaultEntity: ProcessedClass = {
             strokeWidth: 4,
             alpha: 1,
             layer: -1,
+            properties: {
+                type: 'Bullet',
+                autofire: false,
+                altFire: false,
+                delaySpawn: 0,
+                maxChildren: false,
+                independentChildren: false,
+                destroyOldestChild: false,
+                skill: {
+                    reload: 1,
+                    recoil: 1,
+                    size: 1,
+                    health: 1,
+                    damage: 1,
+                    pen: 1,
+                    speed: 1,
+                    range: 1,
+                    spray: 1,
+                },
+            },
         },
     ],
 };
@@ -79,7 +132,7 @@ const defaultEntity: ProcessedClass = {
 export const Class: {[key: string]: ClassType} = {};
 export const EntityClass: {[key: string]: ProcessedClass} = {};
 
-const Cache: {[key: string]: ProcessedClass} = {};
+let Cache: {[key: string]: ProcessedClass} = {};
 
 function ProcessClass(name: string, entityClass: ClassType, basic: ProcessedClass) {
     if (Cache[name]) return Cache[name];
@@ -88,20 +141,29 @@ function ProcessClass(name: string, entityClass: ClassType, basic: ProcessedClas
 
     processed.guns = [];
 
+    if (entityClass.skill) processed.skill = Object.assign({}, basic.skill, entityClass.skill);
+
     if (entityClass.guns)
         for (const gun of entityClass.guns) {
-            processed.guns.push(Object.assign({}, defaultEntity.guns[0], gun));
+            const processedGun = Object.assign({}, defaultEntity.guns[0], gun);
+            if (gun.properties?.skill) processedGun.properties.skill = Object.assign({}, basic.guns[0].properties.skill, gun.properties.skill);
+
+            processed.guns.push(processedGun);
         }
 
     if (entityClass.parent) {
         processed = ProcessClass(entityClass.parent, processed, ProcessClass(entityClass.parent, Class[entityClass.parent], defaultEntity));
     }
 
+    Cache[name] = processed;
+
     return processed;
 }
 
 export function ClassLoader() {
     Logger.info('Loading class...');
+
+    Cache = {};
 
     const keys = Object.keys(Class);
 

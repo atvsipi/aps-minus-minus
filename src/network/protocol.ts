@@ -154,7 +154,7 @@ export namespace Protocol {
 
         reset(): this {
             this.writeQueue = [];
-            this.offset;
+            this.offset = 0;
 
             return this;
         }
