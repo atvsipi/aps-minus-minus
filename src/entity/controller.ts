@@ -21,6 +21,18 @@ export class Controller {
 
 export class Nearest extends Controller {
     think(): {target: Vector | null; goal: Vector | null; main: boolean; fire: boolean; alt: boolean} {
+        if (this.entity.tick % 10 !== 0) {
+            this.acceptsFromTop = true;
+
+            return {
+                target: null,
+                goal: null,
+                main: false,
+                fire: false,
+                alt: false,
+            };
+        }
+
         let diff = Infinity;
         let master: Entity;
         for (const entity of room.entities) {
