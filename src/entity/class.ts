@@ -11,6 +11,7 @@ export interface ClassType {
     showName?: boolean;
     showScore?: boolean;
     giveScore?: boolean;
+    score?: number;
     name?: null | string;
     size?: number;
     mass?: number;
@@ -79,6 +80,7 @@ const defaultEntity: ProcessedClass = {
     showName: true,
     showScore: true,
     giveScore: true,
+    score: 25000,
     name: null,
     size: 10,
     mass: 1,

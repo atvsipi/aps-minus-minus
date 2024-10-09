@@ -35,6 +35,18 @@ export function message(uuid: string, data: Uint8Array, send: (msg: Uint8Array |
 
                 entity.init(EntityClass.Player);
 
+                entity.socket = {
+                    send,
+                    sendMsg(str: string) {
+                        const msg = new Protocol.Writer();
+
+                        msg.writeUint(7);
+                        msg.writeString(str);
+
+                        send(msg.make());
+                    },
+                };
+
                 RoomConfig.spawn(entity);
 
                 room.insert(entity);
@@ -325,3 +337,12 @@ room.on('remove', (obj: Entity) => {
         user[1].send(msg.make());
     }
 });
+
+room.socket = {
+    send(msg: Uint8Array) {
+        for (const user of users) user[1].send(msg);
+    },
+    sendMsg(msg: string) {
+        for (const user of users) user[1].body.socket.sendMsg(msg);
+    },
+};

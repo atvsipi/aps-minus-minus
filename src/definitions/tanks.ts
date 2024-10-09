@@ -113,6 +113,8 @@ Class.bot = {
         range: null,
         pushability: 1,
     },
+    score: 250000,
+    food: true,
     guns: [
         {
             offset: -3,

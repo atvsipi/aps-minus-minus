@@ -14,6 +14,7 @@ export interface EntitySetting {
     showName: boolean;
     showScore: boolean;
     giveScore: boolean;
+    score: number;
     name: null | string;
     size: number;
     mass: number;
@@ -50,6 +51,11 @@ export class Entity extends EventEmitter {
     public health: number = 100;
 
     public changed: boolean = false;
+
+    public socket!: {
+        send: (msg: Uint8Array) => void;
+        sendMsg: (msg: string) => void;
+    };
 
     public getAABB: () => {
         active: boolean;
@@ -95,6 +101,7 @@ export class Entity extends EventEmitter {
         showName: true,
         showScore: true,
         giveScore: true,
+        score: 25000,
         name: null,
         size: 10,
         mass: 1,
@@ -152,6 +159,7 @@ export class Entity extends EventEmitter {
         this.setting.showHealth = Class.showHealth;
         this.setting.showName = Class.showName;
         this.setting.showScore = Class.showScore;
+        this.setting.giveScore = Class.giveScore;
         this.setting.name = Class.name;
         this.setting.size = Class.size;
         this.setting.mass = Class.mass;
@@ -159,10 +167,13 @@ export class Entity extends EventEmitter {
         this.setting.isFixed = Class.isFixed;
         this.setting.airplane = Class.airplane;
         this.setting.bullet = Class.bullet;
+        this.setting.food = Class.food;
         this.setting.skill = Class.skill;
+        this.setting.independent = Class.independent;
         this.setting.controllers = Class.controllers;
         this.color = Class.color;
         this.border = Class.border;
+        this.score = Class.score;
 
         if (this.setting.name !== null) this.name = this.setting.name;
 
