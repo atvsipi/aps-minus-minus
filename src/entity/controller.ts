@@ -23,8 +23,11 @@ export class Nearest extends Controller {
     think(): {target: Vector | null; goal: Vector | null; main: boolean; fire: boolean; alt: boolean} {
         let diff = Infinity;
         let master: Entity;
-
         for (const entity of room.entities) {
+            if (entity === this.entity) continue;
+
+            if (Entity.isSameTeam(entity, this.entity)) continue;
+
             if (entity.master && !entity.setting.independent) continue;
 
             if (entity.setting.isFixed) continue;
@@ -51,7 +54,6 @@ export class Nearest extends Controller {
         }
 
         this.acceptsFromTop = false;
-
         return {
             target: master.pos.clone().sub(this.entity.pos),
             goal: null,

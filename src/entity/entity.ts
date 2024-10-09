@@ -158,6 +158,7 @@ export class Entity extends EventEmitter {
         this.setting.airplane = Class.airplane;
         this.setting.bullet = Class.bullet;
         this.setting.skill = Class.skill;
+        this.setting.controllers = Class.controllers;
         this.color = Class.color;
         this.border = Class.border;
 
@@ -206,7 +207,11 @@ export class Entity extends EventEmitter {
         for (const gun of this.guns) gun.update();
 
         if (this.control.main && this.control.target) {
-            this.vel.add(this.control.target.clone().normalize().mult(speed));
+            const target = this.control.target;
+
+            this.angle = target.angle();
+
+            this.vel.add(target.clone().normalize().mult(speed));
         } else {
             for (const move of this.move) {
                 switch (move) {
