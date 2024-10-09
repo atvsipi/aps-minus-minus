@@ -70,6 +70,7 @@ setInterval(() => {
     const entity = new Entity();
 
     entity.init(EntityClass.bot);
+    entity.pos = new Vector(900, 900);
 
     room.insert(entity);
 }

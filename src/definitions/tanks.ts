@@ -1,5 +1,5 @@
 import {Class} from '../entity/class';
-import {Nearest} from '../entity/controller';
+import {CircleMove, Nearest} from '../entity/controller';
 import {Color} from './color';
 
 Class.Player = {
@@ -104,6 +104,15 @@ Class.Wall = {
 Class.bot = {
     sides: 5,
     size: 15,
+    skill: {
+        speed: 0.2,
+        health: 100,
+        regen: 1,
+        damage: 1,
+        pen: 10,
+        range: null,
+        pushability: 1,
+    },
     guns: [
         {
             offset: -3,
@@ -126,13 +135,13 @@ Class.bot = {
                 independentChildren: false,
                 destroyOldestChild: false,
                 skill: {
-                    reload: 5,
+                    reload: 2,
                     recoil: 1,
                     size: 1,
                     health: 1,
                     damage: 1,
                     pen: 1,
-                    speed: 8,
+                    speed: 2,
                     range: 2,
                     spray: 1,
                 },
@@ -140,5 +149,5 @@ Class.bot = {
         },
     ],
     color: Color.Lavender,
-    controllers: [new Nearest()],
+    controllers: [new CircleMove(), new Nearest()],
 };

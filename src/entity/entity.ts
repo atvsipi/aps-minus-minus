@@ -80,12 +80,14 @@ export class Entity extends EventEmitter {
         main: boolean;
         fire: boolean;
         alt: boolean;
+        power: number;
     } = {
         target: null,
         goal: null,
         main: false,
         fire: false,
         alt: false,
+        power: 1,
     };
 
     public setting: EntitySetting = {
@@ -197,11 +199,12 @@ export class Entity extends EventEmitter {
 
             if (controller.acceptsFromTop) continue;
 
-            if (think.target) this.control.target = think.target;
-            if (think.goal) this.control.goal = think.goal;
-            if (think.main) this.control.main = think.main;
-            if (think.alt) this.control.alt = think.alt;
-            if (think.fire) this.control.fire = think.fire;
+            if (think.target !== null) this.control.target = think.target;
+            if (think.goal !== null) this.control.goal = think.goal;
+            if (think.main !== null) this.control.main = think.main;
+            if (think.alt !== null) this.control.alt = think.alt;
+            if (think.fire !== null) this.control.fire = think.fire;
+            if (think.power !== null) this.control.power = think.power;
         }
 
         for (const gun of this.guns) gun.update();
@@ -211,7 +214,12 @@ export class Entity extends EventEmitter {
 
             this.angle = target.angle();
 
-            this.vel.add(target.clone().normalize().mult(speed));
+            this.vel.add(
+                target
+                    .clone()
+                    .normalize()
+                    .mult(speed * (this.control.power || 1)),
+            );
         } else {
             for (const move of this.move) {
                 switch (move) {

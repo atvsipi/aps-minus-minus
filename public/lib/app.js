@@ -11,7 +11,7 @@ const entities = new Set();
 const idToEntity = new Map();
 let world = {};
 
-let zoom = 1.4;
+let zoom = 1.2;
 
 let tick = 0;
 let msgTick = 0;
