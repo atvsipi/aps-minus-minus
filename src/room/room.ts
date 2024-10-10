@@ -45,7 +45,11 @@ export class RoomLoop extends EventEmitter {
     protected giveScore(entity: Entity, other: Entity) {
         if (!other.setting.giveScore) return;
 
-        entity.score += other.setting.food ? other.score : Math.min(other.score, RoomConfig.maxGiveScore);
+        const score = other.setting.food ? other.score : Math.min(other.score, RoomConfig.maxGiveScore);
+
+        entity.score += score;
+
+        if (entity.master) entity.master.score += score;
     }
 
     protected doDamage(entity: Entity, other: Entity, god: boolean) {
