@@ -53,9 +53,12 @@ export class Entity extends EventEmitter {
 
     public changed: boolean = false;
 
-    public socket!: {
+    public socket: {
         send: (msg: Uint8Array) => void;
         sendMsg: (msg: string) => void;
+    } = {
+        send: () => void 0,
+        sendMsg: () => void 0,
     };
 
     public getAABB: () => {
@@ -121,7 +124,7 @@ export class Entity extends EventEmitter {
             pen: 10,
             range: null,
             pushability: 1,
-            fov: 90
+            fov: 90,
         },
     };
 

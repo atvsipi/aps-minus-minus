@@ -12,9 +12,12 @@ export class RoomLoop extends EventEmitter {
 
     public index: number = 0;
 
-    public socket!: {
+    public socket: {
         send: (msg: Uint8Array) => void;
         sendMsg: (msg: string) => void;
+    } = {
+        send: () => void 0,
+        sendMsg: () => void 0,
     };
 
     public insert(entity: Entity) {

@@ -445,6 +445,14 @@ const render = (timestamp) => {
     if (!entity || !world.width) return requestAnimationFrame(render);
 
     if (entity.health > 0) {
+        const fov = Math.max(canvas.width, canvas.height) / ((entity.fov || 10) + entity.size);
+        if (zoom !== fov) {
+            const diff = Math.abs(zoom - fov);
+            if (diff < 0.01) zoom = fov;
+            else if (zoom < fov) zoom += diff / 70;
+            else zoom -= diff / 70;
+        }
+
         const t = performance.now() - timestamp;
 
         const deltaTick = tick++ - msgTick;
