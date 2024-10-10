@@ -30,6 +30,7 @@ export interface ClassType {
         pen?: number;
         range?: number | null;
         pushability?: number;
+        fov?: number;
     };
     color?: Color | string;
     border?: Color | string;
@@ -99,6 +100,7 @@ const defaultEntity: ProcessedClass = {
         pen: 10,
         range: null,
         pushability: 1,
+        fov: 300,
     },
     color: Color.TeamColor,
     border: Color.AutoBorder,

@@ -33,6 +33,7 @@ export interface EntitySetting {
         pen: number;
         range: number | null;
         pushability: number;
+        fov: number;
     };
 }
 
@@ -120,6 +121,7 @@ export class Entity extends EventEmitter {
             pen: 10,
             range: null,
             pushability: 1,
+            fov: 90
         },
     };
 

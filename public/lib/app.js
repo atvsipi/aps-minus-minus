@@ -11,7 +11,7 @@ const entities = new Set();
 const idToEntity = new Map();
 let world = {};
 
-let zoom = 1.2;
+let zoom = 1.4;
 
 let tick = 0;
 let msgTick = 0;
@@ -103,8 +103,8 @@ const socketOnMessage = async ({data}) => {
             entity.id = msg.readUint();
             entity.health = msg.readFloat();
             entity.angle = msg.readFloat();
+            entity.pos = new Vector(msg.readFloat(), msg.readFloat());
             if (msg.readBoolean()) {
-                entity.pos = new Vector(msg.readFloat(), msg.readFloat());
                 entity.vel = new Vector(msg.readFloat(), msg.readFloat());
             }
             entity.score = msg.readFloat();
@@ -132,8 +132,8 @@ const socketOnMessage = async ({data}) => {
             entity.id = id;
             entity.health = msg.readFloat();
             entity.angle = msg.readFloat();
+            entity.pos = new Vector(msg.readFloat(), msg.readFloat());
             if (msg.readBoolean()) {
-                entity.pos = new Vector(msg.readFloat(), msg.readFloat());
                 entity.vel = new Vector(msg.readFloat(), msg.readFloat());
             }
             entity.score = msg.readFloat();
@@ -182,6 +182,8 @@ const socketOnMessage = async ({data}) => {
             obj.showHealth = msg.readBoolean();
             obj.showName = msg.readBoolean();
             obj.showScore = msg.readBoolean();
+
+            obj.fov = msg.readFloat();
 
             obj.name = msg.readString();
 
@@ -420,6 +422,8 @@ function drawEntityShape(obj) {
 }
 
 const correction = (entity, deltaTick, t) => {
+    if (!entity.vel) return;
+
     const interpolationFactor = deltaTick * (world.tick / t);
     const velocityMagnitude = Math.sqrt(entity.vel.x * entity.vel.x + entity.vel.y * entity.vel.y);
 
