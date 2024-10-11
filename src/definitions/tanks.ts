@@ -113,6 +113,29 @@ Class.Wall = {
     color: Color.LightGrey,
 };
 
+Class.Food = {
+    sides: 4,
+    size: 10,
+    showHealth: true,
+    showName: false,
+    showScore: false,
+    giveScore: true,
+    skill: {
+        speed: 0.2,
+        health: 40,
+        regen: 0.1,
+        damage: 0.1,
+        pen: 1,
+        range: null,
+        pushability: 1,
+    },
+    score: 1000,
+    food: true,
+    guns: [],
+    color: Color.Gold,
+    controllers: [new CircleMove()],
+};
+
 Class.bot = {
     sides: 5,
     size: 15,

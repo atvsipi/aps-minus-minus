@@ -74,3 +74,14 @@ setInterval(() => {
 
     room.insert(entity);
 }
+
+setInterval(() => {
+    if (room.entities.size < 50) {
+        const entity = new Entity();
+
+        entity.init(EntityClass.Food);
+        entity.pos = new Vector(RoomConfig.width * Math.random(), RoomConfig.height * Math.random());
+
+        room.insert(entity);
+    }
+}, 5000);
