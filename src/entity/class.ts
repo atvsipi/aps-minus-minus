@@ -5,6 +5,41 @@ import {Controller} from './controller';
 import {EntitySetting} from './entity';
 import {GunSetting} from './gun';
 
+export interface GunClassType {
+    offset?: number;
+    direction?: number;
+    length?: number;
+    width?: number;
+    aspect?: number;
+    angle?: number;
+    color?: Color | string;
+    border?: Color | string;
+    strokeWidth?: number;
+    alpha?: number;
+    layer?: number;
+    properties?: {
+        type?: string;
+        autofire?: boolean;
+        altFire?: boolean;
+        delaySpawn?: number;
+        maxChildren?: false | number;
+        independentChildren?: boolean;
+        destroyOldestChild?: boolean;
+        controllers?: Controller[];
+        skill?: {
+            reload?: number;
+            recoil?: number;
+            size?: number;
+            health?: number;
+            damage?: number;
+            pen?: number;
+            speed?: number;
+            range?: number;
+            spray?: number;
+        };
+    };
+}
+
 export interface ClassType {
     parent?: string;
     showHealth?: boolean;
@@ -34,40 +69,7 @@ export interface ClassType {
     };
     color?: Color | string;
     border?: Color | string;
-    guns?: {
-        offset?: number;
-        direction?: number;
-        length?: number;
-        width?: number;
-        aspect?: number;
-        angle?: number;
-        color?: Color | string;
-        border?: Color | string;
-        strokeWidth?: number;
-        alpha?: number;
-        layer?: number;
-        properties?: {
-            type?: string;
-            autofire?: boolean;
-            altFire?: boolean;
-            delaySpawn?: number;
-            maxChildren?: false | number;
-            independentChildren?: boolean;
-            destroyOldestChild?: boolean;
-            controllers?: Controller[];
-            skill?: {
-                reload?: number;
-                recoil?: number;
-                size?: number;
-                health?: number;
-                damage?: number;
-                pen?: number;
-                speed?: number;
-                range?: number;
-                spray?: number;
-            };
-        };
-    }[];
+    guns?: GunClassType[];
 }
 
 export interface ProcessedClass extends EntitySetting {

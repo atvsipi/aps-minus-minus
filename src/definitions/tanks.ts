@@ -1,83 +1,46 @@
-import {Class} from '../entity/class';
+import {Class, GunClassType} from '../entity/class';
 import {CircleMove, GoToMasterTarget, MasterCircleMove, Nearest} from '../entity/controller';
 import {Color} from './color';
 
-Class.Player = {
-    sides: 0,
-    guns: [
-        {
-            offset: -5,
-            direction: 0,
-            length: 15,
-            width: 36,
-            aspect: 1.2,
-            angle: 0,
-            color: Color.LightGrey,
-            border: Color.AutoBorder,
-            strokeWidth: 4,
-            alpha: 1,
-            layer: -1,
-            properties: {
-                type: 'Drone',
-                autofire: true,
-                altFire: false,
-                delaySpawn: 0,
-                maxChildren: 3,
-                independentChildren: false,
-                destroyOldestChild: false,
-                skill: {
-                    reload: 2,
-                    recoil: 1,
-                    size: 2,
-                    health: 1,
-                    damage: 30,
-                    pen: 1,
-                    speed: 3,
-                    range: null,
-                    spray: 1,
-                },
+function makeOverLordGun(angle: number): GunClassType {
+    return {
+        offset: -5,
+        direction: 0,
+        length: 14,
+        width: 32,
+        aspect: 1.2,
+        angle: angle,
+        color: Color.LightGrey,
+        border: Color.AutoBorder,
+        strokeWidth: 4,
+        alpha: 1,
+        layer: -1,
+        properties: {
+            type: 'Drone',
+            autofire: true,
+            altFire: false,
+            delaySpawn: 0,
+            maxChildren: 2,
+            independentChildren: false,
+            destroyOldestChild: false,
+            skill: {
+                reload: 2,
+                recoil: 1,
+                size: 2,
+                health: 1,
+                damage: 30,
+                pen: 1,
+                speed: 3,
+                range: null,
+                spray: 1,
             },
         },
-        {
-            offset: 0,
-            direction: 0,
-            length: 20,
-            width: 18,
-            aspect: 1,
-            angle: Math.PI / 2,
-            color: Color.LightGrey,
-            border: Color.AutoBorder,
-            strokeWidth: 4,
-            alpha: 1,
-            layer: -1,
-        },
-        {
-            offset: 0,
-            direction: 0,
-            length: 20,
-            width: 18,
-            aspect: 1,
-            angle: Math.PI,
-            color: Color.LightGrey,
-            border: Color.AutoBorder,
-            strokeWidth: 4,
-            alpha: 1,
-            layer: -1,
-        },
-        {
-            offset: 0,
-            direction: 0,
-            length: 20,
-            width: 18,
-            aspect: 1,
-            angle: Math.PI * 1.5,
-            color: Color.LightGrey,
-            border: Color.AutoBorder,
-            strokeWidth: 4,
-            alpha: 1,
-            layer: -1,
-        },
-    ],
+    };
+}
+
+Class.Player = {
+    sides: 0,
+    guns: [makeOverLordGun(0), makeOverLordGun(Math.PI / 2), makeOverLordGun(Math.PI), makeOverLordGun(Math.PI * 1.5)],
 };
 
 Class.Bullet = {
