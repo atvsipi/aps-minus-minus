@@ -132,9 +132,7 @@ export class Gun {
     }
 
     public firing() {
-        this.body.children = this.body.children.filter((entity) => !entity.die);
-
-        if (this.maxChildren !== false && this.maxChildren <= this.children.filter(Boolean).length) {
+        if (this.maxChildren !== false && this.maxChildren <= this.children.filter((entity) => !entity.die).filter(Boolean).length) {
             if (this.setting.properties.destroyOldestChild) {
                 const entity = this.children[0];
 
