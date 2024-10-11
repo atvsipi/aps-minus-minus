@@ -159,8 +159,10 @@ export function message(uuid: string, data: Uint8Array, send: (msg: Uint8Array |
                 if (msg.readBoolean()) {
                     user.body.control.fire = true;
                     user.body.control.target = new Vector(msg.readFloat(), msg.readFloat());
+                    user.body.source = user.body.control.target.clone();
                 } else {
                     user.body.control.fire = false;
+                    user.body.source = null;
                 }
                 break;
             }
@@ -312,8 +314,10 @@ setInterval(() => {
 
             if (!isEntityVisible(entity, obj)) continue;
 
-            if (entity.lastSend.angle === entity.angle && entity.lastSend.size === entity.size && !entity.active && entity.tick > 10) entity.lastSend.angle = entity.angle;
-            entity.lastSend.size = entity.size;
+            /*if (entity.lastSend.angle === entity.angle && entity.lastSend.size === entity.size && !entity.active && entity.tick > 10) {
+                entity.lastSend.angle = entity.angle;
+                entity.lastSend.size = entity.size;
+            }*/
 
             msg.reset();
 

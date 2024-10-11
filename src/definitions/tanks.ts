@@ -1,5 +1,5 @@
 import {Class} from '../entity/class';
-import {CircleMove, Nearest} from '../entity/controller';
+import {CircleMove, GoToMasterTarget, MasterCircleMove, Nearest} from '../entity/controller';
 import {Color} from './color';
 
 Class.Player = {
@@ -8,9 +8,9 @@ Class.Player = {
         {
             offset: -5,
             direction: 0,
-            length: 30,
+            length: 15,
             width: 36,
-            aspect: 1,
+            aspect: 1.2,
             angle: 0,
             color: Color.LightGrey,
             border: Color.AutoBorder,
@@ -18,11 +18,11 @@ Class.Player = {
             alpha: 1,
             layer: -1,
             properties: {
-                type: 'Bullet',
+                type: 'Drone',
                 autofire: false,
                 altFire: false,
                 delaySpawn: 0,
-                maxChildren: false,
+                maxChildren: 3,
                 independentChildren: false,
                 destroyOldestChild: false,
                 skill: {
@@ -33,7 +33,7 @@ Class.Player = {
                     damage: 30,
                     pen: 1,
                     speed: 3,
-                    range: 2,
+                    range: null,
                     spray: 1,
                 },
             },
@@ -84,7 +84,19 @@ Class.Bullet = {
     showHealth: false,
     showName: false,
     showScore: false,
+    giveScore: false,
     sides: 0,
+    size: 5,
+    bullet: true,
+};
+
+Class.Drone = {
+    showHealth: false,
+    showName: false,
+    showScore: false,
+    giveScore: false,
+    sides: 3,
+    controllers: [new MasterCircleMove(), new GoToMasterTarget()],
     size: 5,
     bullet: true,
 };

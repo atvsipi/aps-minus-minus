@@ -100,7 +100,7 @@ const defaultEntity: ProcessedClass = {
         pen: 10,
         range: null,
         pushability: 1,
-        fov: 800,
+        fov: 300,
     },
     color: Color.TeamColor,
     border: Color.AutoBorder,

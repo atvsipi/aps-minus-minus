@@ -59,8 +59,10 @@ export class RoomLoop extends EventEmitter {
         other.emit('damage', entity.setting.skill.damage);
         if (other.health <= 0) {
             other.emit('dead', entity);
+
+            if (!other.die) this.giveScore(entity, other);
+
             this.remove(other);
-            this.giveScore(entity, other);
         }
 
         if (!god) {
@@ -68,8 +70,10 @@ export class RoomLoop extends EventEmitter {
             entity.emit('damage', other.setting.skill.damage);
             if (entity.health <= 0) {
                 entity.emit('dead', other);
+
+                if (!entity.die) this.giveScore(other, entity);
+
                 this.remove(entity);
-                this.giveScore(other, entity);
             }
         }
     }
@@ -94,6 +98,7 @@ export class RoomLoop extends EventEmitter {
                 if (other.pos.x < max.x && other.pos.x > min.x) {
                     if (other.pos.y < max.y && other.pos.y > min.y) {
                         if (other.setting.bullet) {
+                            other.emit('dead');
                             room.remove(other);
 
                             continue;

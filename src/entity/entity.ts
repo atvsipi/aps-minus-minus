@@ -100,6 +100,19 @@ export class Entity extends EventEmitter {
         power: 1,
     };
 
+    private _source: Vector | null;
+
+    public set source(value: Vector | null) {
+        if (this.setting.independent || !this.master) this._source = value;
+        else this.master.source = value;
+    }
+
+    public get source(): Vector | null {
+        if (this.setting.independent || !this.master) return this._source;
+
+        return this.master.source;
+    }
+
     public setting: EntitySetting = {
         showHealth: true,
         showName: true,
@@ -154,6 +167,18 @@ export class Entity extends EventEmitter {
 
     public get mass() {
         return this.size * this.setting.mass;
+    }
+
+    public get isMaster() {
+        if (this.setting.independent || !this.master) return true;
+
+        return false;
+    }
+
+    public get masterPos(): Vector {
+        if (this.setting.independent || !this.master) return this.pos;
+
+        return this.master.masterPos;
     }
 
     constructor() {

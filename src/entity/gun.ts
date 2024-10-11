@@ -35,7 +35,7 @@ export interface GunSetting {
             damage: number;
             pen: number;
             speed: number;
-            range: number;
+            range: number | null;
             spray: number;
         };
     };
@@ -181,9 +181,10 @@ export class Gun {
 
             this.body.vel.sub(new Vector(angle).mult(this.setting.properties.skill.speed / 10));
 
-            setTimeout(() => {
-                room.remove(bullet);
-            }, this.setting.properties.skill.range * 1000);
+            if (this.setting.properties.skill.range)
+                setTimeout(() => {
+                    room.remove(bullet);
+                }, this.setting.properties.skill.range * 1000);
         }
     }
 
