@@ -31,25 +31,30 @@ export function message(uuid: string, data: Uint8Array, send: (msg: Uint8Array |
         switch (msg.readUint()) {
             // Spawn request
             case 0: {
-                const entity = new Entity();
+                let entity: Entity;
+                if (users.has(uuid)) {
+                    entity = users.get(uuid).body;
+                } else {
+                    entity = new Entity();
 
-                entity.init(EntityClass.Player);
+                    entity.init(EntityClass.Player);
 
-                entity.socket = {
-                    send,
-                    sendMsg(str: string) {
-                        const msg = new Protocol.Writer();
+                    entity.socket = {
+                        send,
+                        sendMsg(str: string) {
+                            const msg = new Protocol.Writer();
 
-                        msg.writeUint(7);
-                        msg.writeString(str);
+                            msg.writeUint(7);
+                            msg.writeString(str);
 
-                        send(msg.make());
-                    },
-                };
+                            send(msg.make());
+                        },
+                    };
 
-                RoomConfig.spawn(entity);
+                    RoomConfig.spawn(entity);
 
-                room.insert(entity);
+                    room.insert(entity);
+                }
 
                 users.set(uuid, {
                     body: entity,

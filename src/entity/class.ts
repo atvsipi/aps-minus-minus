@@ -96,7 +96,7 @@ const defaultEntity: ProcessedClass = {
         speed: 0.5,
         health: 100,
         regen: 1,
-        damage: 1,
+        damage: 3,
         pen: 10,
         range: null,
         pushability: 1,
