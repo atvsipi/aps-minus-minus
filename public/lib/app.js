@@ -3,8 +3,23 @@ import {Reader, Writer} from './protocol.js';
 import {RGBColor} from './rgb.js';
 import {Team, TeamColor} from './team.js';
 import {Vector} from './vector.js';
+import {joysticks, drawJoystick} from './mobile.js';
+
+const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
 const fadeDuration = 250;
+
+// DEBUG
+let totalDataSize = 0;
+let dataCount = 0;
+let lastUpdate = performance.now();
+let avgDataSize = 0;
+let dataRate = 0;
+// END
+
+// MOBILE
+let coordinate = new Vector(0, 0);
+// END
 
 let entity;
 const entities = new Set();
@@ -78,7 +93,22 @@ const socketOnMessage = async ({data}) => {
 
     if (typeof data === 'string') throw new Error(data);
 
-    const msg = new Reader(await data.arrayBuffer());
+    const buffer = await data.arrayBuffer();
+
+    const msg = new Reader(buffer);
+    totalDataSize += buffer.byteLength;
+    dataCount++;
+
+    const currentTime = performance.now();
+
+    if (currentTime - lastUpdate >= 1000) {
+        avgDataSize = totalDataSize / dataCount;
+        dataRate = totalDataSize / ((currentTime - lastUpdate) / 1000);
+
+        totalDataSize = 0;
+        dataCount = 0;
+        lastUpdate = currentTime;
+    }
 
     switch (msg.readUint()) {
         case 0:
@@ -247,33 +277,39 @@ socket.onopen = () => {
 
 let isFiring = false;
 
-canvas.addEventListener('mousemove', ({clientX, clientY}) => {
-    const x = clientX - canvas.width / 2;
-    const y = clientY - canvas.height / 2;
+if (!mobile) {
+    canvas.addEventListener('mousemove', ({clientX, clientY}) => {
+        const rect = canvas.getBoundingClientRect();
 
-    if (isFiring) {
+        const x = (clientX - rect.left - canvas.width / 2) / zoom;
+        const y = (clientY - rect.top - canvas.height / 2) / zoom;
+
+        if (isFiring) {
+            socket.send(new Writer().writeUint(4).writeBoolean(true).writeFloat(x).writeFloat(y).make());
+        }
+
+        const angle = Math.atan2(y, x);
+
+        socket.send(new Writer().writeUint(3).writeFloat(angle).make());
+    });
+
+    canvas.addEventListener('mousedown', ({clientX, clientY}) => {
+        const rect = canvas.getBoundingClientRect();
+
+        const x = (clientX - rect.left - canvas.width / 2) / zoom;
+        const y = (clientY - rect.top - canvas.height / 2) / zoom;
+
+        isFiring = true;
+
         socket.send(new Writer().writeUint(4).writeBoolean(true).writeFloat(x).writeFloat(y).make());
-    }
+    });
 
-    const angle = Math.atan2(y, x);
+    canvas.addEventListener('mouseup', () => {
+        isFiring = false;
 
-    socket.send(new Writer().writeUint(3).writeFloat(angle).make());
-});
-
-canvas.addEventListener('mousedown', ({clientX, clientY}) => {
-    const x = clientX - canvas.width / 2;
-    const y = clientY - canvas.height / 2;
-
-    isFiring = true;
-
-    socket.send(new Writer().writeUint(4).writeBoolean(true).writeFloat(x).writeFloat(y).make());
-});
-
-canvas.addEventListener('mouseup', () => {
-    isFiring = false;
-
-    socket.send(new Writer().writeUint(4).writeBoolean(false).make());
-});
+        socket.send(new Writer().writeUint(4).writeBoolean(false).make());
+    });
+}
 
 window.socket = socket;
 
@@ -421,6 +457,17 @@ function drawEntityShape(obj) {
     }
 }
 
+const renderDataInfo = () => {
+    ctx.save();
+    ctx.globalAlpha = 1;
+    ctx.font = '12px Arial';
+    ctx.fillStyle = Color.Black;
+    ctx.textAlign = 'right';
+    ctx.fillText(`Server Tick: ${world.tick.toFixed(2)}`, canvas.width - 10, canvas.height - 30);
+    ctx.fillText(`Data Rate: ${dataRate > 0 ? (dataRate / 1024).toFixed(2) : '0'} KB/s`, canvas.width - 10, canvas.height - 15);
+    ctx.restore();
+};
+
 const correction = (entity, deltaTick, t) => {
     if (!entity.vel) return;
 
@@ -533,6 +580,45 @@ const render = (timestamp) => {
         }
 
         ctx.restore();
+
+        renderDataInfo();
+
+        if (mobile) {
+            drawJoystick();
+
+            if (joysticks[1].currentX !== 0 || joysticks[1].currentY !== 0) {
+                const padding = joysticks[1].radius - joysticks[1].innerRadius;
+
+                const maxDimension = Math.max(canvas.width, canvas.height);
+
+                const scaleFactor = maxDimension / (joysticks[1].radius * 2);
+
+                coordinate.x = Math.max(0, Math.min(joysticks[1].currentX * scaleFactor + canvas.width / 2, canvas.width));
+                coordinate.y = Math.max(0, Math.min(joysticks[1].currentY * scaleFactor + canvas.height / 2, canvas.height));
+            }
+
+            const lineLength = 20;
+
+            ctx.save();
+
+            ctx.lineWidth = 4;
+            ctx.globalAlpha = 0.7;
+
+            ctx.beginPath();
+            ctx.strokeStyle = Color.Black;
+            ctx.moveTo(coordinate.x - lineLength / 2, coordinate.y);
+            ctx.lineTo(coordinate.x + lineLength / 2, coordinate.y);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.strokeStyle = Color.Black;
+            ctx.moveTo(coordinate.x, coordinate.y - lineLength / 2);
+            ctx.lineTo(coordinate.x, coordinate.y + lineLength / 2);
+            ctx.stroke();
+
+            ctx.globalAlpha = 1;
+            ctx.restore();
+        }
     } else {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 

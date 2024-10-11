@@ -80,6 +80,8 @@ export class Nearest extends Controller {
 
             if (entity.setting.isFixed) continue;
 
+            if (!Entity.isEntityVisible(this.entity, entity)) continue;
+
             const distance = Vector.distance(this.entity.pos, entity.pos);
 
             if (distance < diff) {
@@ -111,6 +113,7 @@ export class Nearest extends Controller {
             main: true,
             fire: true,
             alt: false,
+            power: 1,
         };
     }
 }
@@ -123,9 +126,9 @@ export class CircleMove extends Controller {
 
     public think(): ControllerThink {
         if (this.isThinkTime()) {
-            this.target = new Vector(5, 5).addAngle(this.angle);
+            this.target = new Vector(30, 30).addAngle(this.angle);
 
-            this.angle -= Math.PI / 60;
+            this.angle -= 0.03;
         }
 
         return {
@@ -134,7 +137,7 @@ export class CircleMove extends Controller {
             main: true,
             fire: false,
             alt: false,
-            power: 0.1,
+            power: 0.05,
         };
     }
 }
@@ -145,25 +148,22 @@ export class MasterCircleMove extends Controller {
     protected angle: number = Math.random() * Math.PI * 2;
     protected target: Vector = new Vector(0, 0);
 
+    protected restCycle: boolean = false;
+
     public think(): ControllerThink {
         if (this.isThinkTime()) {
-            this.target = this.entity.masterPos.clone().add(new Vector(30, 0).rotate(this.angle));
-
-            /*const master = this.entity.masterPos;
-            this.target = master.clone().add(new Vector(30, 30).rotate(this.angle));
-
-            this.target = master.clone().add(new Vector().add(30).addAngle(this.angle).mult(0.02)).sub(this.entity.pos);*/
+            this.target = this.entity.pos.clone().sub(this.entity.masterPos).add({x: 3, y: 0}).rotate(this.angle);
 
             this.angle -= Math.PI / 100;
         }
 
         return {
-            target: this.target.clone(),
+            target: this.target.clone().add(this.entity.masterPos).sub(this.entity.pos),
             goal: null,
             main: true,
             fire: false,
             alt: false,
-            power: 0.1,
+            power: 0.01,
         };
     }
 }
@@ -187,7 +187,7 @@ export class GoToMasterTarget extends Controller {
             main: true,
             fire: false,
             alt: false,
-            power: 0.1,
+            power: 0.8,
         };
     }
 }

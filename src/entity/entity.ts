@@ -295,4 +295,11 @@ export class Entity extends EventEmitter {
     public static isSameTeam(entity: Entity, other: Entity) {
         return entity.team === other.team && ((entity.team2 === 0 && other.team2 === 0) || entity.team2 === other.team2);
     }
+
+    public static isEntityVisible(entity: Entity, other: Entity): boolean {
+        const distance = Vector.distance(entity.pos, other.pos);
+        const fov = entity.setting.skill.fov + (entity.size + other.size) / 2;
+
+        return distance <= fov;
+    }
 }

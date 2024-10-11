@@ -186,13 +186,6 @@ export function close(uuid: string) {
     }
 }
 
-function isEntityVisible(entity: Entity, other: Entity): boolean {
-    const distance = Vector.distance(entity.pos, other.pos);
-    const fov = entity.setting.skill.fov + (entity.size + other.size) / 2;
-
-    return distance <= fov;
-}
-
 function EntityInfo(entity: Entity, msg: Protocol.Writer) {
     msg.writeUint(entity.id);
 
@@ -312,7 +305,7 @@ setInterval(() => {
         for (const obj of room.entities) {
             if (obj === entity) continue;
 
-            if (!isEntityVisible(entity, obj)) continue;
+            if (!Entity.isEntityVisible(entity, obj)) continue;
 
             /*if (entity.lastSend.angle === entity.angle && entity.lastSend.size === entity.size && !entity.active && entity.tick > 10) {
                 entity.lastSend.angle = entity.angle;

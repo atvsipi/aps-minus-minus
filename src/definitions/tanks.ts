@@ -19,7 +19,7 @@ Class.Player = {
             layer: -1,
             properties: {
                 type: 'Drone',
-                autofire: false,
+                autofire: true,
                 altFire: false,
                 delaySpawn: 0,
                 maxChildren: 3,
@@ -95,8 +95,9 @@ Class.Drone = {
     showName: false,
     showScore: false,
     giveScore: false,
+    skill: {speed: 0.3, fov: 100},
     sides: 3,
-    controllers: [new MasterCircleMove(), new GoToMasterTarget()],
+    controllers: [new MasterCircleMove(), new Nearest(), new GoToMasterTarget()],
     size: 5,
     bullet: true,
 };
