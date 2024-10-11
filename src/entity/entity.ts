@@ -84,6 +84,7 @@ export class Entity extends EventEmitter {
     public angle: number = 0;
 
     public move = new Set<0 | 1 | 2 | 3>();
+    public moveAngle: null | number = null;
     public control: {
         target: Vector | null;
         goal: Vector | null;
@@ -262,24 +263,28 @@ export class Entity extends EventEmitter {
                     .mult(speed * (this.control.power || 1)),
             );
         } else {
-            for (const move of this.move) {
-                switch (move) {
-                    case 0:
-                        this.vel.add({x: 0, y: -speed});
-                        break;
+            if (this.move.size > 0) {
+                for (const move of this.move) {
+                    switch (move) {
+                        case 0:
+                            this.vel.add({x: 0, y: -speed});
+                            break;
 
-                    case 1:
-                        this.vel.add({x: 0, y: speed});
-                        break;
+                        case 1:
+                            this.vel.add({x: 0, y: speed});
+                            break;
 
-                    case 2:
-                        this.vel.add({x: -speed, y: 0});
-                        break;
+                        case 2:
+                            this.vel.add({x: -speed, y: 0});
+                            break;
 
-                    case 3:
-                        this.vel.add({x: speed, y: 0});
-                        break;
+                        case 3:
+                            this.vel.add({x: speed, y: 0});
+                            break;
+                    }
                 }
+            } else if (this.moveAngle !== null) {
+                this.vel.add(new Vector(1, 1).addAngle(this.moveAngle).normalize().mult(speed));
             }
         }
 

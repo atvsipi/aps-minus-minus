@@ -17,6 +17,7 @@ export const joysticks = [
         currentX: 0,
         currentY: 0,
         active: false,
+        on(event) {},
     },
     {
         get x() {
@@ -31,6 +32,7 @@ export const joysticks = [
         currentX: 0,
         currentY: 0,
         active: false,
+        on(event) {},
     },
 ];
 
@@ -69,6 +71,7 @@ function handleTouchStart(event) {
             if (dist <= joystick.innerRadius) {
                 joystick.touchId = touch.identifier;
                 joystick.active = true;
+                joystick.on('move');
             }
         }
     }
@@ -90,6 +93,8 @@ function handleTouchMove(event) {
                     joystick.currentX = Math.cos(angle) * joystick.radius;
                     joystick.currentY = Math.sin(angle) * joystick.radius;
                 }
+
+                joystick.on('move');
             }
         }
     }
@@ -103,6 +108,8 @@ function handleTouchEnd(event) {
                 joystick.currentX = 0;
                 joystick.currentY = 0;
                 joystick.active = false;
+
+                joystick.on('end');
             }
         }
     }

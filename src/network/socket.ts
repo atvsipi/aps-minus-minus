@@ -167,6 +167,18 @@ export function message(uuid: string, data: Uint8Array, send: (msg: Uint8Array |
                 break;
             }
 
+            // Angle move
+            case 5: {
+                if (!users.has(uuid)) break;
+
+                const user = users.get(uuid);
+
+                if (!user.body) break;
+
+                user.body.moveAngle = msg.readBoolean() ? msg.readFloat() : null;
+                break;
+            }
+
             default:
                 send("I can't understand :(");
                 break;

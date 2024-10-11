@@ -309,6 +309,31 @@ if (!mobile) {
 
         socket.send(new Writer().writeUint(4).writeBoolean(false).make());
     });
+} else {
+    joysticks[0].on = (event) => {
+        if (event === 'move') {
+            const angle = Math.atan2(joysticks[0].currentY, joysticks[0].currentX);
+
+            socket.send(new Writer().writeUint(5).writeBoolean(true).writeFloat(angle).make());
+        } else {
+            socket.send(new Writer().writeUint(5).writeBoolean(false).make());
+        }
+    };
+
+    joysticks[1].on = (event) => {
+        if (event === 'move') {
+            const rect = canvas.getBoundingClientRect();
+
+            const x = (coordinate.x - rect.left - canvas.width / 2) / zoom;
+            const y = (coordinate.y - rect.top - canvas.height / 2) / zoom;
+            const angle = Math.atan2(y, x);
+
+            socket.send(new Writer().writeUint(4).writeBoolean(true).writeFloat(x).writeFloat(y).make());
+            socket.send(new Writer().writeUint(3).writeFloat(angle).make());
+        } else {
+            socket.send(new Writer().writeUint(4).writeBoolean(false).make());
+        }
+    };
 }
 
 window.socket = socket;
