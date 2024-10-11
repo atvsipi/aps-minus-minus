@@ -3,7 +3,8 @@
     "module": "src/index.ts",
     "type": "module",
     "scripts": {
-        "dev": "bun --hot src/index.ts"
+        "dev": "PORT=3003 bun --watch src/index.ts",
+        "start": "bun --watch src/index.ts"
     },
     "devDependencies": {
         "@types/bun": "^1.1.10"

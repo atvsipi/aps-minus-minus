@@ -14,8 +14,10 @@ import {Vector} from './physics/vector';
 import {Nearest} from './entity/controller';
 import {Team} from './definitions/team';
 
-Listen(3003, () => {
-    Logger.success('Web server is listen on 3003!');
+const port = +(process.env.PORT as string) || 80;
+
+Listen(port, () => {
+    Logger.success('Web server is listen on ' + port + '!');
 });
 
 setInterval(() => {

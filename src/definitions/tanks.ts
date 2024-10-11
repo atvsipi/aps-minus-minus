@@ -95,7 +95,7 @@ Class.Drone = {
     showName: false,
     showScore: false,
     giveScore: false,
-    skill: {speed: 0.3, fov: 100},
+    skill: {speed: 0.3, fov: 300},
     sides: 3,
     controllers: [new MasterCircleMove(), new Nearest(), new GoToMasterTarget()],
     size: 5,
