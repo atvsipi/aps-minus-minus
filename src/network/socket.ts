@@ -32,29 +32,29 @@ export function message(uuid: string, data: Uint8Array, send: (msg: Uint8Array |
             // Spawn request
             case 0: {
                 let entity: Entity;
-                if (users.has(uuid)) {
+                /*if (users.has(uuid)) {
                     entity = users.get(uuid).body;
-                } else {
-                    entity = new Entity();
+                } else {*/
+                entity = new Entity();
 
-                    entity.init(EntityClass.Player);
+                entity.init(EntityClass.Player);
 
-                    entity.socket = {
-                        send,
-                        sendMsg(str: string) {
-                            const msg = new Protocol.Writer();
+                RoomConfig.spawn(entity);
 
-                            msg.writeUint(7);
-                            msg.writeString(str);
+                room.insert(entity);
+                //}
 
-                            send(msg.make());
-                        },
-                    };
+                entity.socket = {
+                    send,
+                    sendMsg(str: string) {
+                        const msg = new Protocol.Writer();
 
-                    RoomConfig.spawn(entity);
+                        msg.writeUint(7);
+                        msg.writeString(str);
 
-                    room.insert(entity);
-                }
+                        send(msg.make());
+                    },
+                };
 
                 users.set(uuid, {
                     body: entity,
