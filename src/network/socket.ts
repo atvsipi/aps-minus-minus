@@ -12,6 +12,7 @@ const users = new Map<
     string,
     {
         body?: Entity;
+        timeout?: number;
         send: (msg: Uint8Array | string) => void;
     }
 >();
@@ -32,17 +33,17 @@ export function message(uuid: string, data: Uint8Array, send: (msg: Uint8Array |
             // Spawn request
             case 0: {
                 let entity: Entity;
-                /*if (users.has(uuid)) {
-                    entity = users.get(uuid).body;
-                } else {*/
-                entity = new Entity();
+                if (users.has(uuid) && !(entity = users.get(uuid).body).die) {
+                    users.get(uuid).timeout = 0;
+                } else {
+                    entity = new Entity();
 
-                entity.init(EntityClass.Player);
+                    entity.init(EntityClass.Player);
 
-                RoomConfig.spawn(entity);
+                    RoomConfig.spawn(entity);
 
-                room.insert(entity);
-                //}
+                    room.insert(entity);
+                }
 
                 entity.socket = {
                     send,
@@ -198,9 +199,7 @@ export function isValidUUID(uuid: string) {
 }
 
 export function close(uuid: string) {
-    if (users.has(uuid)) {
-        room.remove(users.get(uuid).body);
-    }
+    if (users.has(uuid)) users.get(uuid).timeout = performance.now();
 }
 
 function EntityInfo(entity: Entity, msg: Protocol.Writer) {
@@ -300,6 +299,12 @@ setInterval(() => {
     const changed = new Set<Entity>();
     for (const user of users) {
         const entity = user[1].body;
+
+        if (user[1].timeout && user[1].timeout > RoomConfig.socketTimeout) {
+            room.remove(entity);
+
+            continue;
+        }
 
         const msg = new Protocol.Writer();
 

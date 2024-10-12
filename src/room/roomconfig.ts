@@ -6,6 +6,7 @@ export const RoomConfig = {
     tick: 1000 / 60,
     runSpeed: 1.2,
     maxGiveScore: 99999999,
+    socketTimeout: 1000 * 60,
     spawn(entity: Entity) {
         entity.pos.x = Math.random() * this.height;
         entity.pos.y = Math.random() * this.width;

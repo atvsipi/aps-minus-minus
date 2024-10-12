@@ -15,6 +15,11 @@ let dataCount = 0;
 let lastUpdate = performance.now();
 let avgDataSize = 0;
 let dataRate = 0;
+let lastRenderTime = 0;
+let totalFps = 0;
+let fps = 0;
+let renderCount = 0;
+let lastRenderUpdate = performance.now();
 // END
 
 // MOBILE
@@ -483,14 +488,15 @@ function drawEntityShape(obj) {
 }
 
 const renderDataInfo = () => {
-    ctx.save();
-    ctx.globalAlpha = 1;
-    ctx.font = '12px Arial';
-    ctx.fillStyle = Color.Black;
-    ctx.textAlign = 'right';
-    ctx.fillText(`Server Tick: ${world.tick.toFixed(2)}`, canvas.width - 10, canvas.height - 30);
-    ctx.fillText(`Data Rate: ${dataRate > 0 ? (dataRate / 1024).toFixed(2) : '0'} KB/s`, canvas.width - 10, canvas.height - 15);
-    ctx.restore();
+    const textSize = 12;
+
+    drawText(`Client FPS: ${fps.toFixed(2)} fps`, fps < 60 ? Color.Red : Color.Black, Color.White, textSize, {x: canvas.width - 10, y: canvas.height - 60}, 'right');
+
+    drawText(`Server Tick: ${world.tick.toFixed(2)}`, Color.Black, Color.White, textSize, {x: canvas.width - 10, y: canvas.height - 45}, 'right');
+
+    drawText(`Average Data Size: ${avgDataSize.toFixed(2)} bytes`, Color.Black, Color.White, textSize, {x: canvas.width - 10, y: canvas.height - 30}, 'right');
+
+    drawText(`Data Rate: ${dataRate > 0 ? (dataRate / 1024).toFixed(2) : '0'} kb/s`, Color.Black, Color.White, textSize, {x: canvas.width - 10, y: canvas.height - 15}, 'right');
 };
 
 const correction = (entity, deltaTick, t) => {
@@ -523,6 +529,21 @@ const render = (timestamp) => {
             if (diff < 0.01) zoom = fov;
             else if (zoom < fov) zoom += diff / 70;
             else zoom -= diff / 70;
+        }
+
+        const deltaTime = timestamp - lastRenderTime;
+        lastRenderTime = timestamp;
+
+        totalFps += 1000 / deltaTime;
+
+        renderCount++;
+
+        if (performance.now() - lastRenderUpdate >= 1000) {
+            fps = totalFps / renderCount;
+
+            renderCount = 0;
+            totalFps = 0;
+            lastRenderUpdate = performance.now();
         }
 
         const t = performance.now() - timestamp;
