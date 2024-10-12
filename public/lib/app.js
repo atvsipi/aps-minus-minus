@@ -374,8 +374,6 @@ const drawGun = (entity, gun) => {
 };
 
 function drawText(text, color, border, size, pos, align = 'start') {
-    ctx.save();
-
     ctx.fillStyle = color;
     if (border) ctx.strokeStyle = border;
 
@@ -391,8 +389,6 @@ function drawText(text, color, border, size, pos, align = 'start') {
         if (border) ctx.strokeText(text, pos.x, pos.y);
         ctx.fillText(text, pos.x, pos.y);
     }
-
-    ctx.restore();
 }
 
 function drawPolygon(entity) {
@@ -487,8 +483,35 @@ function drawEntityShape(obj) {
     }
 }
 
+function drawEntityShapeToOffscreenCanvas(offscreenCanvas, offscreenCtx, obj) {
+    offscreenCtx.clearRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
+
+    const {hp, size, score, name, angle, ...rest} = obj;
+    const modifiedObj = {...rest, size: 1, angle: 0};
+
+    offscreenCtx.beginPath();
+
+    if (Array.isArray(modifiedObj.sides)) {
+        drawPolygon(modifiedObj);
+    } else if (typeof modifiedObj.sides === 'string') {
+        drawPath(modifiedObj);
+    } else if (!modifiedObj.sides) {
+        drawCircle(modifiedObj);
+    } else if (modifiedObj.sides < 0) {
+        drawStar(modifiedObj);
+    } else if (modifiedObj.sides > 0) {
+        drawRegularPolygon(modifiedObj);
+    }
+
+    offscreenCtx.fill();
+    offscreenCtx.stroke();
+    offscreenCtx.closePath();
+}
+
 const renderDataInfo = () => {
     const textSize = 12;
+
+    ctx.save();
 
     drawText(`Client FPS: ${fps.toFixed(2)} fps`, fps < 60 ? Color.Red : Color.Black, Color.White, textSize, {x: canvas.width - 10, y: canvas.height - 60}, 'right');
 
@@ -497,6 +520,8 @@ const renderDataInfo = () => {
     drawText(`Average Data Size: ${avgDataSize.toFixed(2)} bytes`, Color.Black, Color.White, textSize, {x: canvas.width - 10, y: canvas.height - 30}, 'right');
 
     drawText(`Data Rate: ${dataRate > 0 ? (dataRate / 1024).toFixed(2) : '0'} kb/s`, Color.Black, Color.White, textSize, {x: canvas.width - 10, y: canvas.height - 15}, 'right');
+
+    ctx.restore();
 };
 
 const correction = (entity, deltaTick, t) => {

@@ -9,7 +9,7 @@ export const joysticks = [
             return canvas.width * 0.2;
         },
         get y() {
-            return canvas.height * 0.5;
+            return canvas.height * 0.7;
         },
         radius: 50,
         innerRadius: 25,
@@ -24,7 +24,7 @@ export const joysticks = [
             return canvas.width * 0.8;
         },
         get y() {
-            return canvas.height * 0.5;
+            return canvas.height * 0.7;
         },
         radius: 50,
         innerRadius: 25,
@@ -37,28 +37,25 @@ export const joysticks = [
 ];
 
 export function drawJoystick() {
-    ctx.save();
+    ctx.globalAlpha = 0.2;
+    ctx.fillStyle = Color.Black;
 
     for (const joystick of joysticks) {
+        ctx.globalAlpha = 0.2;
+
         ctx.beginPath();
         ctx.arc(joystick.x, joystick.y, joystick.radius, 0, Math.PI * 2);
-        ctx.globalAlpha = 0.2;
-        ctx.strokeStyle = Color.Black;
-        ctx.lineWidth = 5;
-        ctx.stroke();
-        ctx.closePath();
-        ctx.globalAlpha = 1;
-
-        ctx.globalAlpha = 0.4;
-        ctx.beginPath();
-        ctx.arc(joystick.x + joystick.currentX, joystick.y + joystick.currentY, joystick.innerRadius, 0, Math.PI * 2);
-        ctx.strokeStyle = Color.Black;
         ctx.fill();
         ctx.closePath();
-        ctx.globalAlpha = 1;
-    }
 
-    ctx.restore();
+        ctx.globalAlpha = 0.3;
+
+        ctx.beginPath();
+        ctx.arc(joystick.x + joystick.currentX, joystick.y + joystick.currentY, joystick.innerRadius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.closePath();
+    }
+    ctx.globalAlpha = 1;
 }
 
 function handleTouchStart(event) {
