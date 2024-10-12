@@ -492,7 +492,7 @@ const renderDataInfo = () => {
 
     drawText(`Client FPS: ${fps.toFixed(2)} fps`, fps < 60 ? Color.Red : Color.Black, Color.White, textSize, {x: canvas.width - 10, y: canvas.height - 60}, 'right');
 
-    drawText(`Server Tick: ${(world.tick * 1000).toFixed(2)}`, Color.Black, Color.White, textSize, {x: canvas.width - 10, y: canvas.height - 45}, 'right');
+    drawText(`Server Tick: ${(1000 / world.tick).toFixed(2)}`, Color.Black, Color.White, textSize, {x: canvas.width - 10, y: canvas.height - 45}, 'right');
 
     drawText(`Average Data Size: ${avgDataSize.toFixed(2)} bytes`, Color.Black, Color.White, textSize, {x: canvas.width - 10, y: canvas.height - 30}, 'right');
 
