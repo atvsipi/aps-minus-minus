@@ -99,7 +99,7 @@ const defaultEntity: ProcessedClass = {
     skill: {
         speed: 0.5,
         health: 100,
-        regen: 1,
+        regen: 0.1,
         damage: 3,
         pen: 10,
         range: null,

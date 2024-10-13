@@ -4,6 +4,7 @@ import {RGBColor} from './rgb.js';
 import {Team, TeamColor} from './team.js';
 import {Vector} from './vector.js';
 import {joysticks, drawJoystick} from './mobile.js';
+import {message} from './message.js';
 
 const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
@@ -271,6 +272,10 @@ const socketOnMessage = async ({data}) => {
 
             break;
         }
+
+        case 7: {
+            message.add(msg.readString());
+        }
     }
 };
 
@@ -373,7 +378,7 @@ const drawGun = (entity, gun) => {
     ctx.globalAlpha = 1;
 };
 
-function drawText(text, color, border, size, pos, align = 'start') {
+function drawText(text, color, border, size, pos, align = 'start', isMessage = false) {
     ctx.fillStyle = color;
     if (border) ctx.strokeStyle = border;
 
@@ -381,6 +386,23 @@ function drawText(text, color, border, size, pos, align = 'start') {
     ctx.font = `bold ${size.toFixed(0)}px Ubuntu`;
     ctx.lineCap = ctx.lineJoin = 'round';
     ctx.lineWidth = 4;
+
+    if (isMessage) {
+        const {width} = ctx.measureText(text);
+        const padding = 8;
+        const textHeight = size;
+
+        let x = pos.x;
+        let y = pos.y;
+
+        if (align === 'center') x -= width / 2;
+        else if (align === 'end') x -= width;
+
+        ctx.fillStyle = 'rgba(128, 128, 128, 0.5)';
+        ctx.fillRect(x - padding, y - textHeight / 2 - padding, width + padding * 2, textHeight + padding);
+
+        ctx.fillStyle = color;
+    }
 
     if (pos === 'center') {
         if (border) ctx.strokeText(text, canvas.width / 2, canvas.height / 2);
@@ -520,6 +542,21 @@ const renderDataInfo = () => {
     drawText(`Average Data Size: ${avgDataSize.toFixed(2)} bytes`, Color.Black, Color.White, textSize, {x: canvas.width - 10, y: canvas.height - 30}, 'right');
 
     drawText(`Data Rate: ${dataRate > 0 ? (dataRate / 1024).toFixed(2) : '0'} kb/s`, Color.Black, Color.White, textSize, {x: canvas.width - 10, y: canvas.height - 15}, 'right');
+
+    ctx.restore();
+};
+
+const drawMessages = () => {
+    message.update();
+
+    ctx.save();
+
+    for (let i = 0; i < message.stack.length; i++) {
+        ctx.globalAlpha = Math.min(1, 0.5 + message.stack[i].alpha);
+        drawText(message.stack[i].msg, Color.Black, null, 14, {x: canvas.width / 2, y: 20 + i * 25}, 'center', true);
+    }
+
+    ctx.globalAlpha = 1;
 
     ctx.restore();
 };
@@ -695,6 +732,8 @@ const render = (timestamp) => {
             ctx.globalAlpha = 1;
             ctx.restore();
         }
+
+        drawMessages();
     } else {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 

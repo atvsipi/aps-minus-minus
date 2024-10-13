@@ -7,6 +7,7 @@ export const RoomConfig = {
     runSpeed: 1.2,
     maxGiveScore: 99999999,
     socketTimeout: 1000 * 60,
+    welcomeMessage: `You have spawned! Welcome to the game.\nPlease report any bugs you encounter!`,
     spawn(entity: Entity) {
         entity.pos.x = Math.random() * this.height;
         entity.pos.y = Math.random() * this.width;

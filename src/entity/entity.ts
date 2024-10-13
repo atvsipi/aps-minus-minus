@@ -69,12 +69,19 @@ export class Entity extends EventEmitter {
     } = () => {
         const size = this.size;
 
+        const x1 = Math.min(this.pos.x, this.pos.x + this.vel.x) - size - 5;
+        const y1 = Math.min(this.pos.y, this.pos.y + this.vel.y) - size - 5;
+        const x2 = Math.max(this.pos.x, this.pos.x + this.vel.x) + size + 5;
+        const y2 = Math.max(this.pos.y, this.pos.y + this.vel.y) + size + 5;
+
         return {
             active: true,
-            min: [this.pos.x - size, this.pos.y - size],
-            max: [this.pos.x + size, this.pos.y + size],
+            min: [x1, y1],
+            max: [x2, y2],
         };
     };
+
+    public data: {[key: string]: any} = {};
 
     public name: string = 'Entity';
 
@@ -295,7 +302,7 @@ export class Entity extends EventEmitter {
         else this.active = true;
 
         this.pos.add(this.vel);
-        this.vel.mult(this.setting.bullet ? 0.98 : 0.9);
+        this.vel.mult(this.setting.bullet && !this.setting.hardBullet ? 0.98 : this.setting.hardBullet ? 0.95 : 0.9);
         this.vel.add(this.acc);
         this.acc.mult(0);
     }

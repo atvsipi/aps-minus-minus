@@ -89,7 +89,7 @@ Class.Food = {
         speed: 0.2,
         health: 40,
         regen: 0.1,
-        damage: 0.1,
+        damage: 0.5,
         pen: 1,
         range: null,
         pushability: 1,

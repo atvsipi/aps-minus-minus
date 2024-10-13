@@ -137,7 +137,7 @@ export class CircleMove extends Controller {
             main: true,
             fire: false,
             alt: false,
-            power: 0.05,
+            power: 0.4,
         };
     }
 }
@@ -150,18 +150,18 @@ export class MasterCircleMove extends Controller {
 
     public think(): ControllerThink {
         if (this.isThinkTime()) {
-            this.target = this.entity.pos.clone().sub(this.entity.masterPos).normalize().rotate(this.angle).mult(30);
+            this.target = this.entity.masterPos.clone().normalize().mult(30).rotate(this.angle);
 
             this.angle -= Math.PI / 100;
         }
 
         return {
-            target: this.target.clone(),
+            target: this.target.clone().sub(this.entity.pos),
             goal: null,
             main: true,
             fire: false,
             alt: false,
-            power: 0.01,
+            power: 0.6,
         };
     }
 }
@@ -180,12 +180,16 @@ export class GoToMasterTarget extends Controller {
         }
 
         return {
-            target: this.target.clone().add(this.entity.masterPos).sub(this.entity.pos),
+            target: this.target
+                .clone()
+                .add(this.entity.masterPos)
+                .sub(this.entity.pos)
+                .add(Math.random() * 10),
             goal: null,
             main: true,
             fire: false,
             alt: false,
-            power: 0.8,
+            power: 0.7 + Math.random() * 1,
         };
     }
 }

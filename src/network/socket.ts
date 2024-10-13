@@ -82,6 +82,8 @@ export function message(uuid: string, data: Uint8Array, send: (msg: Uint8Array |
                     send(msg.make());
                 }
 
+                entity.socket.sendMsg(RoomConfig.welcomeMessage);
+
                 break;
             }
 
