@@ -20,7 +20,7 @@ function makeOverLordGun(angle: number): GunClassType {
             autofire: true,
             altFire: false,
             delaySpawn: 0,
-            maxChildren: 2,
+            maxChildren: 1,
             independentChildren: false,
             destroyOldestChild: false,
             skill: {
@@ -28,7 +28,7 @@ function makeOverLordGun(angle: number): GunClassType {
                 recoil: 1,
                 size: 2,
                 health: 1,
-                damage: 3,
+                damage: 1,
                 pen: 1,
                 speed: 2,
                 range: null,
@@ -40,6 +40,17 @@ function makeOverLordGun(angle: number): GunClassType {
 
 Class.Player = {
     sides: 0,
+    killMessage: true,
+    skill: {
+        speed: 0.5,
+        health: 200,
+        regen: 0.1,
+        damage: 0.3,
+        pen: 10,
+        range: null,
+        pushability: 1,
+        fov: 800,
+    },
     guns: [makeOverLordGun(0), makeOverLordGun(Math.PI / 2), makeOverLordGun(Math.PI), makeOverLordGun(Math.PI * 1.5)],
 };
 
@@ -50,6 +61,16 @@ Class.Bullet = {
     giveScore: false,
     sides: 0,
     size: 5,
+    skill: {
+        speed: 0.5,
+        health: 0.1,
+        regen: 0,
+        damage: 0.1,
+        pen: 5,
+        range: null,
+        pushability: 1,
+        fov: 90,
+    },
     bullet: true,
 };
 
@@ -58,7 +79,16 @@ Class.Drone = {
     showName: false,
     showScore: false,
     giveScore: false,
-    skill: {fov: 300, speed: 0.2},
+    skill: {
+        fov: 300,
+        speed: 0.2,
+        health: 0.01,
+        regen: 0,
+        damage: 1,
+        pen: 5,
+        range: null,
+        pushability: 1,
+    },
     sides: 3,
     controllers: [new MasterCircleMove(), new Nearest(), new GoToMasterTarget()],
     size: 5,
@@ -79,17 +109,19 @@ Class.Wall = {
 };
 
 Class.Food = {
+    label: 'Square',
     sides: 4,
     size: 10,
     showHealth: true,
     showName: false,
     showScore: false,
     giveScore: true,
+    killMessage: false,
     skill: {
         speed: 0.2,
-        health: 40,
+        health: 10,
         regen: 0.1,
-        damage: 0.5,
+        damage: 1,
         pen: 1,
         range: null,
         pushability: 1,
@@ -101,9 +133,36 @@ Class.Food = {
     controllers: [new CircleMove()],
 };
 
+Class.Pentagon = {
+    parent: 'Food',
+    label: 'Pentagon',
+    sides: 5,
+    size: 15,
+    showHealth: true,
+    showName: false,
+    showScore: false,
+    giveScore: true,
+    killMessage: true,
+    skill: {
+        speed: 0.2,
+        health: 20,
+        regen: 0.1,
+        damage: 5,
+        pen: 1,
+        range: null,
+        pushability: 1,
+    },
+    score: 10000,
+    food: true,
+    guns: [],
+    color: Color.Lavender,
+    controllers: [new CircleMove()],
+};
+
 Class.bot = {
     sides: 5,
     size: 15,
+    killMessage: 'Why killed me :((',
     skill: {
         speed: 0.2,
         health: 100,

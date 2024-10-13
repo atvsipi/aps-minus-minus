@@ -46,6 +46,8 @@ export interface ClassType {
     showName?: boolean;
     showScore?: boolean;
     giveScore?: boolean;
+    killMessage?: boolean | string;
+    label?: string;
     hitType?: 'none' | 'auto' | ((other: Entity) => void);
     score?: number;
     name?: null | string;
@@ -80,11 +82,48 @@ export interface ProcessedClass extends EntitySetting {
     guns: GunSetting[];
 }
 
+const defaultGun: GunSetting = {
+    offset: -2,
+    direction: 0,
+    length: 20,
+    width: 18,
+    aspect: 1,
+    angle: 0,
+    color: Color.LightGrey,
+    border: Color.AutoBorder,
+    strokeWidth: 4,
+    alpha: 1,
+    layer: -1,
+    properties: {
+        type: 'Bullet',
+        autofire: false,
+        altFire: false,
+        delaySpawn: 0,
+        maxChildren: false,
+        independentChildren: false,
+        destroyOldestChild: false,
+        controllers: [],
+        skill: {
+            reload: 1,
+            recoil: 1,
+            size: 1,
+            health: 1,
+            damage: 1,
+            pen: 1,
+            speed: 1,
+            range: 1,
+            spray: 1,
+        },
+    },
+};
+
 const defaultEntity: ProcessedClass = {
     showHealth: true,
     showName: true,
     showScore: true,
     giveScore: true,
+    killMessage: false,
+    label: 'Entity',
     hitType: 'auto',
     score: 25000,
     name: null,
@@ -110,42 +149,7 @@ const defaultEntity: ProcessedClass = {
     },
     color: Color.TeamColor,
     border: Color.AutoBorder,
-    guns: [
-        {
-            offset: -2,
-            direction: 0,
-            length: 20,
-            width: 18,
-            aspect: 1,
-            angle: 0,
-            color: Color.LightGrey,
-            border: Color.AutoBorder,
-            strokeWidth: 4,
-            alpha: 1,
-            layer: -1,
-            properties: {
-                type: 'Bullet',
-                autofire: false,
-                altFire: false,
-                delaySpawn: 0,
-                maxChildren: false,
-                independentChildren: false,
-                destroyOldestChild: false,
-                controllers: [],
-                skill: {
-                    reload: 1,
-                    recoil: 1,
-                    size: 1,
-                    health: 1,
-                    damage: 1,
-                    pen: 1,
-                    speed: 1,
-                    range: 1,
-                    spray: 1,
-                },
-            },
-        },
-    ],
+    guns: [],
 };
 
 export const Class: {[key: string]: ClassType} = {};
@@ -158,20 +162,24 @@ function ProcessClass(name: string, entityClass: ClassType, basic: ProcessedClas
 
     let processed = Object.assign({}, basic, entityClass);
 
-    processed.guns = [];
-
     if (entityClass.skill) processed.skill = Object.assign({}, basic.skill, entityClass.skill);
 
-    if (entityClass.guns)
+    if (entityClass.guns && entityClass.guns.length > 0) {
+        processed.guns = [];
+
         for (const gun of entityClass.guns) {
-            const processedGun = Object.assign({}, defaultEntity.guns[0], gun);
-            if (gun.properties?.skill) processedGun.properties.skill = Object.assign({}, basic.guns[0].properties.skill, gun.properties.skill);
+            const processedGun = Object.assign({}, defaultGun, gun);
+            if (gun.properties?.skill) processedGun.properties.skill = Object.assign({}, defaultGun.properties.skill, gun.properties.skill);
 
             processed.guns.push(processedGun);
         }
+    }
 
     if (entityClass.parent) {
-        processed = ProcessClass(entityClass.parent, processed, ProcessClass(entityClass.parent, Class[entityClass.parent], defaultEntity));
+        const parent = entityClass.parent;
+        processed.parent = undefined;
+
+        processed = ProcessClass(name, processed, ProcessClass(parent, Class[parent], defaultEntity));
     }
 
     Cache[name] = processed;

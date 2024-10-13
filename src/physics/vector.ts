@@ -4,8 +4,24 @@ export interface VectorLike {
 }
 
 export class Vector implements VectorLike {
-    public x: number;
-    public y: number;
+    protected _x: number;
+    protected _y: number;
+
+    public get x() {
+        return this._x;
+    }
+
+    public set x(num: number) {
+        this._x = num;
+    }
+
+    public get y() {
+        return this._y;
+    }
+
+    public set y(num: number) {
+        this._y = num;
+    }
 
     constructor(x?: number, y?: number);
     constructor(vector: VectorLike);
@@ -184,5 +200,33 @@ export class Vector implements VectorLike {
 
     static mag(v: VectorLike): number {
         return Math.sqrt(v.x * v.x + v.y * v.y);
+    }
+}
+
+export class ConnectedVector extends Vector {
+    public master: VectorLike;
+    public offset: VectorLike;
+
+    public get x() {
+        return this.master.x + this.offset.x;
+    }
+
+    public set x(num: number) {
+        this.master.x = num - this.offset.x;
+    }
+
+    public get y() {
+        return this.master.y + this.offset.y;
+    }
+
+    public set y(num: number) {
+        this.master.y = num - this.offset.y;
+    }
+
+    constructor(master: VectorLike, offset: VectorLike) {
+        super(new Vector(master).add(offset));
+
+        this.master = master;
+        this.offset = offset;
     }
 }

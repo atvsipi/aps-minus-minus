@@ -14,6 +14,8 @@ export interface EntitySetting {
     showName: boolean;
     showScore: boolean;
     giveScore: boolean;
+    killMessage: boolean | string;
+    label: string;
     hitType: 'none' | 'auto' | ((other: Entity) => void);
     score: number;
     name: null | string;
@@ -128,6 +130,8 @@ export class Entity extends EventEmitter {
         showName: true,
         showScore: true,
         giveScore: true,
+        killMessage: true,
+        label: 'Entity',
         hitType: 'auto',
         score: 25000,
         name: null,
@@ -187,10 +191,20 @@ export class Entity extends EventEmitter {
         return false;
     }
 
-    public get masterPos(): Vector {
-        if (this.setting.independent || !this.master) return this.pos;
+    public get topMaster(): Entity {
+        if (this.setting.independent || !this.master) return this;
 
-        return this.master.masterPos;
+        return this.master.topMaster;
+    }
+
+    public get masterPos(): Vector {
+        return this.topMaster.pos;
+    }
+
+    public get title(): string {
+        let title = this.setting.food ? this.setting.label : this.setting.bullet ? `${this.topMaster.name}'s ${this.setting.label}` : `${this.name}'s ${this.setting.label}`;
+
+        return title;
     }
 
     constructor() {
@@ -202,6 +216,8 @@ export class Entity extends EventEmitter {
         this.setting.showName = Class.showName;
         this.setting.showScore = Class.showScore;
         this.setting.giveScore = Class.giveScore;
+        this.setting.killMessage = Class.killMessage;
+        this.setting.label = Class.label;
         this.setting.name = Class.name;
         this.setting.size = Class.size;
         this.setting.mass = Class.mass;
@@ -218,6 +234,7 @@ export class Entity extends EventEmitter {
         this.color = Class.color;
         this.border = Class.border;
         this.score = Class.score;
+        this.health = Class.skill.health;
 
         if (this.setting.name !== null) this.name = this.setting.name;
 

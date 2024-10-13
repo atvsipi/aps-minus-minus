@@ -47,9 +47,11 @@ export class RoomLoop extends EventEmitter {
 
         const score = other.setting.food ? other.score : Math.min(other.score, RoomConfig.maxGiveScore);
 
-        entity.score += score;
+        entity.topMaster.score += score;
 
-        if (entity.master) entity.master.score += score;
+        if (other.setting.killMessage !== false) {
+            entity.topMaster.socket.sendMsg(other.setting.killMessage === true ? `You killed ${other.title}.` : other.setting.killMessage);
+        }
     }
 
     protected doDamage(entity: Entity, other: Entity, god: boolean) {

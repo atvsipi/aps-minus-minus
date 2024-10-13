@@ -126,9 +126,9 @@ export class CircleMove extends Controller {
 
     public think(): ControllerThink {
         if (this.isThinkTime()) {
-            this.target = new Vector(30, 30).addAngle(this.angle);
+            this.target = new Vector(5, 5).addAngle(this.angle);
 
-            this.angle -= 0.03;
+            this.angle -= 0.01;
         }
 
         return {
@@ -137,7 +137,7 @@ export class CircleMove extends Controller {
             main: true,
             fire: false,
             alt: false,
-            power: 0.4,
+            power: 0.2,
         };
     }
 }
