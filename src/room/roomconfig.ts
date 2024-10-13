@@ -15,7 +15,7 @@ export const RoomConfig = {
         return Math.ceil(level ** 3 * 0.3);
     },
     physics(entity: Entity) {
-        if (entity.setting.bullet) return;
+        if (entity.setting.bullet && !entity.setting.hardBullet) return;
 
         if (entity.pos.x < 0 || entity.pos.x > this.width || entity.pos.y < 0 || entity.pos.y > this.height) {
             if (entity.pos.x < 0) {

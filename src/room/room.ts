@@ -124,18 +124,7 @@ export class RoomLoop extends EventEmitter {
             } else {
                 this.doDamage(entity, other, false);
 
-                if (entity.setting.bullet || other.setting.bullet) {
-                    if (Entity.isSameTeam(entity, other)) continue;
-
-                    if (other.setting.bullet) [entity, other] = [other, entity];
-                    if (other.setting.bullet) {
-                        entity.vel.mult(0.8);
-                        other.vel.mult(0.8);
-                    } else {
-                        entity.vel.mult(0.8);
-                        other.vel.add(entity.vel.clone().mult(entity.setting.skill.pushability).mult(0.1));
-                    }
-
+                if (!(entity.setting.hardBullet && other.setting.hardBullet)) {
                     continue;
                 }
 

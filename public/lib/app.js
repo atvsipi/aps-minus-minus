@@ -609,6 +609,11 @@ const render = (timestamp) => {
         window.entity = entity;
 
         for (const entity of entities) {
+            const distance = Vector.distance(window.entity.pos, entity.pos);
+            const fov = window.entity.fov + (window.entity.size + entity.size) / 2;
+
+            if (distance > fov) continue;
+
             if (deltaTick > 0) correction(entity, deltaTick, t);
 
             ctx.save();

@@ -63,6 +63,7 @@ Class.Drone = {
     controllers: [new MasterCircleMove(), new Nearest(), new GoToMasterTarget()],
     size: 5,
     bullet: true,
+    hardBullet: true,
 };
 
 Class.Wall = {

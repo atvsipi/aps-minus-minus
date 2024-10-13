@@ -89,4 +89,4 @@ setInterval(() => {
 
         room.insert(entity);
     }
-}, 5000);
+}, 1000);

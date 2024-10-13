@@ -54,6 +54,7 @@ export interface ClassType {
     isFixed?: boolean;
     airplane?: boolean;
     food?: boolean;
+    hardBullet?: boolean;
     bullet?: boolean;
     independent?: boolean;
     controllers?: Controller[];
@@ -90,6 +91,7 @@ const defaultEntity: ProcessedClass = {
     sides: 0,
     isFixed: false,
     airplane: false,
+    hardBullet: false,
     bullet: false,
     food: false,
     independent: false,

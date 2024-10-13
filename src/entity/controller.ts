@@ -148,17 +148,15 @@ export class MasterCircleMove extends Controller {
     protected angle: number = Math.random() * Math.PI * 2;
     protected target: Vector = new Vector(0, 0);
 
-    protected restCycle: boolean = false;
-
     public think(): ControllerThink {
         if (this.isThinkTime()) {
-            this.target = this.entity.pos.clone().sub(this.entity.masterPos).add({x: 3, y: 0}).rotate(this.angle);
+            this.target = this.entity.pos.clone().sub(this.entity.masterPos).normalize().rotate(this.angle).mult(30);
 
             this.angle -= Math.PI / 100;
         }
 
         return {
-            target: this.target.clone().add(this.entity.masterPos).sub(this.entity.pos),
+            target: this.target.clone(),
             goal: null,
             main: true,
             fire: false,

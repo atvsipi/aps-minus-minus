@@ -21,6 +21,7 @@ export interface EntitySetting {
     sides: number | string | Vector[];
     isFixed: boolean;
     airplane: boolean;
+    hardBullet: boolean;
     bullet: boolean;
     food: boolean;
     independent: boolean;
@@ -126,6 +127,7 @@ export class Entity extends EventEmitter {
         sides: 0,
         isFixed: false,
         airplane: false,
+        hardBullet: false,
         bullet: false,
         food: false,
         independent: false,
@@ -198,6 +200,7 @@ export class Entity extends EventEmitter {
         this.setting.isFixed = Class.isFixed;
         this.setting.airplane = Class.airplane;
         this.setting.bullet = Class.bullet;
+        this.setting.hardBullet = Class.hardBullet;
         this.setting.food = Class.food;
         this.setting.skill = Class.skill;
         this.setting.independent = Class.independent;
