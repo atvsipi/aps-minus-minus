@@ -20,7 +20,7 @@ function makeOverLordGun(angle: number): GunClassType {
             autofire: true,
             altFire: false,
             delaySpawn: 0,
-            maxChildren: 1,
+            maxChildren: 2,
             independentChildren: false,
             destroyOldestChild: false,
             skill: {
