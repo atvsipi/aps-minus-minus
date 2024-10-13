@@ -120,7 +120,7 @@ Class.Food = {
     skill: {
         speed: 0.2,
         health: 10,
-        regen: 0.1,
+        regen: 0.0001,
         damage: 1,
         pen: 1,
         range: null,
@@ -146,7 +146,7 @@ Class.Pentagon = {
     skill: {
         speed: 0.2,
         health: 20,
-        regen: 0.1,
+        regen: 0.0001,
         damage: 5,
         pen: 1,
         range: null,
