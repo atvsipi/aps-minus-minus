@@ -14,6 +14,7 @@ export interface EntitySetting {
     showName: boolean;
     showScore: boolean;
     giveScore: boolean;
+    hitType: 'none' | 'auto' | ((other: Entity) => void);
     score: number;
     name: null | string;
     size: number;
@@ -127,6 +128,7 @@ export class Entity extends EventEmitter {
         showName: true,
         showScore: true,
         giveScore: true,
+        hitType: 'auto',
         score: 25000,
         name: null,
         size: 10,
@@ -212,6 +214,7 @@ export class Entity extends EventEmitter {
         this.setting.skill = Class.skill;
         this.setting.independent = Class.independent;
         this.setting.controllers = Class.controllers;
+        this.setting.hitType = Class.hitType;
         this.color = Class.color;
         this.border = Class.border;
         this.score = Class.score;

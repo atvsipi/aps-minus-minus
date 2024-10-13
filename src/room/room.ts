@@ -87,6 +87,22 @@ export class RoomLoop extends EventEmitter {
             let entity = objA as Entity;
             let other = objB as Entity;
 
+            if (entity.setting.hitType !== 'auto' || other.setting.hitType !== 'auto') {
+                if (other.setting.hitType !== 'auto') [entity, other] = [other, entity];
+
+                this.doDamage(entity, other, false);
+
+                if (entity.setting.hitType === 'none' || other.setting.hitType === 'none') {
+                    continue;
+                }
+
+                if (typeof entity.setting.hitType === 'function') entity.setting.hitType(other);
+
+                if (typeof other.setting.hitType === 'function') other.setting.hitType(entity);
+
+                continue;
+            }
+
             if (entity.setting.isFixed || other.setting.isFixed) {
                 if (other.setting.isFixed) [entity, other] = [other, entity];
                 if (other.setting.isFixed) continue;

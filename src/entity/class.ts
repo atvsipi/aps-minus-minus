@@ -2,7 +2,7 @@ import {Color} from '../definitions/color';
 import {Vector} from '../physics/vector';
 import {Logger} from '../util/logger';
 import {Controller} from './controller';
-import {EntitySetting} from './entity';
+import {Entity, EntitySetting} from './entity';
 import {GunSetting} from './gun';
 
 export interface GunClassType {
@@ -46,6 +46,7 @@ export interface ClassType {
     showName?: boolean;
     showScore?: boolean;
     giveScore?: boolean;
+    hitType?: 'none' | 'auto' | ((other: Entity) => void);
     score?: number;
     name?: null | string;
     size?: number;
@@ -84,6 +85,7 @@ const defaultEntity: ProcessedClass = {
     showName: true,
     showScore: true,
     giveScore: true,
+    hitType: 'auto',
     score: 25000,
     name: null,
     size: 10,
