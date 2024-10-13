@@ -530,10 +530,12 @@ function drawEntityShapeToOffscreenCanvas(offscreenCanvas, offscreenCtx, obj) {
     offscreenCtx.closePath();
 }
 
-const renderDataInfo = () => {
+const renderInfo = () => {
     const textSize = 12;
 
     ctx.save();
+
+    drawText(location.host, Color.Black, Color.White, textSize + 2, {x: canvas.width - 10, y: canvas.height - 75}, 'right');
 
     drawText(`Client FPS: ${fps.toFixed(2)} fps`, fps < 60 ? Color.Red : Color.Black, Color.White, textSize, {x: canvas.width - 10, y: canvas.height - 60}, 'right');
 
@@ -694,7 +696,7 @@ const render = (timestamp) => {
 
         ctx.restore();
 
-        renderDataInfo();
+        renderInfo();
 
         if (mobile) {
             drawJoystick();
