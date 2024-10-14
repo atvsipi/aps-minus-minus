@@ -322,6 +322,7 @@ setInterval(() => {
 
         if (user[1].timeout && user[1].timeout > RoomConfig.socketTimeout) {
             room.remove(entity);
+            users.delete(user[0]);
 
             continue;
         }
