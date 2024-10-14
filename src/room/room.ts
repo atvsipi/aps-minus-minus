@@ -113,30 +113,26 @@ export class RoomLoop extends EventEmitter {
                 const min = new Vector(entity.pos).sub(entity.size);
                 const max = new Vector(entity.pos).add(entity.size);
 
-                if (other.pos.x < max.x && other.pos.x > min.x) {
-                    if (other.pos.y < max.y && other.pos.y > min.y) {
-                        if (other.setting.bullet) {
-                            other.emit('dead');
-                            room.remove(other);
+                if (other.setting.bullet) {
+                    other.emit('dead');
+                    room.remove(other);
 
-                            continue;
-                        }
+                    continue;
+                }
 
-                        this.doDamage(entity, other, true);
+                this.doDamage(entity, other, true);
 
-                        if (Math.abs(other.pos.x - entity.pos.x) < Math.abs(other.pos.y - entity.pos.y)) {
-                            if (other.pos.y < entity.pos.y) {
-                                other.pos.y = min.y;
-                            } else {
-                                other.pos.y = max.y;
-                            }
-                        } else {
-                            if (other.pos.x < entity.pos.x) {
-                                other.pos.x = min.x;
-                            } else {
-                                other.pos.x = max.x;
-                            }
-                        }
+                if (Math.abs(other.pos.x - entity.pos.x) < Math.abs(other.pos.y - entity.pos.y)) {
+                    if (other.pos.y < entity.pos.y) {
+                        other.pos.y = min.y;
+                    } else {
+                        other.pos.y = max.y;
+                    }
+                } else {
+                    if (other.pos.x < entity.pos.x) {
+                        other.pos.x = min.x;
+                    } else {
+                        other.pos.x = max.x;
                     }
                 }
             } else {
