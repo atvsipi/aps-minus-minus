@@ -55,6 +55,8 @@ export class Entity extends EventEmitter {
 
     public health: number = 100;
 
+    public lastTickAttacked: number = -10;
+
     public changed: boolean = false;
 
     public mockupId: number = 0;
@@ -264,6 +266,10 @@ export class Entity extends EventEmitter {
 
         if (this.health < this.setting.skill.health) {
             this.health += this.setting.skill.regen;
+
+            if (this.tick - this.lastTickAttacked > 60 * 70) {
+                this.health += 5;
+            }
         }
 
         const speed = this.setting.skill.speed;

@@ -59,6 +59,7 @@ export class RoomLoop extends EventEmitter {
 
         other.health -= entity.setting.skill.damage;
         other.emit('damage', entity.setting.skill.damage);
+        other.lastTickAttacked = other.tick;
         if (other.health <= 0) {
             other.emit('dead', entity);
 
@@ -70,6 +71,7 @@ export class RoomLoop extends EventEmitter {
         if (!god) {
             entity.health -= other.setting.skill.damage;
             entity.emit('damage', other.setting.skill.damage);
+            entity.lastTickAttacked = entity.tick;
             if (entity.health <= 0) {
                 entity.emit('dead', other);
 

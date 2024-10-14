@@ -524,7 +524,7 @@ function drawEntityShape(obj) {
         ctx.roundRect(x, y, width, height, radius);
         ctx.fill();
 
-        const fillWidth = (obj.health / (obj.maxHealth || 100)) * width;
+        const fillWidth = Math.min(1, Math.max(0, obj.health / (obj.maxHealth || 100))) * width;
         ctx.beginPath();
         ctx.fillStyle = Color.Green;
         ctx.roundRect(x + 1, y + 0.75, fillWidth - 2, height - 1.5, radius);
