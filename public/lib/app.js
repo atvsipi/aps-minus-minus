@@ -232,6 +232,8 @@ const socketOnMessage = async ({data}) => {
             if (mockups[obj.mockupId]) {
                 obj.sides = mockups[obj.mockupId].sides;
                 obj.guns = mockups[obj.mockupId].guns;
+
+                obj.loaded = true;
             } else {
                 socket.send(new Writer().writeUint(6).writeUint(obj.id).make());
             }
@@ -286,6 +288,8 @@ const socketOnMessage = async ({data}) => {
                     sides: obj.sides,
                     guns: obj.guns,
                 };
+
+            obj.loaded = true;
 
             break;
         }
@@ -673,6 +677,8 @@ const render = (timestamp) => {
         window.entity = entity;
 
         for (const entity of entities) {
+            if (!entity.loaded) continue;
+
             const distance = Vector.distance(window.entity.pos, entity.pos);
             const fov = window.entity.fov + (window.entity.size + entity.size) / 2;
 
