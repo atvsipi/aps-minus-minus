@@ -31,6 +31,7 @@ let entity;
 const entities = new Set();
 const idToEntity = new Map();
 let world = {};
+let mockups = [];
 
 let zoom = 0.2;
 
@@ -226,6 +227,24 @@ const socketOnMessage = async ({data}) => {
             obj.color = decodeColor(msg, obj.team);
             obj.border = decodeBorder(msg, obj.team, obj.color);
 
+            obj.mockupId = msg.readUint();
+
+            if (mockups[obj.mockupId]) {
+                obj.sides = mockups[obj.mockupId].sides;
+                obj.guns = mockups[obj.mockupId].guns;
+            } else {
+                socket.send(new Writer().writeUint(6).writeUint(obj.id).make());
+            }
+
+            break;
+        }
+
+        case 8: {
+            const id = msg.readUint();
+            const obj = idToEntity.has(id) ? idToEntity.get(id) : entity;
+
+            if (!obj) break;
+
             const type = msg.readUint();
             if (type === 0) {
                 obj.sides = msg.readString();
@@ -261,6 +280,12 @@ const socketOnMessage = async ({data}) => {
                     layer: msg.readInt(),
                 });
             }
+
+            if (obj.mockupId !== 0)
+                mockups[obj.mockupId] = {
+                    sides: obj.sides,
+                    guns: obj.guns,
+                };
 
             break;
         }

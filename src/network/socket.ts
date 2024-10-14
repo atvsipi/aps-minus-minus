@@ -187,6 +187,16 @@ export function message(uuid: string, data: Uint8Array, send: (msg: Uint8Array |
                 break;
             }
 
+            // mockup
+            case 6: {
+                const id = msg.readUint();
+
+                const entity = room.idToEntity.get(id);
+
+                if (entity) send(EntityMockup(entity, new Protocol.Writer().writeUint(8)).make());
+                break;
+            }
+
             default:
                 send("I can't understand :(");
                 break;
@@ -232,6 +242,14 @@ function EntityInfo(entity: Entity, msg: Protocol.Writer) {
         msg.writeUint(1);
         msg.writeUint(entity.border);
     }
+
+    msg.writeUint(entity.mockupId);
+
+    return msg;
+}
+
+function EntityMockup(entity: Entity, msg: Protocol.Writer) {
+    msg.writeUint(entity.id);
 
     if (typeof entity.setting.sides === 'string') {
         msg.writeUint(0);

@@ -77,6 +77,7 @@ export interface ClassType {
 }
 
 export interface ProcessedClass extends EntitySetting {
+    mockupId: number;
     color: Color | string;
     border: Color | string;
     guns: GunSetting[];
@@ -118,6 +119,7 @@ const defaultGun: GunSetting = {
 };
 
 const defaultEntity: ProcessedClass = {
+    mockupId: 0,
     showHealth: true,
     showName: true,
     showScore: true,
@@ -157,6 +159,8 @@ export const EntityClass: {[key: string]: ProcessedClass} = {};
 
 let Cache: {[key: string]: ProcessedClass} = {};
 
+let mockups = 1;
+
 function ProcessClass(name: string, entityClass: ClassType, basic: ProcessedClass) {
     if (Cache[name]) return Cache[name];
 
@@ -181,6 +185,8 @@ function ProcessClass(name: string, entityClass: ClassType, basic: ProcessedClas
 
         processed = ProcessClass(name, processed, ProcessClass(parent, Class[parent], defaultEntity));
     }
+
+    processed.mockupId = mockups++;
 
     Cache[name] = processed;
 

@@ -57,6 +57,8 @@ export class Entity extends EventEmitter {
 
     public changed: boolean = false;
 
+    public mockupId: number = 0;
+
     public socket: {
         send: (msg: Uint8Array) => void;
         sendMsg: (msg: string) => void;
@@ -212,6 +214,8 @@ export class Entity extends EventEmitter {
     }
 
     public init(Class: ProcessedClass) {
+        this.mockupId = Class.mockupId;
+
         this.setting.showHealth = Class.showHealth;
         this.setting.showName = Class.showName;
         this.setting.showScore = Class.showScore;
