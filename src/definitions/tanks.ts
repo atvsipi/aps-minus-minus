@@ -178,7 +178,7 @@ Class.AlphaPentagon = {
         range: null,
         pushability: 1,
     },
-    score: 1000,
+    score: 2000,
     food: true,
     guns: [],
     color: Color.Lavender,
