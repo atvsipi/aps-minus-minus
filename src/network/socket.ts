@@ -251,6 +251,8 @@ function EntityInfo(entity: Entity, msg: Protocol.Writer) {
 function EntityMockup(entity: Entity, msg: Protocol.Writer) {
     msg.writeUint(entity.id);
 
+    msg.writeString(entity.setting.label);
+
     if (typeof entity.setting.sides === 'string') {
         msg.writeUint(0);
         msg.writeString(entity.setting.sides);

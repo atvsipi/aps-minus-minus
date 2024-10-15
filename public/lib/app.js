@@ -5,6 +5,7 @@ import {Team, TeamColor} from './team.js';
 import {Vector} from './vector.js';
 import {joysticks, drawJoystick} from './mobile.js';
 import {message} from './message.js';
+import {score} from './score.js';
 
 const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
@@ -244,6 +245,8 @@ const socketOnMessage = async ({data}) => {
             const obj = idToEntity.has(id) ? idToEntity.get(id) : entity;
 
             if (!obj) break;
+
+            obj.label = msg.readString();
 
             const type = msg.readUint();
             if (type === 0) {
@@ -578,16 +581,46 @@ const renderInfo = () => {
 const drawMessages = () => {
     message.update();
 
-    ctx.save();
-
     for (let i = 0; i < message.stack.length; i++) {
         ctx.globalAlpha = Math.min(1, 0.5 + message.stack[i].alpha);
         drawText(message.stack[i].msg, Color.Black, null, 14, {x: canvas.width / 2, y: 20 + i * 25}, 'center', true);
     }
 
     ctx.globalAlpha = 1;
+};
 
-    ctx.restore();
+const drawScore = () => {
+    score.level = entity.level;
+    score.score = entity.score;
+    score.levelScore = entity.levelScore;
+
+    score.update();
+
+    drawText(`${entity.name}`, Color.White, Color.Black, 24, {x: canvas.width / 2, y: canvas.height - 65}, 'center', false);
+
+    drawText(`Score: ${score.score.toFixed(0)}`, Color.White, Color.Black, 14, {x: canvas.width / 2, y: canvas.height - 45}, 'center', false);
+
+    const radius = 10;
+
+    const width = canvas.width * 0.3;
+    const height = 20;
+    const padding = 2;
+
+    const x = canvas.width / 2 - width / 2;
+    const y = canvas.height - 18 - height;
+
+    ctx.beginPath();
+    ctx.fillStyle = Color.Black;
+    ctx.roundRect(x, y, width, height, radius);
+    ctx.fill();
+
+    const fillWidth = padding * 2 + Math.min(Math.max(0, score.scoreProgress) * (width - padding * 2), width - padding * 2);
+    ctx.beginPath();
+    ctx.fillStyle = Color.Gold;
+    ctx.roundRect(x + padding, y + padding, fillWidth - padding * 2, height - padding * 2, radius);
+    ctx.fill();
+
+    drawText(`Level ${score.level} ${entity.label}`, Color.White, Color.Black, 14, {x: canvas.width / 2, y: canvas.height - 23}, 'center', false);
 };
 
 const correction = (entity, deltaTick, t) => {
@@ -762,7 +795,13 @@ const render = (timestamp) => {
             ctx.restore();
         }
 
+        ctx.save();
+
         drawMessages();
+
+        drawScore();
+
+        ctx.restore();
     } else {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
