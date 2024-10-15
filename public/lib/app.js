@@ -58,6 +58,7 @@ const ctx = canvas.getContext('2d');
 let uuid = localStorage.getItem('uuid');
 
 let socket = new WebSocket('/?uuid=' + (uuid || '0'));
+socket.binaryType = 'arraybuffer';
 
 const decodeColor = (msg, team) => {
     let color;
@@ -101,7 +102,7 @@ const socketOnMessage = async ({data}) => {
 
     if (typeof data === 'string') throw new Error(data);
 
-    const buffer = await data.arrayBuffer();
+    const buffer = data;
 
     const msg = new Reader(buffer);
     totalDataSize += buffer.byteLength;
@@ -127,6 +128,7 @@ const socketOnMessage = async ({data}) => {
             localStorage.setItem('uuid', uuid);
 
             socket = new WebSocket('/?uuid=' + uuid);
+            socket.binaryType = 'arraybuffer';
 
             socket.onmessage = socketOnMessage;
 
