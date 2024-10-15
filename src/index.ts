@@ -83,7 +83,8 @@ setInterval(() => {
         const entity = new Entity();
 
         if (Math.random() > 0.7) entity.init(EntityClass.Food);
-        else entity.init(EntityClass.Pentagon);
+        else if (Math.random() > 0.5) entity.init(EntityClass.Pentagon);
+        else entity.init(EntityClass.AlphaPentagon);
         entity.pos = new Vector(RoomConfig.width * Math.random(), RoomConfig.height * Math.random());
         entity.team = Team.Room;
         entity.pos = new Vector(RoomConfig.width * Math.random(), RoomConfig.height * Math.random());
