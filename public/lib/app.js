@@ -5,6 +5,7 @@ import {Team, TeamColor} from './team.js';
 import {Vector} from './vector.js';
 import {joysticks, drawJoystick} from './mobile.js';
 import {message} from './message.js';
+import { score } from './score.js';
 
 const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
@@ -578,16 +579,22 @@ const renderInfo = () => {
 const drawMessages = () => {
     message.update();
 
-    ctx.save();
-
     for (let i = 0; i < message.stack.length; i++) {
         ctx.globalAlpha = Math.min(1, 0.5 + message.stack[i].alpha);
         drawText(message.stack[i].msg, Color.Black, null, 14, {x: canvas.width / 2, y: 20 + i * 25}, 'center', true);
     }
 
     ctx.globalAlpha = 1;
+};
 
-    ctx.restore();
+const drawScore = () => {
+    score.level = entity.level;
+    score.score = entity.score;
+    score.levelScore = entity.levelScore;
+
+    score.update();
+
+    drawText((score.scoreProgress * 100).toFixed(0), Color.White, Color.Black, 14, {x: canvas.width / 2, y: canvas.height - 20}, 'center', true);
 };
 
 const correction = (entity, deltaTick, t) => {
@@ -762,7 +769,13 @@ const render = (timestamp) => {
             ctx.restore();
         }
 
+        ctx.save();
+
         drawMessages();
+
+        drawScore();
+
+        ctx.restore();
     } else {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 

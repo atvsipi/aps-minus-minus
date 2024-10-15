@@ -4,6 +4,7 @@ export const RoomConfig = {
     height: 1000,
     width: 1000,
     tick: 1000 / 60,
+    socketTick: 1000 / 40,
     runSpeed: 1.2,
     maxGiveScore: 99999999,
     socketTimeout: 1000 * 60,

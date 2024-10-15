@@ -67,7 +67,7 @@ export function message(uuid: string, data: Uint8Array, send: (msg: Uint8Array |
                 msg.writeUint(4);
                 msg.writeFloat(RoomConfig.width);
                 msg.writeFloat(RoomConfig.height);
-                msg.writeFloat(RoomConfig.tick);
+                msg.writeFloat(RoomConfig.socketTick);
 
                 send(msg.make());
 
@@ -375,7 +375,7 @@ setInterval(() => {
     }
 
     for (const entity of changed) entity.changed = false;
-}, 1000 / 60);
+}, RoomConfig.socketTick);
 
 room.on('remove', (obj: Entity) => {
     for (const user of users) {
