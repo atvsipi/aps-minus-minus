@@ -19,10 +19,11 @@ export const idToEntity = new Map();
 export let world = {};
 let mockups = [];
 
-let uuid = localStorage.getItem('uuid');
+export let name = '';
 
-export let socket = new WebSocket('/?uuid=' + (uuid || '0'));
-socket.binaryType = 'arraybuffer';
+export let socket;
+
+let uuid = localStorage.getItem('uuid');
 
 const decodeColor = (msg, team) => {
     let color;
@@ -58,12 +59,6 @@ const decodeBorder = (msg, team, color) => {
 };
 
 const socketOnMessage = async ({data}) => {
-    if (data === 'w') {
-        socket.send(new Writer().writeUint(0).make());
-
-        return;
-    }
-
     if (typeof data === 'string') throw new Error(data);
 
     const buffer = data;
@@ -95,6 +90,10 @@ const socketOnMessage = async ({data}) => {
             socket.binaryType = 'arraybuffer';
 
             socket.onmessage = socketOnMessage;
+
+            socket.onopen = () => {
+                socket.send(new Writer().writeUint(0).writeString(name).make());
+            };
 
             break;
 
@@ -279,4 +278,12 @@ const socketOnMessage = async ({data}) => {
     }
 };
 
-socket.onmessage = socketOnMessage;
+export function start(_name) {
+    name = _name;
+    socket = new WebSocket('/?uuid=' + (uuid || '0'));
+    socket.binaryType = 'arraybuffer';
+    socket.onmessage = socketOnMessage;
+    socket.onopen = () => {
+        socket.send(new Writer().writeUint(0).writeString(name).make());
+    };
+}

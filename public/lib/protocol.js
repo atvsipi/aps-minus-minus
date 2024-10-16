@@ -81,7 +81,7 @@ export class Writer {
         const offset = this.offset;
 
         this.writeQueue.push(() => {
-            this.writeUint(encoded.length);
+            this.dataView.setUint16(offset, encoded.length, true);
 
             for (let i = 0; i < encoded.length; i++) {
                 this.dataView.setUint8(offset + i + 2, encoded[i]);

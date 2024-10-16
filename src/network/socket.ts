@@ -40,6 +40,8 @@ export function message(uuid: string, data: Uint8Array, send: (msg: Uint8Array |
 
                     entity.init(EntityClass.Player);
 
+                    entity.name = msg.readString();
+
                     RoomConfig.spawn(entity);
 
                     room.insert(entity);
@@ -62,14 +64,16 @@ export function message(uuid: string, data: Uint8Array, send: (msg: Uint8Array |
                     send,
                 });
 
-                const msg = new Protocol.Writer();
+                {
+                    const msg = new Protocol.Writer();
 
-                msg.writeUint(4);
-                msg.writeFloat(RoomConfig.width);
-                msg.writeFloat(RoomConfig.height);
-                msg.writeFloat(RoomConfig.tick);
+                    msg.writeUint(4);
+                    msg.writeFloat(RoomConfig.width);
+                    msg.writeFloat(RoomConfig.height);
+                    msg.writeFloat(RoomConfig.tick);
 
-                send(msg.make());
+                    send(msg.make());
+                }
 
                 for (const obj of room.entities) {
                     if (obj === entity) continue;

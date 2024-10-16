@@ -1,6 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 import {message, isValidUUID, close} from './socket';
+import {Logger} from '../util/logger';
 
 const mimeTypes: {[key: string]: string} = {
     html: 'text/html',
@@ -53,9 +54,7 @@ export function Listen(port: number, cb: () => void) {
                 }
             },
             websocket: {
-                open(ws) {
-                    ws.send('w');
-                },
+                open(ws) {},
                 message(ws, msg) {
                     if (typeof msg === 'string') {
                         ws.send('Please give me a buffer instead of a string!');
@@ -143,6 +142,8 @@ export function Listen(port: number, cb: () => void) {
                 .listen(port, (token: any) => {
                     if (token) {
                         cb();
+                    } else {
+                        Logger.error('Failed to open server!');
                     }
                 }),
         );

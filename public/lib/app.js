@@ -5,7 +5,7 @@ import {joysticks, drawJoystick} from './mobile.js';
 import {message} from './message.js';
 import {score} from './score.js';
 
-import {avgDataSize, dataRate, socket, entity, entities, idToEntity, world} from './socket.js';
+import {avgDataSize, dataRate, socket, entity, entities, idToEntity, world, start} from './socket.js';
 
 const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
@@ -17,6 +17,10 @@ let totalFps = 0;
 let fps = 0;
 let renderCount = 0;
 let lastRenderUpdate = performance.now();
+// END
+
+// TOGGLE
+let autoFire = false;
 // END
 
 // MOBILE
@@ -59,7 +63,7 @@ if (!mobile) {
         const x = (clientX - canvasSize.width / 2) / zoom;
         const y = (clientY - canvasSize.height / 2) / zoom;
 
-        if (isFiring) {
+        if (isFiring || autoFire) {
             socket.send(new Writer().writeUint(4).writeBoolean(true).writeFloat(x).writeFloat(y).make());
         }
 
@@ -511,16 +515,18 @@ const render = (timestamp) => {
 
         ctx.restore();
     } else {
-        ctx.clearRect(0, 0, canvasSize.width, canvasSize.height);
+        if (socket) {
+            ctx.clearRect(0, 0, canvasSize.width, canvasSize.height);
 
-        ctx.globalAlpha = 0.2;
-        ctx.fillStyle = Color.Red;
-        ctx.fillRect(0, 0, canvasSize.width, canvasSize.height);
-        ctx.globalAlpha = 1;
+            ctx.globalAlpha = 0.2;
+            ctx.fillStyle = Color.Red;
+            ctx.fillRect(0, 0, canvasSize.width, canvasSize.height);
+            ctx.globalAlpha = 1;
 
-        ctx.fillRect(0, 0, canvasSize.width, canvasSize.height);
+            ctx.fillRect(0, 0, canvasSize.width, canvasSize.height);
 
-        drawText('You are Die.', Color.Black, Color.White, 40, 'center', 'center');
+            drawText('You are Die.', Color.Black, Color.White, 40, 'center', 'center');
+        }
     }
 
     requestAnimationFrame(render);
@@ -531,6 +537,16 @@ const RAFId = requestAnimationFrame(render);
 document.addEventListener('keydown', ({key, code}) => {
     const msg = new Writer().writeUint(1);
     switch (key) {
+        case 'e':
+            if (autoFire) {
+                message.add('Auto Fire disabled');
+                socket.send(new Writer().writeUint(4).writeBoolean(false).make());
+            } else {
+                message.add('Auto Fire enabled');
+            }
+
+            autoFire = !autoFire;
+            break;
         case 'ArrowUp':
         case 'w':
             socket.send(msg.writeUint(0).make());
@@ -570,4 +586,12 @@ document.addEventListener('keyup', ({key, code}) => {
             socket.send(msg.writeUint(7).make());
             break;
     }
+});
+
+document.querySelector('#userId').value = localStorage.getItem('userId') || '';
+
+document.querySelector('#play').addEventListener('click', () => {
+    document.querySelector('main').style.display = 'none';
+    localStorage.setItem('userId', document.querySelector('#userId').value);
+    start(document.querySelector('#userId').value);
 });
