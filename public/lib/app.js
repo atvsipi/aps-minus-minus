@@ -41,7 +41,7 @@ function resize() {
     canvas.height = document.body.clientHeight * dpr;
 
     canvasSize.width = document.body.clientWidth;
-    canvasSize.height = document.body.clientWidth;
+    canvasSize.height = document.body.clientHeight;
 }
 
 window.addEventListener('resize', resize, true);
