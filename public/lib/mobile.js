@@ -68,7 +68,7 @@ function handleTouchStart(event) {
             const dy = touch.pageY - (joystick.y + joystick.currentY);
             const dist = Math.sqrt(dx * dx + dy * dy);
 
-            if (dist <= joystick.innerRadius) {
+            if (dist <= joystick.radius) {
                 joystick.touchId = touch.identifier;
                 joystick.active = true;
                 joystick.on('move');
