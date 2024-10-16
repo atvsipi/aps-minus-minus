@@ -386,11 +386,11 @@ const render = (timestamp) => {
             lastRenderUpdate = performance.now();
         }
 
-        ctx.clearRect(0, 0, canvasSize.width, canvasSize.height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         ctx.globalAlpha = 0.2;
         ctx.fillStyle = Color.Black2;
-        ctx.fillRect(0, 0, canvasSize.width, canvasSize.height);
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.globalAlpha = 1;
 
         ctx.save();
