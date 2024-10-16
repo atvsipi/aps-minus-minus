@@ -1,8 +1,5 @@
-import {Color, numColor} from './color.js';
-import {Reader, Writer} from './protocol.js';
-import {Entity} from './entity.js';
-import {RGBColor} from './rgb.js';
-import {Team, TeamColor} from './team.js';
+import {Color} from './color.js';
+import {Writer} from './protocol.js';
 import {Vector} from './vector.js';
 import {joysticks, drawJoystick} from './mobile.js';
 import {message} from './message.js';
@@ -26,36 +23,41 @@ let lastRenderUpdate = performance.now();
 let coordinate = new Vector(0, 0);
 // END
 
-let mockups = [];
-
 let zoom = 0.2;
 
-let tick = 0;
-
+const dpr = window.devicePixelRatio || 2;
 const canvas = document.getElementById('canvas');
 
-window.addEventListener(
-    'resize',
-    (e) => {
-        canvas.width = document.body.clientWidth;
-        canvas.height = document.body.clientHeight;
-    },
-    true,
-);
+const canvasSize = {
+    width: 10,
+    height: 10,
+};
 
-canvas.width = document.body.clientWidth;
-canvas.height = document.body.clientHeight;
+function resize() {
+    canvas.style.width = document.body.clientWidth + 'px';
+    canvas.style.height = document.body.clientHeight + 'px';
+
+    canvas.width = document.body.clientWidth * dpr;
+    canvas.height = document.body.clientHeight * dpr;
+
+    canvasSize.width = document.body.clientWidth;
+    canvasSize.height = document.body.clientWidth;
+}
+
+window.addEventListener('resize', resize, true);
+
+resize();
 
 const ctx = canvas.getContext('2d');
+
+ctx.scale(dpr, dpr);
 
 let isFiring = false;
 
 if (!mobile) {
     canvas.addEventListener('mousemove', ({clientX, clientY}) => {
-        const rect = canvas.getBoundingClientRect();
-
-        const x = (clientX - rect.left - canvas.width / 2) / zoom;
-        const y = (clientY - rect.top - canvas.height / 2) / zoom;
+        const x = (clientX - canvasSize.width / 2) / zoom;
+        const y = (clientY - canvasSize.height / 2) / zoom;
 
         if (isFiring) {
             socket.send(new Writer().writeUint(4).writeBoolean(true).writeFloat(x).writeFloat(y).make());
@@ -67,10 +69,9 @@ if (!mobile) {
     });
 
     canvas.addEventListener('mousedown', ({clientX, clientY}) => {
-        const rect = canvas.getBoundingClientRect();
-
-        const x = (clientX - rect.left - canvas.width / 2) / zoom;
-        const y = (clientY - rect.top - canvas.height / 2) / zoom;
+        console.log(clientX, canvasSize, zoom, clientX - canvasSize.width / 2);
+        const x = (clientX - canvasSize.width / 2) / zoom;
+        const y = (clientY - canvasSize.height / 2) / zoom;
 
         isFiring = true;
 
@@ -95,10 +96,8 @@ if (!mobile) {
 
     joysticks[1].on = (event) => {
         if (event === 'move') {
-            const rect = canvas.getBoundingClientRect();
-
-            const x = (coordinate.x - rect.left - canvas.width / 2) / zoom;
-            const y = (coordinate.y - rect.top - canvas.height / 2) / zoom;
+            const x = (coordinate.x - canvasSize.width / 2) / zoom;
+            const y = (coordinate.y - canvasSize.height / 2) / zoom;
             const angle = Math.atan2(y, x);
 
             socket.send(new Writer().writeUint(4).writeBoolean(true).writeFloat(x).writeFloat(y).make());
@@ -168,8 +167,8 @@ function drawText(text, color, border, size, pos, align = 'start', isMessage = f
     }
 
     if (pos === 'center') {
-        if (border) ctx.strokeText(text, canvas.width / 2, canvas.height / 2);
-        ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+        if (border) ctx.strokeText(text, canvasSize.width / 2, canvasSize.height / 2);
+        ctx.fillText(text, canvasSize.width / 2, canvasSize.height / 2);
     } else {
         if (border) ctx.strokeText(text, pos.x, pos.y);
         ctx.fillText(text, pos.x, pos.y);
@@ -270,45 +269,27 @@ function drawEntityShape(obj) {
     }
 }
 
-function drawEntityShapeToOffscreenCanvas(offscreenCanvas, offscreenCtx, obj) {
-    offscreenCtx.clearRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
-
-    const {hp, size, score, name, angle, ...rest} = obj;
-    const modifiedObj = {...rest, size: 1, angle: 0};
-
-    offscreenCtx.beginPath();
-
-    if (Array.isArray(modifiedObj.sides)) {
-        drawPolygon(modifiedObj);
-    } else if (typeof modifiedObj.sides === 'string') {
-        drawPath(modifiedObj);
-    } else if (!modifiedObj.sides) {
-        drawCircle(modifiedObj);
-    } else if (modifiedObj.sides < 0) {
-        drawStar(modifiedObj);
-    } else if (modifiedObj.sides > 0) {
-        drawRegularPolygon(modifiedObj);
-    }
-
-    offscreenCtx.fill();
-    offscreenCtx.stroke();
-    offscreenCtx.closePath();
-}
-
 const renderInfo = () => {
     const textSize = 12;
 
     ctx.save();
 
-    drawText(location.host, Color.Black, Color.White, textSize + 2, {x: canvas.width - 10, y: canvas.height - 80}, 'right');
+    drawText(location.host, Color.Black, Color.White, textSize + 2, {x: canvasSize.width - 10, y: canvasSize.height - 80}, 'right');
 
-    drawText(`Client FPS: ${fps.toFixed(2)} fps`, fps < 60 ? Color.Red : Color.Black, Color.White, textSize, {x: canvas.width - 10, y: canvas.height - 60}, 'right');
+    drawText(`Client FPS: ${fps.toFixed(2)} fps`, fps < 60 ? Color.Red : Color.Black, Color.White, textSize, {x: canvasSize.width - 10, y: canvasSize.height - 60}, 'right');
 
-    drawText(`Server Tick: ${(1000 / world.tick).toFixed(2)}`, Color.Black, Color.White, textSize, {x: canvas.width - 10, y: canvas.height - 45}, 'right');
+    drawText(`Server Tick: ${(1000 / world.tick).toFixed(2)}`, Color.Black, Color.White, textSize, {x: canvasSize.width - 10, y: canvasSize.height - 45}, 'right');
 
-    drawText(`Average Data Size: ${avgDataSize.toFixed(2)} bytes`, Color.Black, Color.White, textSize, {x: canvas.width - 10, y: canvas.height - 30}, 'right');
+    drawText(`Average Data Size: ${avgDataSize.toFixed(2)} bytes`, Color.Black, Color.White, textSize, {x: canvasSize.width - 10, y: canvasSize.height - 30}, 'right');
 
-    drawText(`Data Rate: ${dataRate > 0 ? (dataRate / 1024).toFixed(2) : '0'} kb/s`, Color.Black, Color.White, textSize, {x: canvas.width - 10, y: canvas.height - 15}, 'right');
+    drawText(
+        `Data Rate: ${dataRate > 0 ? (dataRate / 1024).toFixed(2) : '0'} kb/s`,
+        Color.Black,
+        Color.White,
+        textSize,
+        {x: canvasSize.width - 10, y: canvasSize.height - 15},
+        'right',
+    );
 
     ctx.restore();
 };
@@ -318,7 +299,7 @@ const drawMessages = () => {
 
     for (let i = 0; i < message.stack.length; i++) {
         ctx.globalAlpha = Math.min(1, 0.5 + message.stack[i].alpha);
-        drawText(message.stack[i].msg, Color.Black, null, 14, {x: canvas.width / 2, y: 20 + i * 25}, 'center', true);
+        drawText(message.stack[i].msg, Color.Black, null, 14, {x: canvasSize.width / 2, y: 20 + i * 25}, 'center', true);
     }
 
     ctx.globalAlpha = 1;
@@ -331,18 +312,18 @@ const drawScore = () => {
 
     score.update();
 
-    drawText(`${entity.name}`, Color.White, Color.Black, 24, {x: canvas.width / 2, y: canvas.height - 65}, 'center', false);
+    drawText(`${entity.name}`, Color.White, Color.Black, 24, {x: canvasSize.width / 2, y: canvasSize.height - 65}, 'center', false);
 
-    drawText(`Score: ${score.score.toFixed(0)}`, Color.White, Color.Black, 14, {x: canvas.width / 2, y: canvas.height - 45}, 'center', false);
+    drawText(`Score: ${score.score.toFixed(0)}`, Color.White, Color.Black, 14, {x: canvasSize.width / 2, y: canvasSize.height - 45}, 'center', false);
 
     const radius = 10;
 
-    const width = canvas.width * 0.3;
+    const width = canvasSize.width * 0.3;
     const height = 20;
     const padding = 2;
 
-    const x = canvas.width / 2 - width / 2;
-    const y = canvas.height - 18 - height;
+    const x = canvasSize.width / 2 - width / 2;
+    const y = canvasSize.height - 18 - height;
 
     ctx.beginPath();
     ctx.fillStyle = Color.Black;
@@ -355,7 +336,7 @@ const drawScore = () => {
     ctx.roundRect(x + padding, y + padding, fillWidth - padding * 2, height - padding * 2, radius);
     ctx.fill();
 
-    drawText(`Level ${score.level} ${entity.label}`, Color.White, Color.Black, 14, {x: canvas.width / 2, y: canvas.height - 23}, 'center', false);
+    drawText(`Level ${score.level} ${entity.label}`, Color.White, Color.Black, 14, {x: canvasSize.width / 2, y: canvasSize.height - 23}, 'center', false);
 };
 
 const correction = (entity, deltaTick, t) => {
@@ -382,7 +363,7 @@ const render = (timestamp) => {
     if (!entity || !world.width) return requestAnimationFrame(render);
 
     if (entity.health > 0) {
-        const fov = Math.max(canvas.width, canvas.height) / ((entity.fov || 10) + entity.size);
+        const fov = Math.max(canvasSize.width, canvasSize.height) / ((entity.fov || 10) + entity.size);
         if (zoom !== fov) {
             const diff = Math.abs(zoom - fov);
             if (diff < 0.01) zoom = fov;
@@ -405,17 +386,17 @@ const render = (timestamp) => {
             lastRenderUpdate = performance.now();
         }
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, canvasSize.width, canvasSize.height);
 
         ctx.globalAlpha = 0.2;
         ctx.fillStyle = Color.Black2;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillRect(0, 0, canvasSize.width, canvasSize.height);
         ctx.globalAlpha = 1;
 
         ctx.save();
 
         ctx.scale(zoom, zoom);
-        ctx.translate(canvas.width / 2 / zoom - entity.pos.x, canvas.height / 2 / zoom - entity.pos.y);
+        ctx.translate(canvasSize.width / 2 / zoom - entity.pos.x, canvasSize.height / 2 / zoom - entity.pos.y);
 
         ctx.fillStyle = Color.White;
         ctx.fillRect(0, 0, world.width, world.height);
@@ -491,12 +472,12 @@ const render = (timestamp) => {
             if (joysticks[1].currentX !== 0 || joysticks[1].currentY !== 0) {
                 const padding = joysticks[1].radius - joysticks[1].innerRadius;
 
-                const maxDimension = Math.max(canvas.width, canvas.height);
+                const maxDimension = Math.max(canvasSize.width, canvasSize.height);
 
                 const scaleFactor = maxDimension / (joysticks[1].radius * 2);
 
-                coordinate.x = Math.max(0, Math.min(joysticks[1].currentX * scaleFactor + canvas.width / 2, canvas.width));
-                coordinate.y = Math.max(0, Math.min(joysticks[1].currentY * scaleFactor + canvas.height / 2, canvas.height));
+                coordinate.x = Math.max(0, Math.min(joysticks[1].currentX * scaleFactor + canvasSize.width / 2, canvasSize.width));
+                coordinate.y = Math.max(0, Math.min(joysticks[1].currentY * scaleFactor + canvasSize.height / 2, canvasSize.height));
             }
 
             const lineLength = 20;
@@ -530,14 +511,14 @@ const render = (timestamp) => {
 
         ctx.restore();
     } else {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, canvasSize.width, canvasSize.height);
 
         ctx.globalAlpha = 0.2;
         ctx.fillStyle = Color.Red;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillRect(0, 0, canvasSize.width, canvasSize.height);
         ctx.globalAlpha = 1;
 
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillRect(0, 0, canvasSize.width, canvasSize.height);
 
         drawText('You are Die.', Color.Black, Color.White, 40, 'center', 'center');
     }
