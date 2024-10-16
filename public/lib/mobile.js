@@ -24,10 +24,10 @@ export const joysticks = [
     },
     {
         get x() {
-            return canvas.width * 0.8;
+            return (canvas.width / dpr) * 0.8;
         },
         get y() {
-            return canvas.height * 0.7;
+            return (canvas.height / dpr) * 0.7;
         },
         radius: 50,
         innerRadius: 25,
