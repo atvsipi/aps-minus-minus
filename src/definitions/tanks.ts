@@ -52,7 +52,7 @@ Class.Player = {
         pushability: 1,
         fov: 800,
     },
-    upgrades: ['Basic', 'Basic'],
+    upgrades: ['Basic'],
     guns: [makeOverLordGun(0), makeOverLordGun(Math.PI / 2), makeOverLordGun(Math.PI), makeOverLordGun(Math.PI * 1.5)],
 };
 
@@ -75,9 +75,9 @@ Class.Basic = {
         {
             offset: -5,
             direction: 0,
-            length: 14,
-            width: 32,
-            aspect: 1.2,
+            length: 20,
+            width: 18,
+            aspect: 1,
             angle: 0,
             color: Color.LightGrey,
             border: Color.AutoBorder,
@@ -93,13 +93,13 @@ Class.Basic = {
                 independentChildren: false,
                 destroyOldestChild: false,
                 skill: {
-                    reload: 0.01,
+                    reload: 0.1,
                     recoil: 1,
                     size: 1,
                     health: 1,
-                    damage: 1,
+                    damage: 2,
                     pen: 1,
-                    speed: 2,
+                    speed: 8,
                     range: null,
                     spray: 1,
                 },
@@ -126,6 +126,7 @@ Class.Bullet = {
         fov: 90,
     },
     bullet: true,
+    hardBullet: false,
 };
 
 Class.Drone = {
