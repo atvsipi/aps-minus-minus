@@ -74,13 +74,17 @@ export interface ClassType {
     color?: Color | string;
     border?: Color | string;
     guns?: GunClassType[];
+    upgrades?: string[];
+    tier?: number;
 }
 
 export interface ProcessedClass extends EntitySetting {
+    tier: number;
     mockupId: number;
     color: Color | string;
     border: Color | string;
     guns: GunSetting[];
+    upgrades: string[];
 }
 
 const defaultGun: GunSetting = {
@@ -119,6 +123,7 @@ const defaultGun: GunSetting = {
 };
 
 const defaultEntity: ProcessedClass = {
+    tier: 0,
     mockupId: 0,
     showHealth: true,
     showName: true,
@@ -152,6 +157,7 @@ const defaultEntity: ProcessedClass = {
     color: Color.TeamColor,
     border: Color.AutoBorder,
     guns: [],
+    upgrades: [],
 };
 
 export const Class: {[key: string]: ClassType} = {};
@@ -168,7 +174,7 @@ function ProcessClass(name: string, entityClass: ClassType, basic: ProcessedClas
 
     if (entityClass.skill) processed.skill = Object.assign({}, basic.skill, entityClass.skill);
 
-    if (entityClass.guns && entityClass.guns.length > 0) {
+    if (entityClass.guns) {
         processed.guns = [];
 
         for (const gun of entityClass.guns) {

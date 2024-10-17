@@ -73,7 +73,6 @@ if (!mobile) {
     });
 
     canvas.addEventListener('mousedown', ({clientX, clientY}) => {
-        console.log(clientX, canvasSize, zoom, clientX - canvasSize.width / 2);
         const x = (clientX - canvasSize.width / 2) / zoom;
         const y = (clientY - canvasSize.height / 2) / zoom;
 

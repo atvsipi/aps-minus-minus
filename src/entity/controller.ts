@@ -180,11 +180,7 @@ export class GoToMasterTarget extends Controller {
         }
 
         return {
-            target: this.target
-                .clone()
-                .add(this.entity.masterPos)
-                .sub(this.entity.pos)
-                .add(Math.random() * 10),
+            target: this.target.clone().add(this.entity.masterPos).sub(this.entity.pos),
             goal: null,
             main: true,
             fire: false,

@@ -4,7 +4,7 @@ import {HSHGMeta} from '../physics/hshg';
 import {Vector} from '../physics/vector';
 import {Gun} from './gun';
 import {EventEmitter} from 'events';
-import {ProcessedClass} from './class';
+import {EntityClass, ProcessedClass} from './class';
 import {room} from '../room/room';
 import {RoomConfig} from '../room/roomconfig';
 import {Controller} from './controller';
@@ -39,6 +39,7 @@ export interface EntitySetting {
         pushability: number;
         fov: number;
     };
+    upgrades: string[];
 }
 
 export class Entity extends EventEmitter {
@@ -159,9 +160,15 @@ export class Entity extends EventEmitter {
             pushability: 1,
             fov: 90,
         },
+        upgrades: [],
     };
 
     public guns: Gun[] = [];
+
+    public allUpgrades: ProcessedClass[] = [];
+    public upgrades: ProcessedClass[] = [];
+
+    public upgradeAdded: boolean = false;
 
     public color: Color | string = Color.TeamColor;
     public border: Color | string = Color.AutoBorder;
@@ -237,6 +244,7 @@ export class Entity extends EventEmitter {
         this.setting.independent = Class.independent;
         this.setting.controllers = Class.controllers;
         this.setting.hitType = Class.hitType;
+        this.setting.upgrades = Class.upgrades;
         this.color = Class.color;
         this.border = Class.border;
         this.score = Class.score;
@@ -251,6 +259,17 @@ export class Entity extends EventEmitter {
 
             this.guns.push(gun);
         }
+
+        this.allUpgrades = [];
+        for (let i = 0; i < Class.upgrades.length; i++) {
+            this.allUpgrades.push(EntityClass[Class.upgrades[i]]);
+        }
+
+        this.upgrades = this.allUpgrades.filter((upgrade) => upgrade.tier <= this.level);
+
+        if (this.upgrades.length > 0) this.upgradeAdded = true;
+
+        this.changed = true;
     }
 
     public update() {
@@ -262,6 +281,8 @@ export class Entity extends EventEmitter {
         if (this.score > this.levelScore) {
             this.level++;
             this.levelScore = RoomConfig.levelScore(this.level);
+            this.upgrades = this.allUpgrades.filter((upgrade) => upgrade.tier <= this.level);
+            if (this.upgrades.length > 0) this.upgradeAdded = true;
         }
 
         if (this.health < this.setting.skill.health) {

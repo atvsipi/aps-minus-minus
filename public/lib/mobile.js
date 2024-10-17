@@ -4,8 +4,6 @@ const canvas = document.getElementById('canvas');
 const dpr = window.devicePixelRatio || 2;
 const ctx = canvas.getContext('2d');
 
-ctx.scale(dpr, dpr);
-
 export const joysticks = [
     {
         get x() {

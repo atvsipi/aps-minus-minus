@@ -40,6 +40,7 @@ function makeOverLordGun(angle: number): GunClassType {
 
 Class.Player = {
     sides: 0,
+    label: 'Overlord',
     killMessage: true,
     skill: {
         speed: 0.5,
@@ -51,7 +52,60 @@ Class.Player = {
         pushability: 1,
         fov: 800,
     },
+    upgrades: ['Basic'],
     guns: [makeOverLordGun(0), makeOverLordGun(Math.PI / 2), makeOverLordGun(Math.PI), makeOverLordGun(Math.PI * 1.5)],
+};
+
+Class.Basic = {
+    tier: 0,
+    label: 'Basic',
+    sides: 0,
+    killMessage: true,
+    skill: {
+        speed: 0.5,
+        health: 140,
+        regen: 0.001,
+        damage: 30,
+        pen: 10,
+        range: null,
+        pushability: 1,
+        fov: 400,
+    },
+    guns: [
+        {
+            offset: -5,
+            direction: 0,
+            length: 14,
+            width: 32,
+            aspect: 1.2,
+            angle: 0,
+            color: Color.LightGrey,
+            border: Color.AutoBorder,
+            strokeWidth: 4,
+            alpha: 1,
+            layer: -1,
+            properties: {
+                type: 'Bullet',
+                autofire: false,
+                altFire: false,
+                delaySpawn: 0,
+                maxChildren: false,
+                independentChildren: false,
+                destroyOldestChild: false,
+                skill: {
+                    reload: 0.01,
+                    recoil: 1,
+                    size: 1,
+                    health: 1,
+                    damage: 1,
+                    pen: 1,
+                    speed: 2,
+                    range: null,
+                    spray: 1,
+                },
+            },
+        },
+    ],
 };
 
 Class.Bullet = {
@@ -147,6 +201,7 @@ Class.Food = {
         range: null,
         pushability: 1,
     },
+    upgrades: ['Basic'],
     score: 100,
     food: true,
     guns: [],

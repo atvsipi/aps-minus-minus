@@ -78,7 +78,9 @@ const socketOnMessage = async ({data}) => {
         lastUpdate = currentTime;
     }
 
-    switch (msg.readUint()) {
+    const msgType = msg.readUint();
+
+    switch (msgType) {
         case 0:
             socket.close();
 
@@ -209,6 +211,20 @@ const socketOnMessage = async ({data}) => {
             break;
         }
 
+        case 6: {
+            entity.score = msg.readFloat();
+            entity.level = msg.readInt();
+            entity.levelScore = msg.readFloat();
+
+            break;
+        }
+
+        case 7: {
+            message.add(msg.readString());
+
+            break;
+        }
+
         case 8: {
             const id = msg.readUint();
             const obj = idToEntity.has(id) ? idToEntity.get(id) : entity;
@@ -264,17 +280,61 @@ const socketOnMessage = async ({data}) => {
             break;
         }
 
-        case 6: {
-            entity.score = msg.readFloat();
-            entity.level = msg.readInt();
-            entity.levelScore = msg.readFloat();
+        case 9: {
+            const length = msg.readUint();
+            entity.upgrades = [];
+            for (let i = 0; i < length; i++) {
+                const upgrade = {};
+
+                upgrade.label = msg.readString();
+
+                upgrade.color = decodeColor(msg, entity.team);
+                upgrade.border = decodeBorder(msg, entity.team, entity.color);
+
+                const type = msg.readUint();
+                if (type === 0) {
+                    upgrade.sides = msg.readString();
+                } else if (type === 1) {
+                    upgrade.sides = msg.readInt();
+                } else {
+                    const length = type - 2;
+
+                    upgrade.sides = [];
+
+                    for (let i = 0; i < length; i++) {
+                        upgrade.sides.push([msg.readFloat(), msg.readFloat()]);
+                    }
+                }
+
+                upgrade.guns = [];
+
+                const gunArrayLength = msg.readUint();
+
+                for (let j = 0; j < gunArrayLength; j++) {
+                    let color;
+                    upgrade.guns.push({
+                        offset: msg.readFloat(),
+                        direction: msg.readFloat(),
+                        length: msg.readFloat(),
+                        width: msg.readFloat(),
+                        aspect: msg.readFloat(),
+                        angle: msg.readFloat(),
+                        color: (color = decodeColor(msg, entity.team)),
+                        border: decodeBorder(msg, entity.team, color),
+                        strokeWidth: msg.readFloat(),
+                        alpha: msg.readFloat(),
+                        layer: msg.readInt(),
+                    });
+                }
+
+                entity.upgrades.push(upgrade);
+            }
 
             break;
         }
 
-        case 7: {
-            message.add(msg.readString());
-        }
+        default:
+            console.error('Unknown message: ' + msgType);
     }
 };
 
@@ -284,6 +344,6 @@ export function start(_name) {
     socket.binaryType = 'arraybuffer';
     socket.onmessage = socketOnMessage;
     socket.onopen = () => {
-        socket.send(new Writer().writeUint(0).writeString(name).make());
+        setTimeout(() => socket.send(new Writer().writeUint(0).writeString(name).make()), 100);
     };
 }

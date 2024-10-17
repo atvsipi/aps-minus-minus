@@ -8,8 +8,12 @@ export class Entity {
     angle = 0;
     pos = new Vector();
     vel = new Vector();
+    level = 0;
     score = 0;
+    levelScore = 0;
     size = 0;
+
+    upgrades = [];
 
     team = Team[0];
     maxHealth = 100;

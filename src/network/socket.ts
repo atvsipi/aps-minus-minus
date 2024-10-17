@@ -7,6 +7,7 @@ import {Logger} from '../util/logger';
 import {EntityClass} from '../entity/class';
 import {Vector} from '../physics/vector';
 import {setInterval} from 'timers';
+import {GunSetting} from '../entity/gun';
 
 const users = new Map<
     string,
@@ -82,6 +83,16 @@ export function message(uuid: string, data: Uint8Array, send: (msg: Uint8Array |
 
                     msg.writeUint(2);
                     EntityData(obj, msg, true);
+
+                    send(msg.make());
+                }
+
+                {
+                    const msg = new Protocol.Writer();
+
+                    msg.writeUint(9);
+
+                    EntityUpgrade(entity, msg);
 
                     send(msg.make());
                 }
@@ -252,52 +263,62 @@ function EntityInfo(entity: Entity, msg: Protocol.Writer) {
     return msg;
 }
 
+function Mockup(sides: string | number | Vector[], guns: GunSetting[], msg: Protocol.Writer) {
+    if (typeof sides === 'string') {
+        msg.writeUint(0);
+        msg.writeString(sides);
+    } else if (typeof sides === 'object') {
+        msg.writeUint(2 + sides.length);
+        for (let i = 0; i < sides.length; i++) {
+            msg.writeFloat(sides[i].x);
+            msg.writeFloat(sides[i].y);
+        }
+    } else {
+        msg.writeUint(1);
+        msg.writeInt(sides);
+    }
+
+    msg.writeUint(guns.length);
+
+    for (const gun of guns) {
+        msg.writeFloat(gun.offset);
+        msg.writeFloat(gun.direction);
+        msg.writeFloat(gun.length);
+        msg.writeFloat(gun.width);
+        msg.writeFloat(gun.aspect);
+        msg.writeFloat(gun.angle);
+        if (typeof gun.color === 'string') {
+            msg.writeUint(0);
+            msg.writeString(gun.color);
+        } else {
+            msg.writeUint(1);
+            msg.writeUint(gun.color);
+        }
+        if (typeof gun.border === 'string') {
+            msg.writeUint(0);
+            msg.writeString(gun.border);
+        } else {
+            msg.writeUint(1);
+            msg.writeUint(gun.border);
+        }
+        msg.writeFloat(gun.strokeWidth);
+        msg.writeFloat(gun.alpha);
+        msg.writeInt(gun.layer);
+    }
+
+    return msg;
+}
+
 function EntityMockup(entity: Entity, msg: Protocol.Writer) {
     msg.writeUint(entity.id);
 
     msg.writeString(entity.setting.label);
 
-    if (typeof entity.setting.sides === 'string') {
-        msg.writeUint(0);
-        msg.writeString(entity.setting.sides);
-    } else if (typeof entity.setting.sides === 'object') {
-        msg.writeUint(2 + entity.setting.sides.length);
-        for (let i = 0; i < entity.setting.sides.length; i++) {
-            msg.writeFloat(entity.setting.sides[i].x);
-            msg.writeFloat(entity.setting.sides[i].y);
-        }
-    } else {
-        msg.writeUint(1);
-        msg.writeInt(entity.setting.sides);
-    }
-
-    msg.writeUint(entity.guns.length);
-
-    for (const gun of entity.guns) {
-        msg.writeFloat(gun.setting.offset);
-        msg.writeFloat(gun.setting.direction);
-        msg.writeFloat(gun.setting.length);
-        msg.writeFloat(gun.setting.width);
-        msg.writeFloat(gun.setting.aspect);
-        msg.writeFloat(gun.setting.angle);
-        if (typeof gun.setting.color === 'string') {
-            msg.writeUint(0);
-            msg.writeString(gun.setting.color);
-        } else {
-            msg.writeUint(1);
-            msg.writeUint(gun.setting.color);
-        }
-        if (typeof gun.setting.border === 'string') {
-            msg.writeUint(0);
-            msg.writeString(gun.setting.border);
-        } else {
-            msg.writeUint(1);
-            msg.writeUint(gun.setting.border);
-        }
-        msg.writeFloat(gun.setting.strokeWidth);
-        msg.writeFloat(gun.setting.alpha);
-        msg.writeInt(gun.setting.layer);
-    }
+    Mockup(
+        entity.setting.sides,
+        entity.guns.map((gun) => gun.setting),
+        msg,
+    );
 
     return msg;
 }
@@ -321,6 +342,33 @@ function EntityData(entity: Entity, msg: Protocol.Writer, active: boolean = fals
     return msg;
 }
 
+function EntityUpgrade(entity: Entity, msg: Protocol.Writer) {
+    msg.writeUint(entity.upgrades.length);
+    for (const upgrade of entity.upgrades) {
+        msg.writeString(upgrade.label);
+
+        if (typeof upgrade.color === 'string') {
+            msg.writeUint(0);
+            msg.writeString(upgrade.color);
+        } else {
+            msg.writeUint(1);
+            msg.writeUint(upgrade.color);
+        }
+
+        if (typeof upgrade.border === 'string') {
+            msg.writeUint(0);
+            msg.writeString(upgrade.border);
+        } else {
+            msg.writeUint(1);
+            msg.writeUint(upgrade.border);
+        }
+
+        Mockup(upgrade.sides, upgrade.guns, msg);
+    }
+
+    return msg;
+}
+
 setInterval(() => {
     const changed = new Set<Entity>();
     for (const user of users) {
@@ -339,6 +387,28 @@ setInterval(() => {
         EntityData(entity, msg);
 
         user[1].send(msg.make());
+
+        if (entity.upgradeAdded) {
+            msg.reset();
+
+            msg.writeUint(9);
+
+            EntityUpgrade(entity, msg);
+
+            user[1].send(msg.make());
+
+            entity.upgradeAdded = false;
+        }
+
+        if (entity.changed) {
+            msg.reset();
+
+            msg.writeUint(5);
+            EntityInfo(entity, msg);
+
+            user[1].send(msg.make());
+            changed.add(entity);
+        }
 
         if (entity.tick % 20 === 0) {
             msg.reset();
