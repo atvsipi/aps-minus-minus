@@ -252,6 +252,8 @@ export class Entity extends EventEmitter {
 
         if (this.setting.name !== null) this.name = this.setting.name;
 
+        this.guns = [];
+
         for (const gunSetting of Class.guns) {
             const gun = new Gun(this);
 

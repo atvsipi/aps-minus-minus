@@ -212,6 +212,23 @@ export function message(uuid: string, data: Uint8Array, send: (msg: Uint8Array |
                 break;
             }
 
+            // Upgrade
+            case 7: {
+                if (!users.has(uuid)) break;
+
+                const user = users.get(uuid);
+
+                if (!user.body) break;
+
+                const index = msg.readUint();
+
+                if (!user.body.upgrades[index]) break;
+
+                user.body.init(user.body.upgrades[index]);
+
+                break;
+            }
+
             default:
                 send("I can't understand :(");
                 break;

@@ -75,8 +75,8 @@ if (!mobile) {
     canvas.addEventListener('mousedown', ({clientX, clientY}) => {
         if (entity && entity.upgrades.length > 0 && entity.upgrades[0].startX !== undefined) {
             for (let i = 0; i < entity.upgrades.length; i++) {
-                console.log(entity.upgrades[i], clientX, clientY);
-                if (entity.upgrades[i].startX >= clientX && entity.upgrades[i].endX <= clientX && entity.upgrades[i].startY >= clientY && entity.upgrades[i].endY <= clientY) {
+                if (entity.upgrades[i].startX <= clientX && entity.upgrades[i].endX >= clientX && entity.upgrades[i].startY <= clientY && entity.upgrades[i].endY >= clientY) {
+                    entity.upgrades = [];
                     socket.send(new Writer().writeUint(7).writeUint(i).make());
                     return;
                 }
@@ -288,8 +288,8 @@ const renderUpgrades = () => {
     if (entity.upgrades.length > 0) {
         const cols = Math.ceil(entity.upgrades.length / 3);
 
-        const rows = 3;
-        const cellWidth = Math.min(canvasSize.width, canvasSize.height) * 0.13;
+        const rows = mobile ? 6 : 3;
+        const cellWidth = Math.max(canvasSize.width, canvasSize.height) * 0.1;
         ctx.lineWidth = 2;
 
         for (let i = 0; i < rows; i++) {
