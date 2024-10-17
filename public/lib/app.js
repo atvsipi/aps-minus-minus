@@ -73,6 +73,16 @@ if (!mobile) {
     });
 
     canvas.addEventListener('mousedown', ({clientX, clientY}) => {
+        if (entity && entity.upgrades.length > 0 && entity.upgrades[0].startX !== undefined) {
+            for (let i = 0; i < entity.upgrades.length; i++) {
+                console.log(entity.upgrades[i], clientX, clientY);
+                if (entity.upgrades[i].startX >= clientX && entity.upgrades[i].endX <= clientX && entity.upgrades[i].startY >= clientY && entity.upgrades[i].endY <= clientY) {
+                    socket.send(new Writer().writeUint(7).writeUint(i).make());
+                    return;
+                }
+            }
+        }
+
         const x = (clientX - canvasSize.width / 2) / zoom;
         const y = (clientY - canvasSize.height / 2) / zoom;
 
@@ -271,6 +281,75 @@ function drawEntityShape(obj) {
         ctx.fill();
     }
 }
+
+let upgradeAngle = 0;
+
+const renderUpgrades = () => {
+    if (entity.upgrades.length > 0) {
+        const cols = Math.ceil(entity.upgrades.length / 3);
+
+        const rows = 3;
+        const cellWidth = Math.min(canvasSize.width, canvasSize.height) * 0.13;
+        ctx.lineWidth = 2;
+
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < cols; j++) {
+                const index = i * cols + j;
+                if (index < entity.upgrades.length) {
+                    const upgrade = entity.upgrades[index];
+
+                    upgrade.angle = upgradeAngle;
+                    upgrade.size = cellWidth * 0.15;
+                    upgrade.isLoaded = true;
+
+                    const startX = 10 + i * cellWidth + i * cellWidth * 0.2;
+                    const startY = 10 + j * cellWidth + j * cellWidth * 0.2;
+
+                    upgrade.startX = startX;
+                    upgrade.startY = startY;
+                    upgrade.endX = startX + cellWidth;
+                    upgrade.endY = startY + cellWidth;
+
+                    ctx.strokeRect(startX, startY, cellWidth, cellWidth);
+
+                    const centerX = startX + cellWidth / 2;
+                    const centerY = startY + cellWidth / 2;
+
+                    ctx.save();
+                    ctx.translate(centerX, centerY);
+
+                    ctx.lineWidth = 2;
+                    ctx.lineJoin = 'round';
+
+                    if (upgrade.guns) {
+                        for (const gun of upgrade.guns.filter((gun) => gun.layer < 0)) {
+                            drawGun(upgrade, gun);
+                        }
+                    }
+
+                    ctx.fillStyle = upgrade.color;
+                    ctx.strokeStyle = upgrade.border;
+
+                    drawEntityShape(upgrade);
+
+                    if (upgrade.guns) {
+                        for (const gun of upgrade.guns.filter((gun) => gun.layer > -1).sort((a, b) => a.layer - b.layer)) {
+                            drawGun(upgrade, gun);
+                        }
+                    }
+
+                    const bottomY = cellWidth * 0.7;
+
+                    drawText(upgrade.label, Color.White, Color.Black, cellWidth * 0.2, {x: 0, y: bottomY}, 'center');
+
+                    ctx.restore();
+                }
+            }
+        }
+
+        upgradeAngle += 0.01;
+    }
+};
 
 const renderInfo = () => {
     const textSize = 12;
@@ -511,6 +590,8 @@ const render = (timestamp) => {
         drawMessages();
 
         drawScore();
+
+        renderUpgrades();
 
         ctx.restore();
     } else {

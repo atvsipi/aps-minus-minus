@@ -52,7 +52,7 @@ Class.Player = {
         pushability: 1,
         fov: 800,
     },
-    upgrades: ['Basic'],
+    upgrades: ['Basic', 'Basic'],
     guns: [makeOverLordGun(0), makeOverLordGun(Math.PI / 2), makeOverLordGun(Math.PI), makeOverLordGun(Math.PI * 1.5)],
 };
 

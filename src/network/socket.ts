@@ -65,7 +65,7 @@ export function message(uuid: string, data: Uint8Array, send: (msg: Uint8Array |
                     send,
                 });
 
-                {
+                setTimeout(() => {
                     const msg = new Protocol.Writer();
 
                     msg.writeUint(4);
@@ -74,20 +74,20 @@ export function message(uuid: string, data: Uint8Array, send: (msg: Uint8Array |
                     msg.writeFloat(RoomConfig.tick);
 
                     send(msg.make());
-                }
+                }, 10);
 
-                for (const obj of room.entities) {
-                    if (obj === entity) continue;
+                setTimeout(() => {
+                    for (const obj of room.entities) {
+                        if (obj === entity) continue;
 
-                    const msg = new Protocol.Writer();
+                        const msg = new Protocol.Writer();
 
-                    msg.writeUint(2);
-                    EntityData(obj, msg, true);
+                        msg.writeUint(2);
+                        EntityData(obj, msg, true);
 
-                    send(msg.make());
-                }
+                        send(msg.make());
+                    }
 
-                {
                     const msg = new Protocol.Writer();
 
                     msg.writeUint(9);
@@ -95,7 +95,7 @@ export function message(uuid: string, data: Uint8Array, send: (msg: Uint8Array |
                     EntityUpgrade(entity, msg);
 
                     send(msg.make());
-                }
+                }, 10);
 
                 entity.socket.sendMsg(RoomConfig.welcomeMessage);
 
