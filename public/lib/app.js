@@ -37,6 +37,8 @@ const canvasSize = {
     height: 10,
 };
 
+const ctx = canvas.getContext('2d');
+
 function resize() {
     canvas.style.width = document.body.clientWidth + 'px';
     canvas.style.height = document.body.clientHeight + 'px';
@@ -46,15 +48,13 @@ function resize() {
 
     canvasSize.width = document.body.clientWidth;
     canvasSize.height = document.body.clientHeight;
+
+    ctx.scale(dpr, dpr);
 }
 
 window.addEventListener('resize', resize, true);
 
 resize();
-
-const ctx = canvas.getContext('2d');
-
-ctx.scale(dpr, dpr);
 
 let isFiring = false;
 
