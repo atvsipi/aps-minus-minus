@@ -225,7 +225,11 @@ export function message(uuid: string, data: Uint8Array, send: (msg: Uint8Array |
 
                 if (!user.body.upgrades[index]) break;
 
+                const label = user.body.upgrades[index].label;
+
                 user.body.init(user.body.upgrades[index]);
+
+                user.body.socket.sendMsg('You have upgraded to ' + label + '.');
 
                 break;
             }
