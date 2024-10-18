@@ -41,6 +41,7 @@ export interface EntitySetting {
         fov: number;
     };
     upgrades: string[];
+    on: {[key: string]: (...args: unknown[]) => unknown};
 }
 
 export class Entity extends EventEmitter {
@@ -163,6 +164,7 @@ export class Entity extends EventEmitter {
             fov: 90,
         },
         upgrades: [],
+        on: {},
     };
 
     public guns: Gun[] = [];
@@ -248,6 +250,7 @@ export class Entity extends EventEmitter {
         this.setting.hitType = Class.hitType;
         this.setting.miniMapType = Class.miniMapType;
         this.setting.upgrades = Class.upgrades;
+        this.setting.on = Class.on;
         this.color = Class.color;
         this.border = Class.border;
         this.score = Class.score;

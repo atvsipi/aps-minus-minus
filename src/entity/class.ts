@@ -77,6 +77,7 @@ export interface ClassType {
     guns?: GunClassType[];
     upgrades?: string[];
     tier?: number;
+    on?: {[key: string]: (...args: unknown[]) => unknown};
 }
 
 export interface ProcessedClass extends EntitySetting {
@@ -160,6 +161,7 @@ const defaultEntity: ProcessedClass = {
     border: Color.AutoBorder,
     guns: [],
     upgrades: [],
+    on: {},
 };
 
 export const Class: {[key: string]: ClassType} = {};
