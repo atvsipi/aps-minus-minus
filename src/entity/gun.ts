@@ -148,7 +148,7 @@ export class Gun {
             } else return;
         }
 
-        if (this.body.tick - this.lastFireTick > 30 - this.setting.properties.skill.reload * 3.42) {
+        if (this.body.tick - this.lastFireTick > 30 - this.setting.properties.skill.reload) {
             this.lastFireTick = this.body.tick;
 
             setTimeout(() => {

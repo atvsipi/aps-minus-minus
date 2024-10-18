@@ -17,6 +17,7 @@ export interface EntitySetting {
     killMessage: boolean | string;
     label: string;
     hitType: 'none' | 'auto' | ((other: Entity) => void);
+    miniMapType: 'none' | 'always' | 'team' | ((other: Entity) => boolean);
     score: number;
     name: null | string;
     size: number;
@@ -138,6 +139,7 @@ export class Entity extends EventEmitter {
         killMessage: true,
         label: 'Entity',
         hitType: 'auto',
+        miniMapType: 'team',
         score: 25000,
         name: null,
         size: 10,
@@ -244,6 +246,7 @@ export class Entity extends EventEmitter {
         this.setting.independent = Class.independent;
         this.setting.controllers = Class.controllers;
         this.setting.hitType = Class.hitType;
+        this.setting.miniMapType = Class.miniMapType;
         this.setting.upgrades = Class.upgrades;
         this.color = Class.color;
         this.border = Class.border;

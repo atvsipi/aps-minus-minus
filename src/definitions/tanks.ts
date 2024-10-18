@@ -54,6 +54,7 @@ Class.Player = {
     },
     upgrades: ['Basic', 'Twin', 'Annihilator', 'Basic', 'Basic', 'Basic', 'Basic', 'Basic', 'Basic'],
     guns: [makeOverLordGun(0), makeOverLordGun(Math.PI / 2), makeOverLordGun(Math.PI), makeOverLordGun(Math.PI * 1.5)],
+    miniMapType: 'team',
 };
 
 Class.Basic = {
@@ -106,6 +107,7 @@ Class.Basic = {
             },
         },
     ],
+    miniMapType: 'team',
 };
 
 Class.Twin = {
@@ -145,7 +147,7 @@ Class.Twin = {
                 independentChildren: false,
                 destroyOldestChild: false,
                 skill: {
-                    reload: 0.1,
+                    reload: 1,
                     recoil: 1,
                     size: 1,
                     health: 1,
@@ -173,12 +175,12 @@ Class.Twin = {
                 type: 'Bullet',
                 autofire: false,
                 altFire: false,
-                delaySpawn: 800,
+                delaySpawn: 250,
                 maxChildren: false,
                 independentChildren: false,
                 destroyOldestChild: false,
                 skill: {
-                    reload: 0.1,
+                    reload: 1,
                     recoil: 1,
                     size: 1,
                     health: 1,
@@ -191,6 +193,7 @@ Class.Twin = {
             },
         },
     ],
+    miniMapType: 'team',
 };
 
 Class.Annihilator = {
@@ -234,7 +237,7 @@ Class.Annihilator = {
                     recoil: 1,
                     size: 2,
                     health: 1,
-                    damage: 10,
+                    damage: 4,
                     pen: 1,
                     speed: 3,
                     range: 2,
@@ -243,6 +246,7 @@ Class.Annihilator = {
             },
         },
     ],
+    miniMapType: 'team',
 };
 
 Class.Bullet = {
@@ -310,6 +314,7 @@ Class.Drone1 = {
 };
 
 Class.Wall = {
+    label: 'Wall',
     showHealth: false,
     showName: false,
     showScore: false,
@@ -318,6 +323,7 @@ Class.Wall = {
     size: 49,
     skill: {damage: 0, health: 10000},
     guns: [],
+    miniMapType: 'none',
     color: Color.LightGrey,
 };
 
@@ -332,7 +338,7 @@ Class.Food = {
     killMessage: false,
     skill: {
         speed: 0.2,
-        health: 10,
+        health: 5,
         regen: 0.0001,
         damage: 1,
         pen: 1,
@@ -342,6 +348,7 @@ Class.Food = {
     upgrades: ['Basic'],
     score: 100,
     food: true,
+    miniMapType: 'none',
     guns: [],
     color: Color.Gold,
     controllers: [new CircleMove()],
@@ -449,6 +456,7 @@ Class.bot = {
             },
         },
     ],
+    miniMapType: 'team',
     color: Color.Lavender,
     controllers: [new CircleMove(), new Nearest()],
 };

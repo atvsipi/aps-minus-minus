@@ -12,6 +12,8 @@ export class RoomLoop extends EventEmitter {
 
     public index: number = 0;
 
+    public tick: number = 0;
+
     public socket: {
         send: (msg: Uint8Array) => void;
         sendMsg: (msg: string) => void;
@@ -19,6 +21,8 @@ export class RoomLoop extends EventEmitter {
         send: () => void 0,
         sendMsg: () => void 0,
     };
+
+    public miniMap: Set<Entity> = new Set();
 
     public insert(entity: Entity) {
         this.entities.add(entity);
@@ -36,6 +40,8 @@ export class RoomLoop extends EventEmitter {
         this.hshg.removeObject(entity);
 
         this.idToEntity.delete(entity.id);
+
+        this.miniMap.delete(entity);
 
         entity.die = true;
 
@@ -174,6 +180,9 @@ export class RoomLoop extends EventEmitter {
         for (const entity of this.entities) {
             entity.update();
             RoomConfig.physics(entity);
+
+            if (entity.setting.miniMapType === 'none') this.miniMap.delete(entity);
+            else this.miniMap.add(entity);
         }
     }
 }

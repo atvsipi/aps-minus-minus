@@ -5,7 +5,7 @@ import {joysticks, drawJoystick} from './mobile.js';
 import {message} from './message.js';
 import {score} from './score.js';
 
-import {avgDataSize, dataRate, socket, entity, entities, idToEntity, world, start} from './socket.js';
+import {avgDataSize, dataRate, socket, entity, entities, idToEntity, world, minimap, start} from './socket.js';
 
 const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
@@ -439,6 +439,33 @@ const drawScore = () => {
     drawText(`Level ${score.level} ${entity.label}`, Color.White, Color.Black, 14, {x: canvasSize.width / 2, y: canvasSize.height - 23}, 'center', false);
 };
 
+const drawMiniMap = () => {
+    const minimapScale = 0.1;
+    const minimapWidth = world.width * minimapScale;
+    const minimapHeight = world.height * minimapScale;
+
+    const minimapStartX = canvasSize.width - minimapWidth - 10;
+    const minimapStartY = canvasSize.height - minimapHeight - 100;
+
+    ctx.lineWidth = 2;
+    ctx.globalAlpha = 0.6;
+    ctx.fillStyle = Color.White;
+    ctx.fillRect(minimapStartX, minimapStartY, minimapWidth, minimapHeight);
+    ctx.globalAlpha = 1;
+    ctx.strokeRect(minimapStartX, minimapStartY, minimapWidth, minimapHeight);
+
+    for (const item of minimap) {
+        ctx.fillStyle = item.color;
+        const minimapX = minimapStartX + item.pos.x * minimapScale;
+        const minimapY = minimapStartY + item.pos.y * minimapScale;
+
+        ctx.beginPath();
+        ctx.arc(minimapX, minimapY, 4, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.closePath();
+    }
+};
+
 const correction = (entity, deltaTick, t) => {
     if (!entity.vel) return;
 
@@ -608,6 +635,8 @@ const render = (timestamp) => {
         drawMessages();
 
         drawScore();
+
+        drawMiniMap();
 
         renderUpgrades();
 

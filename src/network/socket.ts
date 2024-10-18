@@ -8,6 +8,7 @@ import {EntityClass} from '../entity/class';
 import {Vector} from '../physics/vector';
 import {setInterval} from 'timers';
 import {GunSetting} from '../entity/gun';
+import {Color} from '../definitions/color';
 
 const users = new Map<
     string,
@@ -438,6 +439,44 @@ setInterval(() => {
             user[1].send(msg.make());
         }
 
+        if (entity.tick % 10 === 0) {
+            msg.reset();
+
+            msg.writeUint(10);
+
+            const entities: Entity[] = [];
+
+            for (const map of room.miniMap) {
+                if (map.setting.miniMapType === 'none') continue;
+                if (map.setting.miniMapType === 'team' && !Entity.isSameTeam(map, entity)) continue;
+                if (typeof map.setting.miniMapType === 'function' && !map.setting.miniMapType(entity)) continue;
+
+                entities.push(map);
+            }
+
+            msg.writeUint(entities.length);
+
+            for (let i = 0; i < entities.length; i++) {
+                const map = entities[i];
+
+                msg.writeFloat(map.pos.x);
+                msg.writeFloat(map.pos.y);
+                msg.writeUint(map.team);
+                if (map === entity) {
+                    msg.writeUint(1);
+                    msg.writeUint(Color.Black);
+                } else if (typeof map.color === 'string') {
+                    msg.writeUint(0);
+                    msg.writeString(map.color);
+                } else {
+                    msg.writeUint(1);
+                    msg.writeUint(map.color);
+                }
+            }
+
+            user[1].send(msg.make());
+        }
+
         for (const obj of room.entities) {
             if (obj === entity) continue;
 
@@ -467,7 +506,9 @@ setInterval(() => {
         }
     }
 
-    for (const entity of changed) entity.changed = false;
+    for (const entity of changed) {
+        entity.changed = false;
+    }
 }, 1000 / 60);
 
 room.on('remove', (obj: Entity) => {

@@ -4,6 +4,7 @@ import {Entity} from './entity.js';
 import {RGBColor} from './rgb.js';
 import {Team, TeamColor} from './team.js';
 import {message} from './message.js';
+import {Vector} from './vector.js';
 
 // DEBUG
 let totalDataSize = 0;
@@ -18,6 +19,8 @@ export const entities = new Set();
 export const idToEntity = new Map();
 export let world = {};
 let mockups = [];
+
+export let minimap = [];
 
 export let name = '';
 
@@ -328,6 +331,23 @@ const socketOnMessage = async ({data}) => {
                 }
 
                 entity.upgrades.push(upgrade);
+            }
+
+            break;
+        }
+
+        case 10: {
+            minimap = [];
+
+            const length = msg.readUint();
+
+            for (let i = 0; i < length; i++) {
+                let team;
+                minimap.push({
+                    pos: new Vector(msg.readFloat(), msg.readFloat()),
+                    team: (team = msg.readUint()),
+                    color: decodeColor(msg, team),
+                });
             }
 
             break;

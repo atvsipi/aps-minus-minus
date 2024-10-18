@@ -49,6 +49,7 @@ export interface ClassType {
     killMessage?: boolean | string;
     label?: string;
     hitType?: 'none' | 'auto' | ((other: Entity) => void);
+    miniMapType?: 'none' | 'always' | 'team' | ((other: Entity) => boolean);
     score?: number;
     name?: null | string;
     size?: number;
@@ -132,6 +133,7 @@ const defaultEntity: ProcessedClass = {
     killMessage: false,
     label: 'Entity',
     hitType: 'auto',
+    miniMapType: 'none',
     score: 25000,
     name: null,
     size: 10,
