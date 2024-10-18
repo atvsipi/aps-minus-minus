@@ -299,9 +299,9 @@ let upgradeAngle = 0;
 
 const renderUpgrades = () => {
     if (entity.upgrades.length > 0) {
-        const cols = Math.ceil(entity.upgrades.length / 3);
+        const rows = mobile ? 9 : 3;
+        const cols = Math.ceil(entity.upgrades.length / rows);
 
-        const rows = mobile ? 6 : 3;
         const cellWidth = Math.max(canvasSize.width, canvasSize.height) * 0.1;
         ctx.lineWidth = 2;
 
