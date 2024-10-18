@@ -302,7 +302,7 @@ const renderUpgrades = () => {
         const rows = mobile ? 9 : 3;
         const cols = Math.ceil(entity.upgrades.length / rows);
 
-        const cellWidth = Math.max(canvasSize.width, canvasSize.height) * 0.1;
+        const cellWidth = Math.min(Math.max(canvasSize.width, canvasSize.height) * 0.1, 80);
         ctx.lineWidth = 2;
 
         for (let i = 0; i < rows; i++) {
