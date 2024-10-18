@@ -1,4 +1,4 @@
-import {Color} from './color.js';
+import {Color, upgradeColor} from './color.js';
 import {Writer} from './protocol.js';
 import {Vector} from './vector.js';
 import {joysticks, drawJoystick} from './mobile.js';
@@ -58,6 +58,21 @@ ctx.scale(dpr, dpr);
 
 let isFiring = false;
 
+function handleClick(x, y) {
+    if (entity && entity.upgrades.length > 0 && entity.upgrades[0].startX !== undefined) {
+        for (let i = 0; i < entity.upgrades.length; i++) {
+            if (entity.upgrades[i].startX <= x && entity.upgrades[i].endX >= x && entity.upgrades[i].startY <= y && entity.upgrades[i].endY >= y) {
+                entity.upgrades = [];
+                socket.send(new Writer().writeUint(7).writeUint(i).make());
+
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 if (!mobile) {
     canvas.addEventListener('mousemove', ({clientX, clientY}) => {
         const x = (clientX - canvasSize.width / 2) / zoom;
@@ -73,15 +88,7 @@ if (!mobile) {
     });
 
     canvas.addEventListener('mousedown', ({clientX, clientY}) => {
-        if (entity && entity.upgrades.length > 0 && entity.upgrades[0].startX !== undefined) {
-            for (let i = 0; i < entity.upgrades.length; i++) {
-                if (entity.upgrades[i].startX <= clientX && entity.upgrades[i].endX >= clientX && entity.upgrades[i].startY <= clientY && entity.upgrades[i].endY >= clientY) {
-                    entity.upgrades = [];
-                    socket.send(new Writer().writeUint(7).writeUint(i).make());
-                    return;
-                }
-            }
-        }
+        if (handleClick(clientX, clientY)) return;
 
         const x = (clientX - canvasSize.width / 2) / zoom;
         const y = (clientY - canvasSize.height / 2) / zoom;
@@ -97,6 +104,12 @@ if (!mobile) {
         socket.send(new Writer().writeUint(4).writeBoolean(false).make());
     });
 } else {
+    canvas.addEventListener('touchstart', ({changedTouches}) => {
+        for (const {pageX, pageY} of changedTouches) {
+            if (handleClick(pageX, pageY)) break;
+        }
+    });
+
     joysticks[0].on = (event) => {
         if (event === 'move') {
             const angle = Math.atan2(joysticks[0].currentY, joysticks[0].currentX);
@@ -133,16 +146,16 @@ const drawGun = (entity, gun) => {
     // P3 [-----------] P4
 
     const size = entity.size / 20;
-    const p1 = new Vector(entity.size + gun.offset * size, ((gun.width / 2) * size) / gun.aspect).rotate(gunAngle);
-    const p3 = new Vector(entity.size + gun.offset * size, -(((gun.width / 2) * size) / gun.aspect)).rotate(gunAngle);
-    const p2 = new Vector(entity.size + (gun.offset + gun.length) * size, ((gun.width * size) / 2) * gun.aspect).rotate(gunAngle);
-    const p4 = new Vector(entity.size + (gun.offset + gun.length) * size, -(((gun.width * size) / 2) * gun.aspect)).rotate(gunAngle);
+    const p1 = new Vector(entity.size + gun.offset * size, ((gun.width / 2 + gun.direction) * size) / gun.aspect).rotate(gunAngle);
+    const p3 = new Vector(entity.size + gun.offset * size, ((-(gun.width / 2) + gun.direction) * size) / gun.aspect).rotate(gunAngle);
+    const p2 = new Vector(entity.size + (gun.offset + gun.length) * size, (gun.width / 2 + gun.direction) * size * gun.aspect).rotate(gunAngle);
+    const p4 = new Vector(entity.size + (gun.offset + gun.length) * size, (-(gun.width / 2) + gun.direction) * size * gun.aspect).rotate(gunAngle);
 
     ctx.beginPath();
     ctx.moveTo(p1.x, p1.y);
-    ctx.lineTo(p2.x, p2.y);
-    ctx.lineTo(p4.x, p4.y);
     ctx.lineTo(p3.x, p3.y);
+    ctx.lineTo(p4.x, p4.y);
+    ctx.lineTo(p2.x, p2.y);
     ctx.lineTo(p1.x, p1.y);
     ctx.fillStyle = gun.color;
     ctx.strokeStyle = gun.border;
@@ -294,22 +307,27 @@ const renderUpgrades = () => {
 
         for (let i = 0; i < rows; i++) {
             for (let j = 0; j < cols; j++) {
-                const index = i * cols + j;
+                const index = j * cols + i;
                 if (index < entity.upgrades.length) {
                     const upgrade = entity.upgrades[index];
+                    const color = upgradeColor[index % upgradeColor.length];
 
                     upgrade.angle = upgradeAngle;
-                    upgrade.size = cellWidth * 0.15;
+                    upgrade.size = cellWidth * 0.2;
                     upgrade.isLoaded = true;
 
-                    const startX = 10 + i * cellWidth + i * cellWidth * 0.2;
-                    const startY = 10 + j * cellWidth + j * cellWidth * 0.2;
+                    const startX = 10 + i * cellWidth + i * cellWidth * 0.1;
+                    const startY = 10 + j * cellWidth + j * cellWidth * 0.1;
 
                     upgrade.startX = startX;
                     upgrade.startY = startY;
                     upgrade.endX = startX + cellWidth;
                     upgrade.endY = startY + cellWidth;
 
+                    ctx.globalAlpha = 0.6;
+                    ctx.fillStyle = color;
+                    ctx.fillRect(startX, startY, cellWidth, cellWidth);
+                    ctx.globalAlpha = 1;
                     ctx.strokeRect(startX, startY, cellWidth, cellWidth);
 
                     const centerX = startX + cellWidth / 2;
@@ -338,9 +356,9 @@ const renderUpgrades = () => {
                         }
                     }
 
-                    const bottomY = cellWidth * 0.7;
+                    const bottomY = cellWidth * 0.42;
 
-                    drawText(upgrade.label, Color.White, Color.Black, cellWidth * 0.2, {x: 0, y: bottomY}, 'center');
+                    drawText(upgrade.label, Color.White, Color.Black, cellWidth * 0.12, {x: 0, y: bottomY}, 'center');
 
                     ctx.restore();
                 }

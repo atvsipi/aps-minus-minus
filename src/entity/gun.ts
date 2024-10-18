@@ -102,10 +102,16 @@ export class Gun {
         // P3 [-----------] P4
 
         const size = this.body.size / 20;
-        const p1 = new Vector(this.body.size + this.setting.offset * size, ((this.setting.width / 2) * size) / this.setting.aspect).rotate(gunAngle);
-        const p3 = new Vector(this.body.size + this.setting.offset * size, -(((this.setting.width / 2) * size) / this.setting.aspect)).rotate(gunAngle);
-        const p2 = new Vector(this.body.size + (this.setting.offset + this.setting.length) * size, ((this.setting.width * size) / 2) * this.setting.aspect).rotate(gunAngle);
-        const p4 = new Vector(this.body.size + (this.setting.offset + this.setting.length) * size, -(((this.setting.width * size) / 2) * this.setting.aspect)).rotate(gunAngle);
+        const p1 = new Vector(this.body.size + this.setting.offset * size, ((this.setting.width / 2 + this.setting.direction) * size) / this.setting.aspect).rotate(gunAngle);
+        const p3 = new Vector(this.body.size + this.setting.offset * size, -(((this.setting.width / 2 + this.setting.direction) * size) / this.setting.aspect)).rotate(gunAngle);
+        const p2 = new Vector(
+            this.body.size + (this.setting.offset + this.setting.length) * size,
+            (this.setting.width * size + this.setting.direction) * this.setting.aspect,
+        ).rotate(gunAngle);
+        const p4 = new Vector(
+            this.body.size + (this.setting.offset + this.setting.length) * size,
+            -((this.setting.width * size + this.setting.direction) * this.setting.aspect),
+        ).rotate(gunAngle);
 
         return [p1, p2, p3, p4];
     }
@@ -114,7 +120,7 @@ export class Gun {
         const gunAngle = this.body.angle + this.setting.angle;
         const size = this.body.size / 20;
 
-        return new Vector(this.body.size + (this.setting.offset + this.setting.length) * size, this.setting.aspect).rotate(gunAngle);
+        return new Vector(this.body.size + (this.setting.offset + this.setting.length) * size, this.setting.direction * size).rotate(gunAngle);
     }
 
     public recoil() {
@@ -143,48 +149,49 @@ export class Gun {
         }
 
         if (this.body.tick - this.lastFireTick > 30 - this.setting.properties.skill.reload * 3.42) {
-            this.body.emit('fire');
-
             this.lastFireTick = this.body.tick;
 
-            const pos = this.calcBulletPos().add(this.body.pos);
+            setTimeout(() => {
+                this.body.emit('fire');
+                const pos = this.calcBulletPos().add(this.body.pos);
 
-            const bullet = new Entity();
+                const bullet = new Entity();
 
-            bullet.init(EntityClass[this.setting.properties.type]);
+                bullet.init(EntityClass[this.setting.properties.type]);
 
-            bullet.setting.skill.damage += this.setting.properties.skill.damage - 1;
-            bullet.setting.skill.health += this.setting.properties.skill.health - 1;
-            bullet.setting.skill.pen += this.setting.properties.skill.pen - 1;
-            bullet.setting.size *= this.setting.properties.skill.size;
+                bullet.setting.skill.damage += this.setting.properties.skill.damage - 1;
+                bullet.setting.skill.health += this.setting.properties.skill.health - 1;
+                bullet.setting.skill.pen += this.setting.properties.skill.pen - 1;
+                bullet.setting.size *= this.setting.properties.skill.size;
 
-            if (this.setting.properties.independentChildren) bullet.setting.independent = true;
+                if (this.setting.properties.independentChildren) bullet.setting.independent = true;
 
-            bullet.team = this.body.team;
-            bullet.team2 = this.body.team2;
-            bullet.pos = pos;
+                bullet.team = this.body.team;
+                bullet.team2 = this.body.team2;
+                bullet.pos = pos;
 
-            bullet.master = this.body;
-            const index = this.children.push(bullet);
-            const bodyIndex = this.body.children.push(bullet);
+                bullet.master = this.body;
+                const index = this.children.push(bullet);
+                const bodyIndex = this.body.children.push(bullet);
 
-            bullet.on('dead', () => {
-                delete this.children[index];
-                delete this.body.children[bodyIndex];
-            });
+                bullet.on('dead', () => {
+                    delete this.children[index];
+                    delete this.body.children[bodyIndex];
+                });
 
-            room.insert(bullet);
+                room.insert(bullet);
 
-            const angle = Vector.addAngle({x: 1, y: 1}, this.body.angle + this.setting.angle).normalize();
+                const angle = Vector.addAngle({x: 1, y: 1}, this.body.angle + this.setting.angle).normalize();
 
-            bullet.vel = new Vector(angle).mult(this.setting.properties.skill.speed).add(this.body.vel);
+                bullet.vel = new Vector(angle).mult(this.setting.properties.skill.speed).add(this.body.vel);
 
-            this.body.vel.sub(new Vector(angle).mult(this.setting.properties.skill.speed / 10));
+                this.body.vel.sub(new Vector(angle).mult(this.setting.properties.skill.speed / 10));
 
-            if (this.setting.properties.skill.range)
-                setTimeout(() => {
-                    room.remove(bullet);
-                }, this.setting.properties.skill.range * 1000);
+                if (this.setting.properties.skill.range)
+                    setTimeout(() => {
+                        room.remove(bullet);
+                    }, this.setting.properties.skill.range * 1000);
+            }, this.setting.properties.delaySpawn);
         }
     }
 

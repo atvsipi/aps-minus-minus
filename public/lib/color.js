@@ -55,3 +55,5 @@ export const numColor = [
     'TeamColor',
     'AutoBorder',
 ];
+
+export const upgradeColor = [Color.Blue, Color.Green, Color.Red, Color.Magenta, Color.Gold, Color.Orange, Color.Lavender, Color.Aqua, Color.Pink];
