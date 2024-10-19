@@ -183,7 +183,7 @@ const socketOnMessage = async ({data}) => {
         case 5: {
             const id = msg.readBigUint();
             const obj = idToEntity.has(id) ? idToEntity.get(id) : entity;
-            console.log(idToEntity.has(id));
+
             if (!obj) break;
 
             obj.team = msg.readUint();
@@ -208,10 +208,6 @@ const socketOnMessage = async ({data}) => {
                 obj.isLoaded = true;
             } else {
                 socket.send(new Writer().writeUint(6).writeBigUint(obj.id).make());
-            }
-
-            if (obj.fov > 600) {
-                console.log(obj);
             }
 
             break;
