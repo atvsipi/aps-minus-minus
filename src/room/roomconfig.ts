@@ -2,7 +2,7 @@ import {Entity} from '../entity/entity';
 
 export const RoomConfig = {
     height: 1000,
-    width: 1000,
+    width: 4000,
     tick: 1000 / 60,
     runSpeed: 1.2,
     maxGiveScore: 99999999,

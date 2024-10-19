@@ -440,7 +440,7 @@ const drawScore = () => {
 };
 
 const drawMiniMap = () => {
-    const minimapScale = 100 / Math.max(world.width, world.height);
+    const minimapScale = 100 / Math.min(world.width, world.height);
     const minimapWidth = world.width * minimapScale;
     const minimapHeight = world.height * minimapScale;
 
