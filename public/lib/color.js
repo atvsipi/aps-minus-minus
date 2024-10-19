@@ -26,6 +26,34 @@ export const Color = {
     Cyan: '#13808e',
 };
 
+/*export const Color = {
+    Teal: '#6cfffa',
+    LightGreen: '#85e37d',
+    Orange: '#fc7676',
+    Yellow: '#ffeb8e',
+    Lavender: '#b58eff',
+    Aqua: '#72eacf',
+    Pink: '#f177dd',
+    LightGrey: '#999999',
+    LightGrey2: '#cdcdcd',
+    Black: '#525252',
+    White: '#dbdbdb',
+    Blue: '#00b0e1',
+    Green: '#00e06c',
+    Red: '#f04f54',
+    Gold: '#ffe46b',
+    Purple: '#768cfc',
+    Magenta: '#be7ff5',
+    Grey: '#999999',
+    Grey2: '#545454',
+    White2: '#ffffff',
+    Black2: '#000000',
+    Mustard: '#c49608',
+    Tangerine: '#ec7b0f',
+    Brown: '#895918',
+    Cyan: '#13808e',
+};*/
+
 export const numColor = [
     Color.Teal,
     Color.LightGreen,

@@ -445,7 +445,7 @@ const drawMiniMap = () => {
     const minimapHeight = world.height * minimapScale;
 
     const minimapStartX = canvasSize.width - minimapWidth - 10;
-    const minimapStartY = canvasSize.height - minimapHeight - 100;
+    const minimapStartY = 10;
 
     ctx.lineWidth = 2;
     ctx.globalAlpha = 0.6;
