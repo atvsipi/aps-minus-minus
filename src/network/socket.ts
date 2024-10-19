@@ -152,7 +152,7 @@ export function message(uuid: string, data: Uint8Array, send: (msg: Uint8Array |
 
             // Want info!
             case 2: {
-                const id = msg.readUint();
+                const id = msg.readBigUint();
 
                 const entity = room.idToEntity.get(id);
 
@@ -205,7 +205,7 @@ export function message(uuid: string, data: Uint8Array, send: (msg: Uint8Array |
 
             // mockup
             case 6: {
-                const id = msg.readUint();
+                const id = msg.readBigUint();
 
                 const entity = room.idToEntity.get(id);
 
@@ -225,11 +225,11 @@ export function message(uuid: string, data: Uint8Array, send: (msg: Uint8Array |
 
                 if (!user.body.upgrades[index]) break;
 
-                const label = user.body.upgrades[index].label;
-
                 user.body.init(user.body.upgrades[index]);
 
-                user.body.socket.sendMsg('You have upgraded to ' + label + '.');
+                if (user.body.setting.on.upgrade) user.body.setting.on.upgrade(user.body);
+
+                user.body.socket.sendMsg('You have upgraded to ' + user.body.setting.label + '.');
 
                 break;
             }
@@ -252,7 +252,7 @@ export function close(uuid: string) {
 }
 
 function EntityInfo(entity: Entity, msg: Protocol.Writer) {
-    msg.writeUint(entity.id);
+    msg.writeBigUint(entity.id);
 
     msg.writeUint(entity.team);
 
@@ -332,7 +332,7 @@ function Mockup(sides: string | number | Vector[], guns: GunSetting[], msg: Prot
 }
 
 function EntityMockup(entity: Entity, msg: Protocol.Writer) {
-    msg.writeUint(entity.id);
+    msg.writeBigUint(entity.id);
 
     msg.writeString(entity.setting.label);
 
@@ -346,7 +346,7 @@ function EntityMockup(entity: Entity, msg: Protocol.Writer) {
 }
 
 function EntityData(entity: Entity, msg: Protocol.Writer, active: boolean = false) {
-    msg.writeUint(entity.id);
+    msg.writeBigUint(entity.id);
     msg.writeFloat(entity.health);
     msg.writeFloat(entity.angle);
     msg.writeFloat(entity.pos.x);
@@ -358,7 +358,7 @@ function EntityData(entity: Entity, msg: Protocol.Writer, active: boolean = fals
     } else {
         msg.writeBoolean(false);
     }
-    msg.writeFloat(entity.score);
+    msg.writeBigUint(entity.score);
     msg.writeFloat(entity.size);
 
     return msg;
@@ -436,9 +436,9 @@ setInterval(() => {
             msg.reset();
 
             msg.writeUint(6);
-            msg.writeFloat(entity.score);
-            msg.writeInt(entity.level);
-            msg.writeFloat(entity.levelScore);
+            msg.writeBigUint(entity.score);
+            msg.writeUint(entity.level);
+            msg.writeBigUint(entity.levelScore);
 
             user[1].send(msg.make());
         }
@@ -520,7 +520,7 @@ room.on('remove', (obj: Entity) => {
         const msg = new Protocol.Writer();
 
         msg.writeUint(3);
-        msg.writeUint(obj.id);
+        msg.writeBigUint(obj.id);
 
         user[1].send(msg.make());
     }

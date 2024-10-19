@@ -108,7 +108,7 @@ const socketOnMessage = async ({data}) => {
             if (!entity) entity = new Entity();
             else isNew = false;
 
-            entity.id = msg.readUint();
+            entity.id = msg.readBigUint();
             entity.health = msg.readFloat();
             entity.angle = msg.readFloat();
             entity.pos.x = msg.readFloat();
@@ -118,7 +118,7 @@ const socketOnMessage = async ({data}) => {
                 entity.vel.y = msg.readFloat();
             }
 
-            entity.score = msg.readFloat();
+            entity.score = msg.readBigUint();
             entity.size = msg.readFloat();
 
             idToEntity.set(entity.id, entity);
@@ -126,7 +126,7 @@ const socketOnMessage = async ({data}) => {
             entities.add(entity);
 
             if (isNew) {
-                socket.send(new Writer().writeUint(2).writeUint(entity.id).make());
+                socket.send(new Writer().writeUint(2).writeBigUint(entity.id).make());
             }
             break;
 
@@ -134,7 +134,7 @@ const socketOnMessage = async ({data}) => {
             let entity;
             let isNew = false;
 
-            const id = msg.readUint();
+            const id = msg.readBigUint();
             if (idToEntity.has(id)) entity = idToEntity.get(id);
             else {
                 entity = new Entity();
@@ -151,20 +151,20 @@ const socketOnMessage = async ({data}) => {
                 entity.vel.y = msg.readFloat();
             }
 
-            entity.score = msg.readFloat();
+            entity.score = msg.readBigUint();
             entity.size = msg.readFloat();
 
             idToEntity.set(id, entity);
             entities.add(entity);
 
             if (isNew) {
-                socket.send(new Writer().writeUint(2).writeUint(id).make());
+                socket.send(new Writer().writeUint(2).writeBigUint(id).make());
             }
             break;
         }
 
         case 3: {
-            const id = msg.readUint();
+            const id = msg.readBigUint();
             const entity = idToEntity.get(id);
 
             if (entity) {
@@ -181,7 +181,7 @@ const socketOnMessage = async ({data}) => {
         }
 
         case 5: {
-            const id = msg.readUint();
+            const id = msg.readBigUint();
             const obj = idToEntity.has(id) ? idToEntity.get(id) : entity;
 
             if (!obj) break;
@@ -208,16 +208,16 @@ const socketOnMessage = async ({data}) => {
                 obj.guns = mockups[obj.mockupId].guns;
                 obj.isLoaded = true;
             } else {
-                socket.send(new Writer().writeUint(6).writeUint(obj.id).make());
+                socket.send(new Writer().writeUint(6).writeBigUint(obj.id).make());
             }
 
             break;
         }
 
         case 6: {
-            entity.score = msg.readFloat();
-            entity.level = msg.readInt();
-            entity.levelScore = msg.readFloat();
+            entity.score = msg.readBigUint();
+            entity.level = msg.readUint();
+            entity.levelScore = msg.readBigUint();
 
             break;
         }
@@ -229,7 +229,7 @@ const socketOnMessage = async ({data}) => {
         }
 
         case 8: {
-            const id = msg.readUint();
+            const id = msg.readBigUint();
             const obj = idToEntity.has(id) ? idToEntity.get(id) : entity;
 
             if (!obj) break;

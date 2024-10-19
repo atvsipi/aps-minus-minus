@@ -47,6 +47,17 @@ export namespace Protocol {
             return value;
         }
 
+        readBigUint(): number {
+            if (this.offset + 4 > this.dataView.byteLength) {
+                throw new Error('Out of bounds while reading number');
+            }
+
+            const value = this.dataView.getUint32(this.offset, true);
+            this.offset += 4;
+
+            return value;
+        }
+
         readFloat(): number {
             if (this.offset + 4 > this.dataView.byteLength) {
                 throw new Error('Out of bounds while reading float');
@@ -116,6 +127,18 @@ export namespace Protocol {
             });
 
             this.offset += 2;
+
+            return this;
+        }
+
+        writeBigUint(value: number): this {
+            const offset = this.offset;
+
+            this.writeQueue.push(() => {
+                this.dataView.setUint32(offset, value, true);
+            });
+
+            this.offset += 4;
 
             return this;
         }

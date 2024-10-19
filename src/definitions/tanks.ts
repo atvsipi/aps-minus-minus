@@ -254,7 +254,7 @@ Class.Annihilator = {
 };
 
 Class.Killer = {
-    tier: 100,
+    tier: 60,
     label: 'Killer',
     sides: -5,
     killMessage: true,
@@ -267,6 +267,11 @@ Class.Killer = {
         range: null,
         pushability: 1,
         fov: 800,
+    },
+    on: {
+        upgrade(body) {
+            body.socket.sendMsg('Oh my, I have to give you a gift :(\nhttps://tetris.com/play-tetris\nHave fun!');
+        },
     },
     guns: [
         {

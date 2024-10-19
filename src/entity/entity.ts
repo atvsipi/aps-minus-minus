@@ -41,7 +41,7 @@ export interface EntitySetting {
         fov: number;
     };
     upgrades: string[];
-    on: {[key: string]: (...args: unknown[]) => unknown};
+    on: {[key: string]: (body: Entity, ...args: unknown[]) => unknown};
 }
 
 export class Entity extends EventEmitter {

@@ -77,7 +77,7 @@ export interface ClassType {
     guns?: GunClassType[];
     upgrades?: string[];
     tier?: number;
-    on?: {[key: string]: (...args: unknown[]) => unknown};
+    on?: {[key: string]: (body: Entity, ...args: unknown[]) => unknown};
 }
 
 export interface ProcessedClass extends EntitySetting {

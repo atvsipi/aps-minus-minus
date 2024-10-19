@@ -45,6 +45,17 @@ export class Reader {
         return value;
     }
 
+    readBigUint() {
+        if (this.offset + 4 > this.dataView.byteLength) {
+            throw new Error('Out of bounds while reading number');
+        }
+
+        const value = this.dataView.getUint32(this.offset, true);
+        this.offset += 4;
+
+        return value;
+    }
+
     readFloat() {
         if (this.offset + 4 > this.dataView.byteLength) {
             throw new Error('Out of bounds while reading float');
@@ -113,6 +124,18 @@ export class Writer {
         });
 
         this.offset += 2;
+
+        return this;
+    }
+
+    writeBigUint(value) {
+        const offset = this.offset;
+
+        this.writeQueue.push(() => {
+            this.dataView.setUint32(offset, value, true);
+        });
+
+        this.offset += 4;
 
         return this;
     }
