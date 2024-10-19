@@ -498,7 +498,7 @@ setInterval(() => {
 
             user[1].send(msg.make());
 
-            if (entity.changed) {
+            if (obj.changed) {
                 msg.reset();
 
                 msg.writeUint(5);
