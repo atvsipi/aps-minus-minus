@@ -9,6 +9,7 @@ import {Vector} from '../physics/vector';
 import {setInterval} from 'timers';
 import {GunSetting} from '../entity/gun';
 import {Color} from '../definitions/color';
+import {PropSetting} from '../entity/props';
 
 const users = new Map<
     string,
@@ -285,7 +286,7 @@ function EntityInfo(entity: Entity, msg: Protocol.Writer) {
     return msg;
 }
 
-function Mockup(sides: string | number | Vector[], guns: GunSetting[], msg: Protocol.Writer) {
+function Mockup(sides: string | number | Vector[], guns: GunSetting[], props: PropSetting[], msg: Protocol.Writer) {
     if (typeof sides === 'string') {
         msg.writeUint(0);
         msg.writeString(sides);
@@ -328,6 +329,47 @@ function Mockup(sides: string | number | Vector[], guns: GunSetting[], msg: Prot
         msg.writeInt(gun.layer);
     }
 
+    msg.writeUint(props.length);
+
+    for (const prop of props) {
+        msg.writeFloat(prop.offset.x);
+        msg.writeFloat(prop.offset.y);
+        msg.writeFloat(prop.angle);
+        msg.writeFloat(prop.spin);
+        msg.writeFloat(prop.spin2);
+        if (typeof prop.color === 'string') {
+            msg.writeUint(0);
+            msg.writeString(prop.color);
+        } else {
+            msg.writeUint(1);
+            msg.writeUint(prop.color);
+        }
+        if (typeof prop.border === 'string') {
+            msg.writeUint(0);
+            msg.writeString(prop.border);
+        } else {
+            msg.writeUint(1);
+            msg.writeUint(prop.border);
+        }
+        msg.writeFloat(prop.size);
+        if (typeof prop.sides === 'string') {
+            msg.writeUint(0);
+            msg.writeString(prop.sides);
+        } else if (typeof prop.sides === 'object') {
+            msg.writeUint(2 + prop.sides.length);
+            for (let i = 0; i < prop.sides.length; i++) {
+                msg.writeFloat(prop.sides[i].x);
+                msg.writeFloat(prop.sides[i].y);
+            }
+        } else {
+            msg.writeUint(1);
+            msg.writeInt(prop.sides);
+        }
+        msg.writeFloat(prop.strokeWidth);
+        msg.writeFloat(prop.alpha);
+        msg.writeInt(prop.layer);
+    }
+
     return msg;
 }
 
@@ -339,6 +381,7 @@ function EntityMockup(entity: Entity, msg: Protocol.Writer) {
     Mockup(
         entity.setting.sides,
         entity.guns.map((gun) => gun.setting),
+        entity.props.map((prop) => prop.setting),
         msg,
     );
 
@@ -385,7 +428,7 @@ function EntityUpgrade(entity: Entity, msg: Protocol.Writer) {
             msg.writeUint(upgrade.border);
         }
 
-        Mockup(upgrade.sides, upgrade.guns, msg);
+        Mockup(upgrade.sides, upgrade.guns, upgrade.props, msg);
     }
 
     return msg;

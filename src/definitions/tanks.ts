@@ -1,5 +1,6 @@
 import {Class, GunClassType} from '../entity/class';
 import {CircleMove, GoToMasterTarget, MasterCircleMove, Nearest} from '../entity/controller';
+import {Vector} from '../physics/vector';
 import {Color} from './color';
 
 function makeOverLordGun(angle: number): GunClassType {
@@ -54,6 +55,16 @@ Class.Player = {
     },
     upgrades: ['Basic', 'Twin', 'Annihilator', 'Basic', 'Basic', 'Basic', 'Basic', 'Basic', 'Basic'],
     guns: [makeOverLordGun(0), makeOverLordGun(Math.PI / 2), makeOverLordGun(Math.PI), makeOverLordGun(Math.PI * 1.5)],
+    props: [
+        {
+            offset: new Vector(0, 0),
+            layer: -1,
+            size: 200,
+            color: Color.Blue,
+            alpha: 0.2,
+            sides: 0,
+        },
+    ],
     miniMapType: 'team',
 };
 

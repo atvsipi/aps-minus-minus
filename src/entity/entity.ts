@@ -8,6 +8,7 @@ import {EntityClass, ProcessedClass} from './class';
 import {room} from '../room/room';
 import {RoomConfig} from '../room/roomconfig';
 import {Controller} from './controller';
+import {Prop} from './props';
 
 export interface EntitySetting {
     showHealth: boolean;
@@ -168,6 +169,7 @@ export class Entity extends EventEmitter {
     };
 
     public guns: Gun[] = [];
+    public props: Prop[] = [];
 
     public allUpgrades: ProcessedClass[] = [];
     public upgrades: ProcessedClass[] = [];
@@ -266,6 +268,16 @@ export class Entity extends EventEmitter {
             gun.setting = gunSetting;
 
             this.guns.push(gun);
+        }
+
+        this.props = [];
+
+        for (const propSetting of Class.props) {
+            const prop = new Prop();
+
+            prop.setting = propSetting;
+
+            this.props.push(prop);
         }
 
         this.allUpgrades = [];

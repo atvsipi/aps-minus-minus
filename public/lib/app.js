@@ -295,6 +295,50 @@ function drawEntityShape(obj) {
     }
 }
 
+const drawProp = (entity, prop) => {
+    if (prop.angle === undefined) prop.angle = prop.spin;
+    if (prop.offsetAngle === undefined) prop.offsetAngle = prop.spin2;
+
+    prop.angle += prop.spin;
+
+    prop.offset = prop._offset.clone().rotate(prop.angle + entity.angle);
+    prop.offsetAngle += prop.spin2;
+
+    const factor = entity.size / 20;
+
+    const pos = prop.offset.clone().mult(factor);
+
+    const obj = {sides: prop.sides, size: factor * prop.size, angle: prop.angle + entity.angle};
+
+    ctx.save();
+    ctx.translate(pos.x, pos.y);
+
+    ctx.fillStyle = prop.color;
+    ctx.strokeStyle = prop.border;
+    ctx.globalAlpha = prop.alpha;
+
+    ctx.beginPath();
+
+    if (Array.isArray(obj.sides)) {
+        drawPolygon(obj);
+    } else if (typeof obj.sides === 'string') {
+        drawPath(obj);
+    } else if (!obj.sides) {
+        drawCircle(obj);
+    } else if (obj.sides < 0) {
+        drawStar(obj);
+    } else if (obj.sides > 0) {
+        drawRegularPolygon(obj);
+    }
+
+    ctx.fill();
+    ctx.stroke();
+    ctx.closePath();
+
+    ctx.globalAlpha = 1;
+    ctx.restore();
+};
+
 let upgradeAngle = 0;
 
 const renderUpgrades = () => {
@@ -339,6 +383,12 @@ const renderUpgrades = () => {
                     ctx.lineWidth = 2;
                     ctx.lineJoin = 'round';
 
+                    if (upgrade.props) {
+                        for (const prop of upgrade.props.filter((prop) => prop.layer < 0)) {
+                            drawProp(upgrade, prop);
+                        }
+                    }
+
                     if (upgrade.guns) {
                         for (const gun of upgrade.guns.filter((gun) => gun.layer < 0)) {
                             drawGun(upgrade, gun);
@@ -350,9 +400,21 @@ const renderUpgrades = () => {
 
                     drawEntityShape(upgrade);
 
+                    if (upgrade.props) {
+                        for (const prop of upgrade.props.filter((prop) => prop.layer > -1 && prop.layer < 100)) {
+                            drawProp(upgrade, prop);
+                        }
+                    }
+
                     if (upgrade.guns) {
-                        for (const gun of upgrade.guns.filter((gun) => gun.layer > -1).sort((a, b) => a.layer - b.layer)) {
+                        for (const gun of upgrade.guns.filter((gun) => gun.layer > -1)) {
                             drawGun(upgrade, gun);
+                        }
+                    }
+
+                    if (upgrade.props) {
+                        for (const prop of upgrade.props.filter((prop) => prop.layer > 100)) {
+                            drawProp(upgrade, prop);
                         }
                     }
 
@@ -569,6 +631,12 @@ const render = (timestamp) => {
             ctx.lineWidth = 2;
             ctx.lineJoin = 'round';
 
+            if (entity.props) {
+                for (const prop of entity.props.filter((prop) => prop.layer < 0)) {
+                    drawProp(entity, prop);
+                }
+            }
+
             if (entity.guns) {
                 for (const gun of entity.guns.filter((gun) => gun.layer < 0)) {
                     drawGun(entity, gun);
@@ -580,9 +648,21 @@ const render = (timestamp) => {
 
             drawEntityShape(entity);
 
+            if (entity.props) {
+                for (const prop of entity.props.filter((prop) => prop.layer > -1 && prop.layer < 100)) {
+                    drawProp(entity, prop);
+                }
+            }
+
             if (entity.guns) {
-                for (const gun of entity.guns.filter((gun) => gun.layer > -1).sort((a, b) => a.layer - b.layer)) {
+                for (const gun of entity.guns.filter((gun) => gun.layer > -1)) {
                     drawGun(entity, gun);
+                }
+            }
+
+            if (entity.props) {
+                for (const prop of entity.props.filter((prop) => prop.layer > 100)) {
+                    drawProp(entity, prop);
                 }
             }
 

@@ -61,6 +61,27 @@ const decodeBorder = (msg, team, color) => {
     return border;
 };
 
+const decodeSides = (msg) => {
+    let sides;
+
+    const type = msg.readUint();
+    if (type === 0) {
+        sides = msg.readString();
+    } else if (type === 1) {
+        sides = msg.readInt();
+    } else {
+        const length = type - 2;
+
+        sides = [];
+
+        for (let i = 0; i < length; i++) {
+            sides.push([msg.readFloat(), msg.readFloat()]);
+        }
+    }
+
+    return sides;
+};
+
 const socketOnMessage = async ({data}) => {
     if (typeof data === 'string') throw new Error(data);
 
@@ -235,20 +256,7 @@ const socketOnMessage = async ({data}) => {
 
             obj.label = msg.readString();
 
-            const type = msg.readUint();
-            if (type === 0) {
-                obj.sides = msg.readString();
-            } else if (type === 1) {
-                obj.sides = msg.readInt();
-            } else {
-                const length = type - 2;
-
-                obj.sides = [];
-
-                for (let i = 0; i < length; i++) {
-                    obj.sides.push([msg.readFloat(), msg.readFloat()]);
-                }
-            }
+            obj.sides = decodeSides(msg);
 
             obj.guns = [];
 
@@ -270,6 +278,31 @@ const socketOnMessage = async ({data}) => {
                     layer: msg.readInt(),
                 });
             }
+
+            obj.guns.sort((a, b) => a - b);
+
+            obj.props = [];
+
+            const propLength = msg.readUint();
+
+            for (let i = 0; i < propLength; i++) {
+                let color;
+                obj.props.push({
+                    _offset: new Vector(msg.readFloat(), msg.readFloat()),
+                    angle: msg.readFloat(),
+                    spin: msg.readFloat(),
+                    spin2: msg.readFloat(),
+                    color: (color = decodeColor(msg, obj.team)),
+                    border: decodeBorder(msg, obj.team, color),
+                    size: msg.readFloat(),
+                    sides: decodeSides(msg),
+                    strokeWidth: msg.readFloat(),
+                    alpha: msg.readFloat(),
+                    layer: msg.readInt(),
+                });
+            }
+
+            obj.props.sort((a, b) => a - b);
 
             if (obj.mockupId !== 0)
                 mockups[obj.mockupId] = {
@@ -323,6 +356,27 @@ const socketOnMessage = async ({data}) => {
                         angle: msg.readFloat(),
                         color: (color = decodeColor(msg, entity.team)),
                         border: decodeBorder(msg, entity.team, color),
+                        strokeWidth: msg.readFloat(),
+                        alpha: msg.readFloat(),
+                        layer: msg.readInt(),
+                    });
+                }
+
+                upgrade.props = [];
+
+                const propLength = msg.readUint();
+
+                for (let i = 0; i < propLength; i++) {
+                    let color;
+                    upgrade.props.push({
+                        _offset: new Vector(msg.readFloat(), msg.readFloat()),
+                        angle: msg.readFloat(),
+                        spin: msg.readFloat(),
+                        spin2: msg.readFloat(),
+                        color: (color = decodeColor(msg, entity.team)),
+                        border: decodeBorder(msg, entity.team, color),
+                        size: msg.readFloat(),
+                        sides: decodeSides(msg),
                         strokeWidth: msg.readFloat(),
                         alpha: msg.readFloat(),
                         layer: msg.readInt(),

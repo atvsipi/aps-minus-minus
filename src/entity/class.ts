@@ -4,6 +4,7 @@ import {Logger} from '../util/logger';
 import {Controller} from './controller';
 import {Entity, EntitySetting} from './entity';
 import {GunSetting} from './gun';
+import {PropSetting} from './props';
 
 export interface GunClassType {
     offset?: number;
@@ -38,6 +39,20 @@ export interface GunClassType {
             spray?: number;
         };
     };
+}
+
+export interface PropClassType {
+    offset?: Vector;
+    angle?: number;
+    spin?: number;
+    spin2?: number;
+    color?: Color | string;
+    border?: Color | string;
+    size?: number;
+    sides?: number | string | Vector[];
+    strokeWidth?: number;
+    alpha?: number;
+    layer?: number;
 }
 
 export interface ClassType {
@@ -75,6 +90,7 @@ export interface ClassType {
     color?: Color | string;
     border?: Color | string;
     guns?: GunClassType[];
+    props?: PropClassType[];
     upgrades?: string[];
     tier?: number;
     on?: {[key: string]: (body: Entity, ...args: unknown[]) => unknown};
@@ -86,6 +102,7 @@ export interface ProcessedClass extends EntitySetting {
     color: Color | string;
     border: Color | string;
     guns: GunSetting[];
+    props: PropSetting[];
     upgrades: string[];
 }
 
@@ -124,6 +141,20 @@ const defaultGun: GunSetting = {
     },
 };
 
+const defaultProp: PropSetting = {
+    offset: new Vector(),
+    angle: 0,
+    spin: 0,
+    spin2: 0,
+    color: Color.TeamColor,
+    border: Color.AutoBorder,
+    size: 5,
+    sides: 0,
+    strokeWidth: 4,
+    alpha: 1,
+    layer: 1,
+};
+
 const defaultEntity: ProcessedClass = {
     tier: 0,
     mockupId: 0,
@@ -160,6 +191,7 @@ const defaultEntity: ProcessedClass = {
     color: Color.TeamColor,
     border: Color.AutoBorder,
     guns: [],
+    props: [],
     upgrades: [],
     on: {},
 };
@@ -186,6 +218,16 @@ function ProcessClass(name: string, entityClass: ClassType, basic: ProcessedClas
             if (gun.properties?.skill) processedGun.properties.skill = Object.assign({}, defaultGun.properties.skill, gun.properties.skill);
 
             processed.guns.push(processedGun);
+        }
+    }
+
+    if (entityClass.props) {
+        processed.props = [];
+
+        for (const prop of entityClass.props) {
+            const processedProp = Object.assign({}, defaultProp, prop);
+
+            processed.props.push(processedProp);
         }
     }
 
