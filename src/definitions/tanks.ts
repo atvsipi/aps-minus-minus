@@ -251,6 +251,7 @@ Class.Annihilator = {
         },
     ],
     miniMapType: 'team',
+    upgrades: ['Killer'],
 };
 
 Class.Killer = {
@@ -407,7 +408,7 @@ Class.Killer = {
             },
         },
     ],
-    miniMapType: 'team',
+    miniMapType: 'always',
     upgrades: ['Killer'],
 };
 
