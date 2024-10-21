@@ -286,7 +286,9 @@ function EntityInfo(entity: Entity, msg: Protocol.Writer) {
     return msg;
 }
 
-function Mockup(sides: string | number | Vector[], guns: GunSetting[], props: PropSetting[], msg: Protocol.Writer) {
+function Mockup(alpha: number, strokeWidth: number, sides: string | number | Vector[], guns: GunSetting[], props: PropSetting[], msg: Protocol.Writer) {
+    msg.writeFloat(alpha);
+    msg.writeFloat(strokeWidth);
     if (typeof sides === 'string') {
         msg.writeUint(0);
         msg.writeString(sides);
@@ -335,6 +337,7 @@ function Mockup(sides: string | number | Vector[], guns: GunSetting[], props: Pr
         msg.writeFloat(prop.offset.x);
         msg.writeFloat(prop.offset.y);
         msg.writeFloat(prop.angle);
+        msg.writeBoolean(prop.fixedAngle);
         msg.writeFloat(prop.spin);
         msg.writeFloat(prop.spin2);
         if (typeof prop.color === 'string') {
@@ -379,6 +382,8 @@ function EntityMockup(entity: Entity, msg: Protocol.Writer) {
     msg.writeString(entity.setting.label);
 
     Mockup(
+        entity.alpha,
+        entity.strokeWidth,
         entity.setting.sides,
         entity.guns.map((gun) => gun.setting),
         entity.props.map((prop) => prop.setting),
@@ -428,7 +433,7 @@ function EntityUpgrade(entity: Entity, msg: Protocol.Writer) {
             msg.writeUint(upgrade.border);
         }
 
-        Mockup(upgrade.sides, upgrade.guns, upgrade.props, msg);
+        Mockup(upgrade.alpha, upgrade.strokeWidth, upgrade.sides, upgrade.guns, upgrade.props, msg);
     }
 
     return msg;

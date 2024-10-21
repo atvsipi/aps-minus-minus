@@ -166,6 +166,13 @@ export class Vector implements VectorLike {
         return new Vector(this);
     }
 
+    public copy(vector: VectorLike): Vector {
+        this.x = vector.x;
+        this.y = vector.y;
+
+        return this;
+    }
+
     static toCartesian(r: number, theta: number): Vector {
         return new Vector(r * Math.cos(theta), r * Math.sin(theta));
     }
@@ -208,23 +215,23 @@ export class ConnectedVector extends Vector {
     public offset: VectorLike;
 
     public get x() {
-        return this.master.x + this.offset.x;
+        return this.master ? this.master.x + this.offset.x : this._x;
     }
 
     public set x(num: number) {
-        this.master.x = num - this.offset.x;
+        this._x = num;
     }
 
     public get y() {
-        return this.master.y + this.offset.y;
+        return this.master ? this.master.y + this.offset.y : this._x;
     }
 
     public set y(num: number) {
-        this.master.y = num - this.offset.y;
+        this._y = num;
     }
 
     constructor(master: VectorLike, offset: VectorLike) {
-        super(new Vector(master).add(offset));
+        super();
 
         this.master = master;
         this.offset = offset;

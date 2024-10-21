@@ -256,6 +256,9 @@ const socketOnMessage = async ({data}) => {
 
             obj.label = msg.readString();
 
+            obj.alpha = msg.readFloat();
+            obj.strokeWidth = msg.readFloat();
+
             obj.sides = decodeSides(msg);
 
             obj.guns = [];
@@ -290,6 +293,7 @@ const socketOnMessage = async ({data}) => {
                 obj.props.push({
                     _offset: new Vector(msg.readFloat(), msg.readFloat()),
                     angle: msg.readFloat(),
+                    fixedAngle: msg.readBoolean(),
                     spin: msg.readFloat(),
                     spin2: msg.readFloat(),
                     color: (color = decodeColor(msg, obj.team)),
@@ -325,6 +329,9 @@ const socketOnMessage = async ({data}) => {
 
                 upgrade.color = decodeColor(msg, entity.team);
                 upgrade.border = decodeBorder(msg, entity.team, entity.color);
+
+                upgrade.alpha = msg.readFloat();
+                upgrade.strokeWidth = msg.readFloat();
 
                 const type = msg.readUint();
                 if (type === 0) {
@@ -371,11 +378,12 @@ const socketOnMessage = async ({data}) => {
                     upgrade.props.push({
                         _offset: new Vector(msg.readFloat(), msg.readFloat()),
                         angle: msg.readFloat(),
+                        fixedAngle: msg.readBoolean(),
                         spin: msg.readFloat(),
                         spin2: msg.readFloat(),
                         color: (color = decodeColor(msg, entity.team)),
                         border: decodeBorder(msg, entity.team, color),
-                        size: msg.readFloat(),
+                        size: Math.min(30, msg.readFloat()),
                         sides: decodeSides(msg),
                         strokeWidth: msg.readFloat(),
                         alpha: msg.readFloat(),

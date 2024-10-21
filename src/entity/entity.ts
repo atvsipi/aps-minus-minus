@@ -1,7 +1,7 @@
 import {Color} from '../definitions/color';
 import {Team} from '../definitions/team';
 import {HSHGMeta} from '../physics/hshg';
-import {Vector} from '../physics/vector';
+import {ConnectedVector, Vector} from '../physics/vector';
 import {Gun} from './gun';
 import {EventEmitter} from 'events';
 import {EntityClass, ProcessedClass} from './class';
@@ -9,6 +9,7 @@ import {room} from '../room/room';
 import {RoomConfig} from '../room/roomconfig';
 import {Controller} from './controller';
 import {Prop} from './props';
+import {TurretSetting} from './turret';
 
 export interface EntitySetting {
     showHealth: boolean;
@@ -170,6 +171,7 @@ export class Entity extends EventEmitter {
 
     public guns: Gun[] = [];
     public props: Prop[] = [];
+    public turrets: Turret[] = [];
 
     public allUpgrades: ProcessedClass[] = [];
     public upgrades: ProcessedClass[] = [];
@@ -178,6 +180,8 @@ export class Entity extends EventEmitter {
 
     public color: Color | string = Color.TeamColor;
     public border: Color | string = Color.AutoBorder;
+    public strokeWidth: number = 4;
+    public alpha: number = 1;
 
     public team: Team = Math.random() > 0.5 ? Team.Blue : Team.Green;
     public team2: number = 0;
@@ -229,6 +233,10 @@ export class Entity extends EventEmitter {
     }
 
     public init(Class: ProcessedClass) {
+        if (this.turrets.length > 0) {
+            for (const turret of this.turrets) room.remove(turret);
+        }
+
         this.mockupId = Class.mockupId;
 
         this.setting.showHealth = Class.showHealth;
@@ -255,6 +263,8 @@ export class Entity extends EventEmitter {
         this.setting.on = Class.on;
         this.color = Class.color;
         this.border = Class.border;
+        this.strokeWidth = Class.strokeWidth;
+        this.alpha = Class.alpha;
         this.score = Class.score;
         this.health = Class.skill.health;
 
@@ -278,6 +288,18 @@ export class Entity extends EventEmitter {
             prop.setting = propSetting;
 
             this.props.push(prop);
+        }
+
+        this.turrets = [];
+
+        for (const turretSetting of Class.turrets) {
+            const turret = new Turret(this, turretSetting);
+
+            turret.init(EntityClass[turretSetting.type]);
+
+            room.insert(turret);
+
+            this.turrets.push(turret);
         }
 
         this.allUpgrades = [];
@@ -387,5 +409,42 @@ export class Entity extends EventEmitter {
         const fov = entity.setting.skill.fov + (entity.size + other.size) / 2;
 
         return distance <= fov;
+    }
+}
+
+export class Turret extends Entity {
+    public turretSetting: TurretSetting = {
+        offset: new Vector(),
+        angle: 0,
+        fixedAngle: false,
+        spin: 0,
+        spin2: 0,
+        type: 'Basic',
+    };
+
+    public declare pos: ConnectedVector;
+    public offsetAngle: number;
+
+    constructor(master: Entity, setting: TurretSetting) {
+        super();
+
+        this.master = master;
+        this.turretSetting = setting;
+
+        this.pos = new ConnectedVector(this.master.pos, this.turretSetting.offset);
+
+        this.offsetAngle = setting.angle;
+
+        this.team = master.team;
+        this.team2 = master.team2;
+    }
+
+    update() {
+        super.update();
+
+        this.pos.offset = this.turretSetting.offset.clone().rotate(this.offsetAngle + (this.turretSetting.fixedAngle ? 0 : this.master.angle));
+        this.offsetAngle += this.turretSetting.spin2;
+
+        this.angle += this.turretSetting.spin;
     }
 }

@@ -5,6 +5,7 @@ import {Controller} from './controller';
 import {Entity, EntitySetting} from './entity';
 import {GunSetting} from './gun';
 import {PropSetting} from './props';
+import {TurretSetting} from './turret';
 
 export interface GunClassType {
     offset?: number;
@@ -44,6 +45,7 @@ export interface GunClassType {
 export interface PropClassType {
     offset?: Vector;
     angle?: number;
+    fixedAngle?: boolean;
     spin?: number;
     spin2?: number;
     color?: Color | string;
@@ -53,6 +55,15 @@ export interface PropClassType {
     strokeWidth?: number;
     alpha?: number;
     layer?: number;
+}
+
+export interface TurretClassType {
+    offset?: Vector;
+    angle?: number;
+    fixedAngle?: boolean;
+    spin?: number;
+    spin2?: number;
+    type: string;
 }
 
 export interface ClassType {
@@ -89,8 +100,11 @@ export interface ClassType {
     };
     color?: Color | string;
     border?: Color | string;
+    strokeWidth?: number;
+    alpha?: number;
     guns?: GunClassType[];
     props?: PropClassType[];
+    turrets?: TurretClassType[];
     upgrades?: string[];
     tier?: number;
     on?: {[key: string]: (body: Entity, ...args: unknown[]) => unknown};
@@ -101,8 +115,11 @@ export interface ProcessedClass extends EntitySetting {
     mockupId: number;
     color: Color | string;
     border: Color | string;
+    strokeWidth: number;
+    alpha: number;
     guns: GunSetting[];
     props: PropSetting[];
+    turrets: TurretSetting[];
     upgrades: string[];
 }
 
@@ -144,6 +161,7 @@ const defaultGun: GunSetting = {
 const defaultProp: PropSetting = {
     offset: new Vector(),
     angle: 0,
+    fixedAngle: false,
     spin: 0,
     spin2: 0,
     color: Color.TeamColor,
@@ -153,6 +171,15 @@ const defaultProp: PropSetting = {
     strokeWidth: 4,
     alpha: 1,
     layer: 1,
+};
+
+const defaultTurret: TurretSetting = {
+    offset: new Vector(),
+    angle: 0,
+    fixedAngle: false,
+    spin: 0,
+    spin2: 0,
+    type: 'Basic',
 };
 
 const defaultEntity: ProcessedClass = {
@@ -190,8 +217,11 @@ const defaultEntity: ProcessedClass = {
     },
     color: Color.TeamColor,
     border: Color.AutoBorder,
+    strokeWidth: 4,
+    alpha: 1,
     guns: [],
     props: [],
+    turrets: [],
     upgrades: [],
     on: {},
 };
@@ -228,6 +258,16 @@ function ProcessClass(name: string, entityClass: ClassType, basic: ProcessedClas
             const processedProp = Object.assign({}, defaultProp, prop);
 
             processed.props.push(processedProp);
+        }
+    }
+
+    if (entityClass.turrets) {
+        processed.turrets = [];
+
+        for (const turret of entityClass.turrets) {
+            const processedTurret = Object.assign({}, defaultTurret, turret);
+
+            processed.turrets.push(processedTurret);
         }
     }
 

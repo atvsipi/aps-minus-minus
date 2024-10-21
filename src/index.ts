@@ -84,7 +84,8 @@ setInterval(() => {
 
         if (Math.random() > 0.7) entity.init(EntityClass.Food);
         else if (Math.random() > 0.5) entity.init(EntityClass.Pentagon);
-        else entity.init(EntityClass.AlphaPentagon);
+        else if (Math.random() > 0.7) entity.init(EntityClass.Pentagon);
+        else entity.init(EntityClass.ShinyPentagon);
         entity.pos = new Vector(RoomConfig.width * Math.random(), RoomConfig.height * Math.random());
         entity.team = Team.Room;
         entity.pos = new Vector(RoomConfig.width * Math.random(), RoomConfig.height * Math.random());

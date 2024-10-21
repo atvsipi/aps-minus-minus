@@ -4,6 +4,7 @@ import {Vector} from '../physics/vector';
 export interface PropSetting {
     offset: Vector;
     angle: number;
+    fixedAngle: boolean;
     spin: number;
     spin2: number;
     color: Color | string;
@@ -19,6 +20,7 @@ export class Prop {
     public setting: PropSetting = {
         offset: new Vector(),
         angle: 0,
+        fixedAngle: false,
         spin: 0,
         spin2: 0,
         color: Color.TeamColor,

@@ -296,19 +296,18 @@ function drawEntityShape(obj) {
 }
 
 const drawProp = (entity, prop) => {
-    if (prop.angle === undefined) prop.angle = prop.spin;
-    if (prop.offsetAngle === undefined) prop.offsetAngle = prop.spin2;
+    if (prop.offsetAngle === undefined) prop.offsetAngle = 0;
 
     prop.angle += prop.spin;
 
-    prop.offset = prop._offset.clone().rotate(prop.angle + entity.angle);
+    prop.offset = prop._offset.clone().rotate(prop.offsetAngle + (prop.fixedAngle ? 0 : entity.angle));
     prop.offsetAngle += prop.spin2;
 
     const factor = entity.size / 20;
 
     const pos = prop.offset.clone().mult(factor);
 
-    const obj = {sides: prop.sides, size: factor * prop.size, angle: prop.angle + entity.angle};
+    const obj = {sides: prop.sides, size: factor * prop.size, angle: prop.angle};
 
     ctx.save();
     ctx.translate(pos.x, pos.y);
@@ -625,7 +624,7 @@ const render = (timestamp) => {
                 }
                 ctx.globalAlpha = 1 - fadeProgress;
             } else {
-                ctx.globalAlpha = 1;
+                ctx.globalAlpha = entity.alpha;
             }
 
             ctx.lineWidth = 2;

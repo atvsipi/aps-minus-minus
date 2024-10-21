@@ -57,12 +57,13 @@ Class.Player = {
     guns: [makeOverLordGun(0), makeOverLordGun(Math.PI / 2), makeOverLordGun(Math.PI), makeOverLordGun(Math.PI * 1.5)],
     props: [
         {
-            offset: new Vector(0, 0),
-            layer: -1,
-            size: 200,
-            color: Color.Blue,
-            alpha: 0.2,
-            sides: 0,
+            offset: new Vector(),
+            layer: 10,
+            size: 15,
+            spin: 0.04,
+            color: Color.Grey,
+            alpha: 1,
+            sides: 3,
         },
     ],
     miniMapType: 'team',
@@ -118,8 +119,43 @@ Class.Basic = {
             },
         },
     ],
+    props: [
+        {
+            offset: new Vector(0, 0),
+            layer: 10,
+            fixedAngle: true,
+            size: 200,
+            color: Color.Blue,
+            alpha: 0.3,
+            sides: 0,
+            angle: 0,
+        },
+    ],
+    turrets: [
+        {
+            offset: new Vector(0, 0),
+            angle: 0,
+            fixedAngle: true,
+            type: 'test',
+        },
+    ],
     miniMapType: 'team',
     upgrades: ['Killer'],
+};
+
+Class.test = {
+    size: 100,
+    color: Color.Blue,
+    showHealth: false,
+    showName: false,
+    showScore: false,
+    sides: 0,
+    alpha: 0,
+    skill: {
+        damage: 0.1,
+        health: 10000000,
+        regen: 100,
+    },
 };
 
 Class.Twin = {
@@ -270,6 +306,16 @@ Class.Killer = {
     label: 'Killer',
     sides: -5,
     killMessage: true,
+    props: [
+        {
+            offset: new Vector(0, 0),
+            layer: -1,
+            size: 200,
+            color: Color.Blue,
+            alpha: 0.2,
+            sides: 0,
+        },
+    ],
     skill: {
         speed: 0.6,
         health: 400,
@@ -551,6 +597,32 @@ Class.Pentagon = {
     food: true,
     guns: [],
     color: Color.Lavender,
+    controllers: [new CircleMove()],
+};
+
+Class.ShinyPentagon = {
+    parent: 'Food',
+    label: 'Shiny Pentagon',
+    sides: 5,
+    size: 15,
+    showHealth: true,
+    showName: false,
+    showScore: false,
+    giveScore: true,
+    killMessage: true,
+    skill: {
+        speed: 0.2,
+        health: 60,
+        regen: 0.001,
+        damage: 1,
+        pen: 1,
+        range: null,
+        pushability: 1,
+    },
+    score: 10000,
+    food: true,
+    guns: [],
+    color: Color.LightGreen,
     controllers: [new CircleMove()],
 };
 
