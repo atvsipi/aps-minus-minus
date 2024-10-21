@@ -26,6 +26,24 @@ export let name = '';
 
 export let socket;
 
+export const lerpFactor = 0.1;
+
+export function lerp(start, end, factor) {
+    return start + (end - start) * factor;
+}
+
+export let lastServerTime = 0;
+
+function onServerUpdate(x, y, entity, timestamp) {
+    lastServerTime = timestamp;
+
+    entity.pos.x = lerp(entity.pos.x, x, lerpFactor);
+    entity.pos.y = lerp(entity.pos.y, y, lerpFactor);
+
+    entity.serverPos.x = x
+    entity.serverPos.y = y
+}
+
 let uuid = localStorage.getItem('uuid');
 
 const decodeColor = (msg, team) => {
@@ -132,8 +150,12 @@ const socketOnMessage = async ({data}) => {
             entity.id = msg.readBigUint();
             entity.health = msg.readFloat();
             entity.angle = msg.readFloat();
-            entity.pos.x = msg.readFloat();
-            entity.pos.y = msg.readFloat();
+            if (isNew) {
+                entity.pos.x = msg.readFloat();
+                entity.pos.y = msg.readFloat();
+            } else {
+                onServerUpdate(msg.readFloat(), msg.readFloat(), entity, currentTime);
+            }
             if (msg.readBoolean()) {
                 entity.vel.x = msg.readFloat();
                 entity.vel.y = msg.readFloat();
@@ -165,8 +187,12 @@ const socketOnMessage = async ({data}) => {
             entity.id = id;
             entity.health = msg.readFloat();
             entity.angle = msg.readFloat();
-            entity.pos.x = msg.readFloat();
-            entity.pos.y = msg.readFloat();
+            if (isNew) {
+                entity.pos.x = msg.readFloat();
+                entity.pos.y = msg.readFloat();
+            } else {
+                onServerUpdate(msg.readFloat(), msg.readFloat(), entity, currentTime);
+            }
             if (msg.readBoolean()) {
                 entity.vel.x = msg.readFloat();
                 entity.vel.y = msg.readFloat();

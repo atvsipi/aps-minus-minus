@@ -138,6 +138,12 @@ Class.Basic = {
             fixedAngle: true,
             type: 'test',
         },
+        {
+            offset: new Vector(0, 0),
+            angle: 0,
+            fixedAngle: true,
+            type: 'test1',
+        },
     ],
     miniMapType: 'team',
     upgrades: ['Killer'],
@@ -156,6 +162,57 @@ Class.test = {
         health: 10000000,
         regen: 100,
     },
+};
+
+Class.test1 = {
+    size: 5,
+    showHealth: false,
+    showName: false,
+    showScore: false,
+    sides: 0,
+    alpha: 0,
+    color: Color.Grey,
+    skill: {
+        damage: 0.1,
+        health: 10000000,
+        regen: 100,
+    },
+    guns: [
+        {
+            offset: -5,
+            direction: 0,
+            length: 50,
+            width: 18,
+            aspect: 1,
+            angle: 0,
+            color: Color.LightGrey,
+            border: Color.AutoBorder,
+            strokeWidth: 4,
+            alpha: 1,
+            layer: -1,
+            properties: {
+                type: 'Bullet',
+                autofire: false,
+                altFire: false,
+                delaySpawn: 0,
+                maxChildren: false,
+                independentChildren: false,
+                destroyOldestChild: false,
+                skill: {
+                    reload: 0.1,
+                    recoil: 1,
+                    size: 1,
+                    health: 1,
+                    damage: 1.2,
+                    pen: 1,
+                    speed: 6,
+                    range: 2,
+                    spray: 1,
+                },
+            },
+        },
+    ],
+    controllers: [new Nearest()],
 };
 
 Class.Twin = {

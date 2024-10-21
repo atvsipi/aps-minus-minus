@@ -5,7 +5,7 @@ import {joysticks, drawJoystick} from './mobile.js';
 import {message} from './message.js';
 import {score} from './score.js';
 
-import {avgDataSize, dataRate, socket, entity, entities, idToEntity, world, minimap, start} from './socket.js';
+import {avgDataSize, dataRate, socket, lerp, lerpFactor, lastServerTime, entity, entities, idToEntity, world, minimap, start} from './socket.js';
 
 const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
@@ -527,24 +527,18 @@ const drawMiniMap = () => {
     }
 };
 
-const correction = (entity, deltaTick, t) => {
+const correction = (entity, deltaTime) => {
+    return;
+
+    // TODO
+
     if (!entity.vel) return;
 
-    const interpolationFactor = deltaTick * (1000 / world.tick);
-    const velocityMagnitude = Math.sqrt(entity.vel.x * entity.vel.x + entity.vel.y * entity.vel.y);
+    entity.pos.x += entity.vel.x * deltaTime;
+    entity.pos.y += entity.vel.y * deltaTime;
 
-    if (velocityMagnitude > 0) {
-        const finalVelocity = velocityMagnitude / (interpolationFactor + 1);
-
-        entity.vel.x = (finalVelocity * entity.vel.x) / velocityMagnitude;
-        entity.vel.y = (finalVelocity * entity.vel.y) / velocityMagnitude;
-
-        entity.pos.x += entity.vel.x / interpolationFactor;
-        entity.pos.y += entity.vel.y / interpolationFactor;
-
-        entity.vel.x *= 1 - 0.1 / interpolationFactor;
-        entity.vel.y *= 1 - 0.1 / interpolationFactor;
-    }
+    entity.pos.x = lerp(entity.pos.x, entity.serverPos.x + entity.vel.x * deltaTime, lerpFactor);
+    entity.pos.y = lerp(entity.pos.y, entity.serverPos.y + entity.vel.y * deltaTime, lerpFactor);
 };
 
 const render = (timestamp) => {
@@ -610,6 +604,8 @@ const render = (timestamp) => {
             const fov = window.entity.fov + (window.entity.size + entity.size) / 2;
 
             if (distance > fov) continue;
+
+            correction(entity, deltaTime);
 
             ctx.save();
             ctx.translate(entity.pos.x, entity.pos.y);
