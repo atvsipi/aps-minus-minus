@@ -5,7 +5,9 @@ import {joysticks, drawJoystick} from './mobile.js';
 import {message} from './message.js';
 import {score} from './score.js';
 
-import {avgDataSize, dataRate, socket, lerp, lerpFactor, lastServerTime, entity, entities, idToEntity, world, minimap, start} from './socket.js';
+import {avgDataSize, dataRate, socket, entity, entities, idToEntity, world, minimap, start} from './socket.js';
+
+import {interpolate, reconcile} from './interpolate.js';
 
 const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
@@ -528,17 +530,7 @@ const drawMiniMap = () => {
 };
 
 const correction = (entity, deltaTime) => {
-    return;
-
-    // TODO
-
-    if (!entity.vel) return;
-
-    entity.pos.x += entity.vel.x * deltaTime;
-    entity.pos.y += entity.vel.y * deltaTime;
-
-    entity.pos.x = lerp(entity.pos.x, entity.serverPos.x + entity.vel.x * deltaTime, lerpFactor);
-    entity.pos.y = lerp(entity.pos.y, entity.serverPos.y + entity.vel.y * deltaTime, lerpFactor);
+    reconcile(entity);
 };
 
 const render = (timestamp) => {
@@ -552,6 +544,8 @@ const render = (timestamp) => {
             else if (zoom < fov) zoom += diff / 70;
             else zoom -= diff / 70;
         }
+
+        reconcile(entity);
 
         const deltaTime = timestamp - lastRenderTime;
         lastRenderTime = timestamp;
@@ -604,8 +598,6 @@ const render = (timestamp) => {
             const fov = window.entity.fov + (window.entity.size + entity.size) / 2;
 
             if (distance > fov) continue;
-
-            correction(entity, deltaTime);
 
             ctx.save();
             ctx.translate(entity.pos.x, entity.pos.y);
