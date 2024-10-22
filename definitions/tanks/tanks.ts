@@ -51,7 +51,7 @@ Class.Player = {
         pen: 10,
         range: null,
         pushability: 1,
-        fov: 5000,
+        fov: 800,
     },
     upgrades: ['Basic', 'Twin', 'Annihilator', 'Basic', 'Basic', 'Basic', 'Basic', 'Basic', 'Basic'],
     guns: [makeOverLordGun(0), makeOverLordGun(Math.PI / 2), makeOverLordGun(Math.PI), makeOverLordGun(Math.PI * 1.5)],
