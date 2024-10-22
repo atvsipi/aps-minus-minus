@@ -1,7 +1,7 @@
-import {Class, GunClassType} from '../entity/class';
-import {CircleMove, GoToMasterTarget, MasterCircleMove, Nearest} from '../entity/controller';
-import {Vector} from '../physics/vector';
-import {Color} from './color';
+import {Class, GunClassType} from '@/entity/class';
+import {CircleMove, GoToMasterTarget, MasterCircleMove, Nearest} from '@/entity/controller';
+import {Vector} from '@/physics/vector';
+import {Color} from '@/definitions/color';
 
 function makeOverLordGun(angle: number): GunClassType {
     return {

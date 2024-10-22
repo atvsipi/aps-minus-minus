@@ -1,7 +1,5 @@
 import {Color} from '../definitions/color';
 import {Vector} from '../physics/vector';
-import {room} from '../room/room';
-import {RoomConfig} from '../room/room-config';
 import {EntityClass} from './class';
 import {Controller} from './controller';
 import {Entity} from './entity';
@@ -142,7 +140,7 @@ export class Gun {
             if (this.setting.properties.destroyOldestChild) {
                 const entity = this.children[0];
 
-                room.remove(entity);
+                this.body.room.remove(entity);
 
                 delete this.children[0];
             } else return;
@@ -179,7 +177,7 @@ export class Gun {
                     delete this.body.children[bodyIndex];
                 });
 
-                room.insert(bullet);
+                this.body.room.insert(bullet);
 
                 const angle = Vector.addAngle({x: 1, y: 1}, this.body.angle + this.setting.angle).normalize();
 
@@ -189,7 +187,7 @@ export class Gun {
 
                 if (this.setting.properties.skill.range)
                     setTimeout(() => {
-                        room.remove(bullet);
+                        this.body.room.remove(bullet);
                     }, this.setting.properties.skill.range * 1000);
             }, this.setting.properties.delaySpawn);
         }

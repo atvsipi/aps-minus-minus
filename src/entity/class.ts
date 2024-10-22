@@ -1,11 +1,11 @@
 import {Color} from '../definitions/color';
 import {Vector} from '../physics/vector';
 import {Logger} from '../util/logger';
-import {Controller} from './controller';
-import {Entity, EntitySetting} from './entity';
-import {GunSetting} from './gun';
-import {PropSetting} from './props';
-import {TurretSetting} from './turret';
+import type {Controller} from './controller';
+import type {Entity, EntitySetting} from './entity';
+import type {GunSetting} from './gun';
+import type {PropSetting} from './props';
+import type {TurretSetting} from './turret';
 
 export interface GunClassType {
     offset?: number;

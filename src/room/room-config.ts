@@ -1,6 +1,7 @@
 import {Entity} from '../entity/entity';
 
-export const RoomConfig = {
+export const DefaultRoomConfig = {
+    room: 'test',
     height: 5000,
     width: 5000,
     tick: 1000 / 60,
@@ -34,3 +35,5 @@ export const RoomConfig = {
         }
     },
 };
+
+export const RoomConfig = Object.assign({}, DefaultRoomConfig, (await import('../../definitions/config')).default);

@@ -12,8 +12,9 @@
         "skipLibCheck": true,
         "allowSyntheticDefaultImports": true,
         "noEmit": false,
-        "esModuleInterop": true
+        "esModuleInterop": true,
+        "paths": {"@/*": ["./src/*"]}
     },
-    "include": ["src"],
+    "include": ["src", "definitions"],
     "exclude": ["node_modules"]
 }

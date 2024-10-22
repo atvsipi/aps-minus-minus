@@ -5,11 +5,11 @@ import {ConnectedVector, Vector} from '../physics/vector';
 import {Gun} from './gun';
 import {EventEmitter} from 'events';
 import {EntityClass, ProcessedClass} from './class';
-import {room} from '../room/room';
 import {RoomConfig} from '../room/room-config';
 import {Controller} from './controller';
 import {Prop} from './props';
 import {TurretSetting} from './turret';
+import type {World} from '../room/world';
 
 export interface EntitySetting {
     showHealth: boolean;
@@ -48,6 +48,7 @@ export interface EntitySetting {
 
 export class Entity extends EventEmitter {
     public id!: number;
+    public room!: World;
 
     public pos: Vector = new Vector();
     public vel: Vector = new Vector();
@@ -232,10 +233,12 @@ export class Entity extends EventEmitter {
         super();
     }
 
-    public init(Class: ProcessedClass) {
+    public init(Class: ProcessedClass | string) {
         if (this.turrets.length > 0) {
-            for (const turret of this.turrets) room.remove(turret);
+            for (const turret of this.turrets) this.room.remove(turret);
         }
+
+        if (typeof Class === 'string') Class = EntityClass[Class];
 
         this.mockupId = Class.mockupId;
 
@@ -297,7 +300,7 @@ export class Entity extends EventEmitter {
 
             turret.init(EntityClass[turretSetting.type]);
 
-            room.insert(turret);
+            this.room.insert(turret);
 
             this.turrets.push(turret);
         }
@@ -318,7 +321,7 @@ export class Entity extends EventEmitter {
         this.tick++;
         this.emit('tick', this.tick);
 
-        if (!this.setting.independent && this.master?.die) return room.remove(this);
+        if (!this.setting.independent && this.master?.die) return this.room.remove(this);
 
         if (this.score > this.levelScore) {
             this.level++;

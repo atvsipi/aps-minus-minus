@@ -29,6 +29,7 @@ export class World extends EventEmitter {
         this.hshg.addObject(entity);
 
         entity.id = this.index++;
+        entity.room = this;
 
         this.idToEntity.set(entity.id, entity);
 
@@ -89,6 +90,8 @@ export class World extends EventEmitter {
     }
 
     public update() {
+        this.tick++;
+
         this.emit('tick');
 
         this.hshg.update();
