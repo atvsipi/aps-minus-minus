@@ -52,6 +52,7 @@ export default {
                     wallEntity.setting.size = wallScale * 0.5 * Math.SQRT2 - 2;
                     wallEntity.team = Team.Room;
                     this.insert(wallEntity);
+                    this.walls.push(wallEntity);
                 }
             }
         }
@@ -69,7 +70,7 @@ export default {
             }
 
             setInterval(() => {
-                if (this.entities.size < 50) {
+                if (this.entities.size < 1000) {
                     const entity = new Entity();
 
                     if (Math.random() > 0.7) entity.init('Food');

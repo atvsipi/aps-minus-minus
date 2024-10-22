@@ -10,6 +10,8 @@ export class World extends EventEmitter {
     public entities = new Set<Entity>();
     public idToEntity = new Map<number, Entity>();
 
+    public walls: Entity[] = [];
+
     public index: number = 0;
 
     public tick: number = 0;

@@ -524,6 +524,14 @@ setInterval(() => {
                     msg.writeUint(1);
                     msg.writeUint(map.color);
                 }
+
+                if (map.setting.isFixed) {
+                    msg.writeBoolean(true);
+                    msg.writeFloat(map.size);
+                    if (typeof map.setting.sides === 'number') {
+                        msg.writeInt(map.setting.sides);
+                    } else msg.writeInt(0);
+                } else msg.writeBoolean(false);
             }
 
             user[1].send(msg.make());

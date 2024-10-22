@@ -20,12 +20,16 @@ export class Maze {
 
     public removeBorders() {
         for (let x = 0; x < this.width; x++) {
-            this.maze[0][x] = false;
-            this.maze[this.height - 1][x] = false;
+            if (Math.random() < 0.2) {
+                this.maze[0][x] = false;
+                this.maze[this.height - 1][x] = false;
+            }
         }
         for (let y = 0; y < this.height; y++) {
-            this.maze[y][0] = false;
-            this.maze[y][this.width - 1] = false;
+            if (Math.random() < 0.2) {
+                this.maze[y][0] = false;
+                this.maze[y][this.width - 1] = false;
+            }
         }
     }
 

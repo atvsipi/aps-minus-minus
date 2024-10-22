@@ -410,11 +410,18 @@ const socketOnMessage = async ({data}) => {
 
             for (let i = 0; i < length; i++) {
                 let team;
-                minimap.push({
+                let map = {
                     pos: new Vector(msg.readFloat(), msg.readFloat()),
                     team: (team = msg.readUint()),
                     color: decodeColor(msg, team),
-                });
+                };
+
+                if (msg.readBoolean()) {
+                    map.size = msg.readFloat();
+                    map.sides = msg.readInt();
+                }
+
+                minimap.push(map);
             }
 
             break;

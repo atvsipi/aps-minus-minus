@@ -503,7 +503,7 @@ const drawScore = () => {
 };
 
 const drawMiniMap = () => {
-    const minimapScale = 100 / Math.min(world.width, world.height);
+    const minimapScale = 150 / Math.min(world.width, world.height);
     const minimapWidth = world.width * minimapScale;
     const minimapHeight = world.height * minimapScale;
 
@@ -523,7 +523,19 @@ const drawMiniMap = () => {
         const minimapY = minimapStartY + item.pos.y * minimapScale;
 
         ctx.beginPath();
-        ctx.arc(minimapX, minimapY, 4, 0, 2 * Math.PI);
+        if (item.size) {
+            ctx.translate(minimapX, minimapY);
+            if (!item.sides) {
+                drawCircle({angle: 0, size: item.size * minimapScale});
+            } else if (item.sides < 0) {
+                drawStar({sides: item.sides, angle: 0, size: item.size * minimapScale});
+            } else if (item.sides > 0) {
+                drawRegularPolygon({sides: item.sides, angle: 0, size: item.size * minimapScale});
+            }
+            ctx.translate(-minimapX, -minimapY);
+        } else {
+            ctx.arc(minimapX, minimapY, 2, 0, 2 * Math.PI);
+        }
         ctx.fill();
         ctx.closePath();
     }

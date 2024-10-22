@@ -600,7 +600,7 @@ Class.Wall = {
     size: 49,
     skill: {damage: 0, health: 10000},
     guns: [],
-    miniMapType: 'none',
+    miniMapType: 'always',
     color: Color.LightGrey,
 };
 
