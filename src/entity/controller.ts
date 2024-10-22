@@ -1,7 +1,7 @@
 import {throws} from 'assert';
 import {Vector} from '../physics/vector';
 import {room} from '../room/room';
-import {RoomConfig} from '../room/roomconfig';
+import {RoomConfig} from '../room/room-config';
 import {Entity} from './entity';
 
 export interface ControllerThink {

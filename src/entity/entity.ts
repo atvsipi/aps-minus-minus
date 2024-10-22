@@ -6,7 +6,7 @@ import {Gun} from './gun';
 import {EventEmitter} from 'events';
 import {EntityClass, ProcessedClass} from './class';
 import {room} from '../room/room';
-import {RoomConfig} from '../room/roomconfig';
+import {RoomConfig} from '../room/room-config';
 import {Controller} from './controller';
 import {Prop} from './props';
 import {TurretSetting} from './turret';

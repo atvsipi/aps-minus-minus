@@ -1,7 +1,7 @@
 import {randomUUID} from 'crypto';
 import {Protocol} from './protocol';
 import {Entity} from '../entity/entity';
-import {RoomConfig} from '../room/roomconfig';
+import {RoomConfig} from '../room/room-config';
 import {room} from '../room/room';
 import {Logger} from '../util/logger';
 import {EntityClass} from '../entity/class';
@@ -39,13 +39,13 @@ export function message(uuid: string, data: Uint8Array, send: (msg: Uint8Array |
                 if (users.has(uuid) && !(entity = users.get(uuid).body).die) {
                     users.get(uuid).timeout = 0;
                 } else {
-                    entity = new Entity();
+                    entity = room.spawn(msg.readString());
 
-                    entity.init(EntityClass.Player);
+                    if (!entity) {
+                        send("You can't spawn.");
 
-                    entity.name = msg.readString();
-
-                    RoomConfig.spawn(entity);
+                        return;
+                    }
 
                     room.insert(entity);
                 }
