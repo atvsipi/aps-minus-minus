@@ -86,6 +86,8 @@ if (!mobile) {
 
         const angle = Math.atan2(y, x);
 
+        entity.angle = angle;
+
         socket.send(new Writer().writeUint(3).writeFloat(angle).make());
     });
 
@@ -127,6 +129,8 @@ if (!mobile) {
             const x = (coordinate.x - canvasSize.width / 2) / zoom;
             const y = (coordinate.y - canvasSize.height / 2) / zoom;
             const angle = Math.atan2(y, x);
+
+            entity.angle = angle;
 
             socket.send(new Writer().writeUint(4).writeBoolean(true).writeFloat(x).writeFloat(y).make());
             socket.send(new Writer().writeUint(3).writeFloat(angle).make());
@@ -302,6 +306,8 @@ const drawProp = (entity, prop) => {
 
     prop.angle += prop.spin;
 
+    if (!(prop._offset instanceof Vector)) prop._offset = new Vector(prop._offset);
+
     prop.offset = prop._offset.clone().rotate(prop.offsetAngle + (prop.fixedAngle ? 0 : entity.angle));
     prop.offsetAngle += prop.spin2;
 
@@ -309,7 +315,7 @@ const drawProp = (entity, prop) => {
 
     const pos = prop.offset.clone().mult(factor);
 
-    const obj = {sides: prop.sides, size: factor * prop.size, angle: prop.angle};
+    const obj = {sides: prop.sides, size: factor * prop.size, angle: prop.fixedAngle ? prop.angle : prop.angle + entity.angle};
 
     ctx.save();
     ctx.translate(pos.x, pos.y);

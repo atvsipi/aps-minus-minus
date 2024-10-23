@@ -128,7 +128,7 @@ export class CircleMove extends Controller {
         if (this.isThinkTime()) {
             this.target = new Vector(5, 5).addAngle(this.angle);
 
-            this.angle -= 0.01;
+            this.angle -= 0.002;
         }
 
         return {
@@ -137,7 +137,7 @@ export class CircleMove extends Controller {
             main: true,
             fire: false,
             alt: false,
-            power: 0.2,
+            power: 0.1,
         };
     }
 }

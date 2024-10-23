@@ -1,13 +1,26 @@
 import {Team} from '@/definitions/team';
 import {Entity} from '@/entity/entity';
-import {Vector, VectorLike} from '@/physics/vector';
+import {Vector} from '@/physics/vector';
 import {RoomConfig} from '@/room/room-config';
 import {RoomLoop} from '@/room/room-loop';
 import {Maze} from '@/util/maze';
+import {RandomPosGenerator, randomFood} from '@/util/random';
+
+const foods: {
+    type: string;
+    weight: number;
+}[] = [
+    {type: 'Food', weight: 90},
+    {type: 'Pentagon', weight: 20},
+    {type: 'AlphaPentagon', weight: 10},
+    {type: 'ShinyPentagon', weight: 1},
+];
 
 export default {
     name: 'test',
     room: class extends RoomLoop {
+        public randomPosGenerator = new RandomPosGenerator(RoomConfig.width, RoomConfig.height, []);
+
         constructor() {
             super();
         }
@@ -17,20 +30,20 @@ export default {
             const maze = new Maze(size, size);
             const wallScale = RoomConfig.height / (size + 2 * padding);
 
-            maze.removeBorders();
             maze.generateMaze(1, 1);
             maze.punchAdditionalWalls();
 
-            const holeCenters: [number, number][] = [
-                [5, 5],
-                [5, 25],
-                [25, 5],
-                [25, 25],
-                [15, 15],
-            ];
-            const holeRadius = 2;
+            maze.createHoles(
+                [
+                    [5, 5],
+                    [5, 25],
+                    [25, 5],
+                    [25, 25],
+                ],
+                4,
+            );
 
-            maze.createHoles(holeCenters, holeRadius);
+            maze.createHoles([[15, 15]], 8);
 
             const corridors = [7, 23];
 
@@ -49,12 +62,31 @@ export default {
                     wallEntity.init('Wall');
                     wallEntity.pos.x = d.x;
                     wallEntity.pos.y = d.y;
-                    wallEntity.setting.size = wallScale * 0.5 * Math.SQRT2 - 2;
+                    wallEntity.setting.size = wallScale * 0.5 * Math.SQRT2;
                     wallEntity.team = Team.Room;
                     this.insert(wallEntity);
                     this.walls.push(wallEntity);
+                    this.randomPosGenerator.exclusionZone.push([
+                        {x: d.x, y: d.y},
+                        {x: d.x + wallEntity.setting.size, y: d.y + wallEntity.setting.size},
+                    ]);
                 }
             }
+        }
+
+        public spawn(name: string): Entity {
+            const entity = new Entity();
+
+            entity.init('Player');
+
+            entity.name = name;
+
+            const {x, y} = this.randomPosGenerator.getRandomPos();
+
+            entity.pos.x = x;
+            entity.pos.y = y;
+
+            return entity;
         }
 
         public init() {
@@ -70,20 +102,21 @@ export default {
             }
 
             setInterval(() => {
-                if (this.entities.size < 1000) {
+                if (this.entities.size < 1500) {
                     const entity = new Entity();
 
-                    if (Math.random() > 0.7) entity.init('Food');
-                    else if (Math.random() > 0.5) entity.init('Pentagon');
-                    else if (Math.random() > 0.7) entity.init('Pentagon');
-                    else entity.init('ShinyPentagon');
-                    entity.pos = new Vector(RoomConfig.width * Math.random(), RoomConfig.height * Math.random());
+                    entity.init(randomFood(foods));
+
+                    const {x, y} = this.randomPosGenerator.getRandomPos();
+
+                    entity.pos.x = x;
+                    entity.pos.y = y;
+
                     entity.team = Team.Room;
-                    entity.pos = new Vector(RoomConfig.width * Math.random(), RoomConfig.height * Math.random());
 
                     this.insert(entity);
                 }
-            }, 1000);
+            }, 500);
         }
 
         public update(): void {

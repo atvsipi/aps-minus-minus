@@ -232,6 +232,7 @@ const socketOnMessage = async ({data}) => {
             if (mockups[obj.mockupId]) {
                 obj.sides = mockups[obj.mockupId].sides;
                 obj.guns = mockups[obj.mockupId].guns;
+                obj.props = mockups[obj.mockupId].props;
                 obj.isLoaded = true;
             } else {
                 socket.send(new Writer().writeUint(6).writeBigUint(obj.id).make());
@@ -315,10 +316,13 @@ const socketOnMessage = async ({data}) => {
             obj.props.sort((a, b) => a - b);
 
             if (obj.mockupId !== 0)
-                mockups[obj.mockupId] = {
-                    sides: obj.sides,
-                    guns: obj.guns,
-                };
+                mockups[obj.mockupId] = JSON.parse(
+                    JSON.stringify({
+                        sides: obj.sides,
+                        guns: obj.guns,
+                        props: obj.props,
+                    }),
+                );
 
             obj.isLoaded = true;
 
