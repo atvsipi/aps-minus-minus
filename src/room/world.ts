@@ -123,8 +123,8 @@ export class World extends EventEmitter {
                 if (other.setting.isFixed) continue;
                 if (other.setting.airplane) continue;
 
-                const min = new Vector(entity.pos).sub(entity.size);
-                const max = new Vector(entity.pos).add(entity.size);
+                const min = new Vector(entity.pos).sub(entity.size * 0.8);
+                const max = new Vector(entity.pos).add(entity.size * 0.8);
 
                 if (other.setting.bullet) {
                     other.emit('dead');

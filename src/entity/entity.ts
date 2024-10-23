@@ -82,15 +82,10 @@ export class Entity extends EventEmitter {
     } = () => {
         const size = this.size / 2;
 
-        const x1 = Math.min(this.pos.x, this.pos.x + this.vel.x) - size - 5;
-        const y1 = Math.min(this.pos.y, this.pos.y + this.vel.y) - size - 5;
-        const x2 = Math.max(this.pos.x, this.pos.x + this.vel.x) + size + 5;
-        const y2 = Math.max(this.pos.y, this.pos.y + this.vel.y) + size + 5;
-
         return {
             active: true,
-            min: [x1, y1],
-            max: [x2, y2],
+            min: [this.pos.x - size - 14, this.pos.y - size - 14],
+            max: [this.pos.x + size + 14, this.pos.y + size + 14],
         };
     };
 
