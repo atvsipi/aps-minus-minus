@@ -4,6 +4,8 @@ import {Vector} from '../physics/vector';
 import {RoomConfig} from './room-config';
 import {EventEmitter} from 'events';
 
+const restitution = 0.9;
+
 export class World extends EventEmitter {
     public hshg: HSHG = new HSHG();
 
@@ -149,36 +151,36 @@ export class World extends EventEmitter {
                     }
                 }
             } else {
-                this.doDamage(entity, other, false);
-
-                if (!(entity.setting.hardBullet && other.setting.hardBullet)) {
+                if (entity.size + other.size < Vector.distance(entity.pos, other.pos)) {
                     continue;
                 }
 
-                /*const correctionVector = Vector.sub(other.pos, entity.pos)
-                    .normalize()
-                    .mult((entity.size + other.size - Vector.distance(entity.pos, other.pos)) / 2);
+                this.doDamage(entity, other, false);
 
-                other.pos.add(correctionVector);
-                entity.pos.sub(correctionVector);*/
+                if (entity.setting.bullet || other.setting.bullet) {
+                    if (!(entity.setting.hardBullet && other.setting.hardBullet)) {
+                        continue;
+                    }
+                }
 
                 const normal = Vector.sub(other.pos, entity.pos).normalize();
 
-                const u1 = entity.vel.x * normal.x + entity.vel.y * normal.y;
-                const u2 = other.vel.x * normal.x + other.vel.y * normal.y;
+                const relativeVelocity = Vector.sub(other.vel, entity.vel);
+                const velocityAlongNormal = relativeVelocity.dot(normal);
 
-                const normalVel1 = Vector.mult(normal, u1);
-                const normalVel2 = Vector.mult(normal, u2);
+                if (velocityAlongNormal > 0) {
+                    continue;
+                }
 
-                const mass1 = entity.mass;
-                const mass2 = other.mass;
+                const impulse = normal
+                    .clone()
+                    .mult(
+                        (-(1 + Math.min(entity.setting.skill.pushability, other.setting.skill.pushability) * restitution) * velocityAlongNormal) /
+                            (1 / entity.mass + 1 / other.mass),
+                    );
 
-                entity.vel = Vector.add(normalVel1.normalize().mult((2 * mass2 * u2 + u1 * (mass1 - 1 * mass2)) / (mass1 + mass2)), Vector.sub(entity.vel, normalVel1)).mult(
-                    other.setting.skill.pushability,
-                );
-                other.vel = Vector.add(normalVel2.normalize().mult((2 * mass1 * u1 + u2 * (mass2 - 1 * mass1)) / (mass1 + mass2)), Vector.sub(other.vel, normalVel2)).mult(
-                    entity.setting.skill.pushability,
-                );
+                entity.vel.sub(impulse.clone().mult(1 / entity.mass));
+                other.vel.add(impulse.clone().mult(1 / other.mass));
             }
         }
 
