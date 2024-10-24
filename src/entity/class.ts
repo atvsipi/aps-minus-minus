@@ -74,8 +74,8 @@ export interface ClassType {
     giveScore?: boolean;
     killMessage?: boolean | string;
     label?: string;
-    hitType?: 'none' | 'auto' | ((other: Entity) => void);
-    miniMapType?: 'none' | 'always' | 'team' | ((other: Entity) => boolean);
+    hitType?: 'none' | 'auto' | ((body: Entity, other: Entity) => void);
+    miniMapType?: 'none' | 'always' | 'team' | ((body: Entity, other: Entity) => boolean);
     score?: number;
     name?: null | string;
     size?: number;

@@ -113,9 +113,9 @@ export class World extends EventEmitter {
                     continue;
                 }
 
-                if (typeof entity.setting.hitType === 'function') entity.setting.hitType(other);
+                if (typeof entity.setting.hitType === 'function') entity.setting.hitType(entity, other);
 
-                if (typeof other.setting.hitType === 'function') other.setting.hitType(entity);
+                if (typeof other.setting.hitType === 'function') other.setting.hitType(other, entity);
 
                 continue;
             }
@@ -125,8 +125,8 @@ export class World extends EventEmitter {
                 if (other.setting.isFixed) continue;
                 if (other.setting.airplane) continue;
 
-                const min = new Vector(entity.pos).sub(entity.size * 0.8);
-                const max = new Vector(entity.pos).add(entity.size * 0.8);
+                const min = new Vector(entity.pos).sub(entity.size * 0.7 + 10);
+                const max = new Vector(entity.pos).add(entity.size * 0.7 + 10);
 
                 if (other.setting.bullet) {
                     other.emit('dead');
@@ -167,10 +167,6 @@ export class World extends EventEmitter {
 
                 const relativeVelocity = Vector.sub(other.vel, entity.vel);
                 const velocityAlongNormal = relativeVelocity.dot(normal);
-
-                if (velocityAlongNormal > 0) {
-                    continue;
-                }
 
                 const impulse = normal
                     .clone()

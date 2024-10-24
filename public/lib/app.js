@@ -86,8 +86,6 @@ if (!mobile) {
 
         const angle = Math.atan2(y, x);
 
-        entity.angle = angle;
-
         socket.send(new Writer().writeUint(3).writeFloat(angle).make());
     });
 
@@ -129,8 +127,6 @@ if (!mobile) {
             const x = (coordinate.x - canvasSize.width / 2) / zoom;
             const y = (coordinate.y - canvasSize.height / 2) / zoom;
             const angle = Math.atan2(y, x);
-
-            entity.angle = angle;
 
             socket.send(new Writer().writeUint(4).writeBoolean(true).writeFloat(x).writeFloat(y).make());
             socket.send(new Writer().writeUint(3).writeFloat(angle).make());
@@ -267,7 +263,7 @@ function drawEntityShape(obj) {
     }
 
     ctx.fill();
-    ctx.stroke();
+    if (obj.strokeWidth > 0) ctx.stroke();
     ctx.closePath();
 
     if (obj !== entity) {
@@ -554,129 +550,141 @@ const correction = (entity, deltaTime) => {
 const render = (timestamp) => {
     if (!entity || !world.width) return requestAnimationFrame(render);
 
-    if (entity.health > 0) {
-        const fov = Math.max(canvasSize.width, canvasSize.height) / ((entity.fov || 10) + entity.size);
-        if (zoom !== fov) {
-            const diff = Math.abs(zoom - fov);
-            if (diff < 0.01) zoom = fov;
-            else if (zoom < fov) zoom += diff / 70;
-            else zoom -= diff / 70;
-        }
+    const fov = Math.max(canvasSize.width, canvasSize.height) / ((entity.fov || 10) + entity.size);
+    if (zoom !== fov) {
+        const diff = Math.abs(zoom - fov);
+        if (diff < 0.01) zoom = fov;
+        else if (zoom < fov) zoom += diff / 70;
+        else zoom -= diff / 70;
+    }
 
-        reconcile(entity);
+    reconcile(entity);
 
-        const deltaTime = timestamp - lastRenderTime;
-        lastRenderTime = timestamp;
+    const deltaTime = timestamp - lastRenderTime;
+    lastRenderTime = timestamp;
 
-        totalFps += 1000 / deltaTime;
+    totalFps += 1000 / deltaTime;
 
-        renderCount++;
+    renderCount++;
 
-        if (performance.now() - lastRenderUpdate >= 1000) {
-            fps = totalFps / renderCount;
+    if (performance.now() - lastRenderUpdate >= 1000) {
+        fps = totalFps / renderCount;
 
-            renderCount = 0;
-            totalFps = 0;
-            lastRenderUpdate = performance.now();
-        }
+        renderCount = 0;
+        totalFps = 0;
+        lastRenderUpdate = performance.now();
+    }
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        ctx.globalAlpha = 0.2;
-        ctx.fillStyle = Color.Black2;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.globalAlpha = 1;
+    ctx.globalAlpha = 0.2;
+    ctx.fillStyle = Color.Black2;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.globalAlpha = 1;
+
+    ctx.save();
+
+    ctx.scale(zoom, zoom);
+    ctx.translate(canvasSize.width / 2 / zoom - entity.pos.x, canvasSize.height / 2 / zoom - entity.pos.y);
+
+    ctx.fillStyle = Color.White;
+    ctx.fillRect(0, 0, world.width, world.height);
+
+    ctx.strokeStyle = 'rgb(0,0,0,0.1)';
+
+    for (let y = 0; y <= world.height; y += 40) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(world.width, y);
+        ctx.stroke();
+    }
+    for (let x = 0; x <= world.width; x += 40) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, world.height);
+        ctx.stroke();
+    }
+    window.entity = entity;
+
+    for (const entity of entities) {
+        const distance = Vector.distance(window.entity.pos, entity.pos);
+        const fov = window.entity.fov + (window.entity.size + entity.size) / 2;
+
+        if (distance > fov) continue;
 
         ctx.save();
+        ctx.translate(entity.pos.x, entity.pos.y);
 
-        ctx.scale(zoom, zoom);
-        ctx.translate(canvasSize.width / 2 / zoom - entity.pos.x, canvasSize.height / 2 / zoom - entity.pos.y);
-
-        ctx.fillStyle = Color.White;
-        ctx.fillRect(0, 0, world.width, world.height);
-
-        ctx.strokeStyle = 'rgb(0,0,0,0.1)';
-
-        for (let y = 0; y <= world.height; y += 40) {
-            ctx.beginPath();
-            ctx.moveTo(0, y);
-            ctx.lineTo(world.width, y);
-            ctx.stroke();
+        if (entity.fadeStart) {
+            const fadeProgress = (performance.now() - entity.fadeStart) / fadeDuration;
+            if (fadeProgress >= 1) {
+                entities.delete(entity);
+                idToEntity.delete(entity.id);
+                ctx.restore();
+                continue;
+            }
+            ctx.globalAlpha = 1 - fadeProgress;
+        } else {
+            ctx.globalAlpha = entity.alpha;
         }
-        for (let x = 0; x <= world.width; x += 40) {
-            ctx.beginPath();
-            ctx.moveTo(x, 0);
-            ctx.lineTo(x, world.height);
-            ctx.stroke();
+
+        ctx.lineWidth = 2;
+        ctx.lineJoin = 'round';
+
+        if (entity.props) {
+            for (const prop of entity.props.filter((prop) => prop.layer < 0)) {
+                drawProp(entity, prop);
+            }
         }
-        window.entity = entity;
 
-        for (const entity of entities) {
-            const distance = Vector.distance(window.entity.pos, entity.pos);
-            const fov = window.entity.fov + (window.entity.size + entity.size) / 2;
-
-            if (distance > fov) continue;
-
-            ctx.save();
-            ctx.translate(entity.pos.x, entity.pos.y);
-
-            if (entity.fadeStart) {
-                const fadeProgress = (performance.now() - entity.fadeStart) / fadeDuration;
-                if (fadeProgress >= 1) {
-                    entities.delete(entity);
-                    idToEntity.delete(entity.id);
-                    ctx.restore();
-                    continue;
-                }
-                ctx.globalAlpha = 1 - fadeProgress;
-            } else {
-                ctx.globalAlpha = entity.alpha;
+        if (entity.guns) {
+            for (const gun of entity.guns.filter((gun) => gun.layer < 0)) {
+                drawGun(entity, gun);
             }
+        }
 
-            ctx.lineWidth = 2;
-            ctx.lineJoin = 'round';
+        ctx.fillStyle = entity.color;
+        ctx.strokeStyle = entity.border;
 
-            if (entity.props) {
-                for (const prop of entity.props.filter((prop) => prop.layer < 0)) {
-                    drawProp(entity, prop);
-                }
+        drawEntityShape(entity);
+
+        if (entity.props) {
+            for (const prop of entity.props.filter((prop) => prop.layer > -1 && prop.layer < 100)) {
+                drawProp(entity, prop);
             }
+        }
 
-            if (entity.guns) {
-                for (const gun of entity.guns.filter((gun) => gun.layer < 0)) {
-                    drawGun(entity, gun);
-                }
+        if (entity.guns) {
+            for (const gun of entity.guns.filter((gun) => gun.layer > -1)) {
+                drawGun(entity, gun);
             }
+        }
 
-            ctx.fillStyle = entity.color;
-            ctx.strokeStyle = entity.border;
-
-            drawEntityShape(entity);
-
-            if (entity.props) {
-                for (const prop of entity.props.filter((prop) => prop.layer > -1 && prop.layer < 100)) {
-                    drawProp(entity, prop);
-                }
+        if (entity.props) {
+            for (const prop of entity.props.filter((prop) => prop.layer > 100)) {
+                drawProp(entity, prop);
             }
-
-            if (entity.guns) {
-                for (const gun of entity.guns.filter((gun) => gun.layer > -1)) {
-                    drawGun(entity, gun);
-                }
-            }
-
-            if (entity.props) {
-                for (const prop of entity.props.filter((prop) => prop.layer > 100)) {
-                    drawProp(entity, prop);
-                }
-            }
-
-            ctx.restore();
         }
 
         ctx.restore();
+    }
 
+    ctx.restore();
+
+    ctx.save();
+
+    drawMessages();
+
+    if (entity.health > 0) {
         renderInfo();
+
+        drawScore();
+
+        drawMiniMap();
+
+        renderUpgrades();
+
+        ctx.restore();
 
         if (mobile) {
             drawJoystick();
@@ -714,32 +722,47 @@ const render = (timestamp) => {
             ctx.globalAlpha = 1;
             ctx.restore();
         }
-
-        ctx.save();
-
-        drawMessages();
-
-        drawScore();
-
-        drawMiniMap();
-
-        renderUpgrades();
-
-        ctx.restore();
     } else {
-        if (socket) {
-            ctx.clearRect(0, 0, canvasSize.width, canvasSize.height);
+        ctx.globalAlpha = 1;
 
-            ctx.globalAlpha = 0.2;
-            ctx.fillStyle = Color.Red;
-            ctx.fillRect(0, 0, canvasSize.width, canvasSize.height);
-            ctx.globalAlpha = 1;
+        drawText(
+            'You are Die.',
+            Color.Black,
+            Color.White,
+            40,
+            {
+                x: canvasSize.width / 2,
+                y: canvasSize.height * 0.3,
+            },
+            'center',
+        );
 
-            ctx.fillRect(0, 0, canvasSize.width, canvasSize.height);
+        drawText(
+            'Score: ' + entity.score,
+            Color.Black,
+            Color.White,
+            16,
+            {
+                x: canvasSize.width / 2,
+                y: canvasSize.height * 0.4,
+            },
+            'center',
+        );
 
-            drawText('You are Die.', Color.Black, Color.White, 40, 'center', 'center');
-        }
+        drawText(
+            'Level: ' + entity.level,
+            Color.Black,
+            Color.White,
+            16,
+            {
+                x: canvasSize.width / 2,
+                y: canvasSize.height * 0.4 + 20,
+            },
+            'center',
+        );
     }
+
+    ctx.restore();
 
     requestAnimationFrame(render);
 };

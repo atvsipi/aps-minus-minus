@@ -229,10 +229,13 @@ const socketOnMessage = async ({data}) => {
             obj.border = decodeBorder(msg, obj.team, obj.color);
             obj.mockupId = msg.readUint();
 
-            if (mockups[obj.mockupId]) {
-                obj.sides = mockups[obj.mockupId].sides;
-                obj.guns = mockups[obj.mockupId].guns;
-                obj.props = mockups[obj.mockupId].props;
+            let mockup;
+            if ((mockup = mockups[obj.mockupId])) {
+                obj.sides = mockup.sides;
+                obj.guns = mockup.guns;
+                obj.props = mockup.props;
+                obj.alpha = mockup.alpha;
+                obj.strokeWidth = mockup.strokeWidth;
                 obj.isLoaded = true;
             } else {
                 socket.send(new Writer().writeUint(6).writeBigUint(obj.id).make());
@@ -319,6 +322,8 @@ const socketOnMessage = async ({data}) => {
                 mockups[obj.mockupId] = JSON.parse(
                     JSON.stringify({
                         sides: obj.sides,
+                        alpha: obj.alpha,
+                        strokeWidth: obj.strokeWidth,
                         guns: obj.guns,
                         props: obj.props,
                     }),

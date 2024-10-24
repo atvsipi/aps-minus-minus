@@ -3,8 +3,7 @@ import {Entity} from '@/entity/entity';
 import {Vector} from '@/physics/vector';
 import {RoomConfig} from '@/room/room-config';
 import {RoomLoop} from '@/room/room-loop';
-import {Maze} from '@/util/maze';
-import {RandomPosGenerator, randomFood} from '@/util/random';
+import {randomFood} from '@/util/random';
 
 const foods: {
     type: string;
@@ -19,59 +18,8 @@ const foods: {
 export default {
     name: 'test',
     room: class extends RoomLoop {
-        public randomPosGenerator = new RandomPosGenerator(RoomConfig.width, RoomConfig.height, []);
-
         constructor() {
             super();
-        }
-
-        protected generateLabyrinth(size: number) {
-            const padding = 1;
-            const maze = new Maze(size, size);
-            const wallScale = RoomConfig.height / (size + 2 * padding);
-
-            maze.generateMaze(1, 1);
-            maze.punchAdditionalWalls();
-
-            maze.createHoles(
-                [
-                    [5, 5],
-                    [5, 25],
-                    [25, 5],
-                    [25, 25],
-                ],
-                4,
-            );
-
-            maze.createHoles([[15, 15]], 8);
-
-            const corridors = [7, 23];
-
-            maze.createCorridors(corridors);
-
-            for (let x = padding; x < size + padding; x++) {
-                for (let y = padding; y < size + padding; y++) {
-                    if (!maze.maze[y - 1]?.[x - 1]) continue;
-
-                    const d = {
-                        x: x * wallScale + wallScale / 2,
-                        y: y * wallScale + wallScale / 2,
-                    };
-
-                    const wallEntity = new Entity();
-                    wallEntity.init('Wall');
-                    wallEntity.pos.x = d.x;
-                    wallEntity.pos.y = d.y;
-                    wallEntity.setting.size = wallScale * 0.5 * Math.SQRT2;
-                    wallEntity.team = Team.Room;
-                    this.insert(wallEntity);
-                    this.walls.push(wallEntity);
-                    this.randomPosGenerator.exclusionZone.push([
-                        {x: d.x, y: d.y},
-                        {x: d.x + wallEntity.setting.size, y: d.y + wallEntity.setting.size},
-                    ]);
-                }
-            }
         }
 
         public spawn(name: string): Entity {
@@ -81,7 +29,14 @@ export default {
 
             entity.name = name;
 
-            const {x, y} = this.randomPosGenerator.getRandomPos();
+            entity.team = Math.random() > 0.5 ? Team.Blue : Team.Green;
+
+            const {x, y} = this.randomPosGenerator.getRandomPos(
+                ...(this.teamArea[entity.team] || [
+                    {x: 0, y: 0},
+                    {x: RoomConfig.width, y: RoomConfig.height},
+                ]),
+            );
 
             entity.pos.x = x;
             entity.pos.y = y;
@@ -90,7 +45,8 @@ export default {
         }
 
         public init() {
-            this.generateLabyrinth(31);
+            //this.generateLabyrinth(31);
+            this.create4TDMBase();
 
             {
                 const entity = new Entity();
@@ -107,7 +63,7 @@ export default {
 
                     entity.init(randomFood(foods));
 
-                    const {x, y} = this.randomPosGenerator.getRandomPos();
+                    const {x, y} = this.randomPosGenerator.getRandomPos({x: 0, y: 0}, {x: RoomConfig.width, y: RoomConfig.height});
 
                     entity.pos.x = x;
                     entity.pos.y = y;

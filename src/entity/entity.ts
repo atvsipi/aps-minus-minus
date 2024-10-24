@@ -18,8 +18,8 @@ export interface EntitySetting {
     giveScore: boolean;
     killMessage: boolean | string;
     label: string;
-    hitType: 'none' | 'auto' | ((other: Entity) => void);
-    miniMapType: 'none' | 'always' | 'team' | ((other: Entity) => boolean);
+    hitType: 'none' | 'auto' | ((body: Entity, other: Entity) => void);
+    miniMapType: 'none' | 'always' | 'team' | ((body: Entity, other: Entity) => boolean);
     score: number;
     name: null | string;
     size: number;
@@ -84,8 +84,8 @@ export class Entity extends EventEmitter {
 
         return {
             active: true,
-            min: [this.pos.x - size - 14, this.pos.y - size - 14],
-            max: [this.pos.x + size + 14, this.pos.y + size + 14],
+            min: [this.pos.x - size * 1.4, this.pos.y - size * 1.4],
+            max: [this.pos.x + size * 1.4, this.pos.y + size * 1.4],
         };
     };
 

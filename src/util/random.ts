@@ -1,21 +1,12 @@
 import {VectorLike} from '../physics/vector';
 
 export class RandomPosGenerator {
-    public height: number;
-    public width: number;
-    public exclusionZone: [VectorLike, VectorLike][];
+    public exclusionZone: [VectorLike, VectorLike][] = [];
 
-    constructor(width: number, height: number, exclusionZone: [VectorLike, VectorLike][]) {
-        this.width = width;
-        this.height = height;
-
-        this.exclusionZone = exclusionZone;
-    }
-
-    public getRandomPos(): VectorLike {
+    public getRandomPos(min: VectorLike, max: VectorLike): VectorLike {
         let pos: VectorLike;
         do {
-            pos = {x: Math.random() * this.width, y: Math.random() * this.height};
+            pos = {x: Math.random() * (max.x - min.x) + min.x, y: Math.random() * (max.y - min.y) + min.y};
         } while (this.exclusionZone.some(([min, max]) => pos.x >= min.x && pos.x <= max.x && pos.y >= min.y && pos.y <= max.y));
 
         return pos;

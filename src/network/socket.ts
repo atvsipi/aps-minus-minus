@@ -501,7 +501,7 @@ setInterval(() => {
             for (const map of room.miniMap) {
                 if (map.setting.miniMapType === 'none') continue;
                 if (map.setting.miniMapType === 'team' && !Entity.isSameTeam(map, entity)) continue;
-                if (typeof map.setting.miniMapType === 'function' && !map.setting.miniMapType(entity)) continue;
+                if (typeof map.setting.miniMapType === 'function' && !map.setting.miniMapType(map, entity)) continue;
 
                 entities.push(map);
             }
