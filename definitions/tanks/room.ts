@@ -1,6 +1,7 @@
 import {Color} from '@/definitions/color';
 import {Team} from '@/definitions/team';
 import {Class} from '@/entity/class';
+import {CircleMove, Nearest} from '@/entity/controller';
 import {Entity} from '@/entity/entity';
 
 Class.Wall = {
@@ -39,4 +40,77 @@ Class.Base = {
             other.socket.sendMsg('You died a stupid death.');
         }
     },
+};
+
+Class.BaseDrone = {
+    showHealth: false,
+    showName: false,
+    showScore: false,
+    giveScore: false,
+    independent: true,
+    skill: {
+        fov: 500,
+        speed: 1,
+        health: 60,
+        regen: 0,
+        damage: 1,
+        pen: 5,
+        range: null,
+        pushability: 10,
+    },
+    sides: 3,
+    controllers: [new CircleMove(), new Nearest(true)],
+    size: 3,
+};
+
+Class.BaseDroneMaker = {
+    label: 'Base',
+    showHealth: false,
+    showName: false,
+    showScore: false,
+    sides: 0,
+    isFixed: true,
+    size: 0,
+    skill: {damage: 0, health: 10000, regen: 100},
+    guns: [
+        {
+            offset: -10,
+            direction: 0,
+            length: 1,
+            width: 1,
+            aspect: 1,
+            angle: 0,
+            color: Color.LightGrey,
+            border: Color.AutoBorder,
+            strokeWidth: 0,
+            alpha: 0,
+            layer: -1,
+            properties: {
+                type: 'BaseDrone',
+                autofire: true,
+                altFire: false,
+                delaySpawn: 0,
+                maxChildren: 10,
+                independentChildren: false,
+                destroyOldestChild: false,
+                skill: {
+                    reload: 1,
+                    recoil: 1,
+                    size: 2,
+                    health: 1,
+                    damage: 1,
+                    pen: 1,
+                    speed: 3,
+                    range: 5,
+                    spray: 1,
+                },
+            },
+        },
+    ],
+    alpha: 0,
+    miniMapType: 'none',
+    color: Color.TeamColor,
+    border: Color.TeamColor,
+    strokeWidth: 0,
+    hitType: 'none',
 };

@@ -46,7 +46,7 @@ export default {
 
         public init() {
             //this.generateLabyrinth(31);
-            this.create4TDMBase();
+            this.create2TDMBase();
 
             {
                 const entity = new Entity();

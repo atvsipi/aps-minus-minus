@@ -1,6 +1,6 @@
 import {randomUUID} from 'crypto';
 import {Protocol} from './protocol';
-import {Entity} from '../entity/entity';
+import {Entity, Turret} from '../entity/entity';
 import {RoomConfig} from '../room/room-config';
 import {room} from '../room/room';
 import {Logger} from '../util/logger';
@@ -281,6 +281,11 @@ function EntityInfo(entity: Entity, msg: Protocol.Writer) {
         msg.writeUint(entity.border);
     }
 
+    if (entity instanceof Turret) {
+        msg.writeBoolean(true);
+        msg.writeBigUint(entity.master.id);
+    } else msg.writeBoolean(false);
+
     msg.writeUint(entity.mockupId);
 
     return msg;
@@ -408,6 +413,12 @@ function EntityData(entity: Entity, msg: Protocol.Writer, active: boolean = fals
     }
     msg.writeBigUint(entity.score);
     msg.writeFloat(entity.size);
+
+    if (entity instanceof Turret) {
+        msg.writeBoolean(true);
+        msg.writeFloat(entity.pos.offset.x);
+        msg.writeFloat(entity.pos.offset.y);
+    } else msg.writeBoolean(false);
 
     return msg;
 }

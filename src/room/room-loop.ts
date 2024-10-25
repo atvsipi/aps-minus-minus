@@ -4,7 +4,7 @@ import {Entity} from '../entity/entity';
 import {RoomConfig} from './room-config';
 import {World} from './world';
 import {RandomPosGenerator} from '../util/random';
-import {Vector, VectorLike} from '../physics/vector';
+import {ConnectedVector, Vector, VectorLike} from '../physics/vector';
 import {Team} from '../definitions/team';
 
 export class RoomLoop extends World {
@@ -88,6 +88,14 @@ export class RoomLoop extends World {
                 entity.setting.size = size;
                 entity.pos = new Vector(startX, startY + row * deltaY);
                 this.insert(entity);
+
+                const drone = new Entity();
+
+                drone.init('BaseDroneMaker');
+                drone.team = team;
+                drone.pos = new ConnectedVector(entity.pos.clone(), new Vector());
+
+                this.insert(drone);
             }
         };
 
@@ -125,6 +133,14 @@ export class RoomLoop extends World {
             entity.pos = positions[i];
 
             this.insert(entity);
+
+            const drone = new Entity();
+
+            drone.init('BaseDroneMaker');
+            drone.team = teams[i];
+            drone.pos = entity.pos;
+
+            this.insert(drone);
 
             this.teamArea[teams[i]] = [
                 {x: positions[i].x - baseSize / 2, y: positions[i].y - baseSize / 2}, // Top-left corner of the area

@@ -9,6 +9,7 @@ export class Entity {
     pos = new Vector();
     serverPos = new Vector();
     vel = new Vector();
+    offset = new Vector();
     level = 0;
     score = 0;
     levelScore = 0;

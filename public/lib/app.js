@@ -335,10 +335,9 @@ const drawProp = (entity, prop) => {
     }
 
     ctx.fill();
-    ctx.stroke();
-    ctx.closePath();
-
     ctx.globalAlpha = 1;
+    if (obj.strokeWidth > 0) ctx.stroke();
+    ctx.closePath();
     ctx.restore();
 };
 
@@ -613,6 +612,12 @@ const render = (timestamp) => {
         if (distance > fov) continue;
 
         ctx.save();
+        if (entity.masterId && idToEntity.has(entity.masterId)) {
+            const master = idToEntity.get(entity.masterId);
+
+            entity.pos.x = master.pos.x + entity.offset.x;
+            entity.pos.y = master.pos.y + entity.offset.y;
+        }
         ctx.translate(entity.pos.x, entity.pos.y);
 
         if (entity.fadeStart) {

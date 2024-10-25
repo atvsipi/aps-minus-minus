@@ -148,6 +148,11 @@ const socketOnMessage = async ({data}) => {
             entity.score = msg.readBigUint();
             entity.size = msg.readFloat();
 
+            if (msg.readBoolean()) {
+                entity.offset.x = msg.readFloat();
+                entity.offset.y = msg.readFloat();
+            }
+
             idToEntity.set(entity.id, entity);
 
             entities.add(entity);
@@ -180,6 +185,11 @@ const socketOnMessage = async ({data}) => {
 
             entity.score = msg.readBigUint();
             entity.size = msg.readFloat();
+
+            if (msg.readBoolean()) {
+                entity.offset.x = msg.readFloat();
+                entity.offset.y = msg.readFloat();
+            }
 
             idToEntity.set(id, entity);
             entities.add(entity);
@@ -227,6 +237,11 @@ const socketOnMessage = async ({data}) => {
 
             obj.color = decodeColor(msg, obj.team);
             obj.border = decodeBorder(msg, obj.team, obj.color);
+
+            if (msg.readBoolean()) {
+                obj.masterId = msg.readBigUint();
+            }
+
             obj.mockupId = msg.readUint();
 
             let mockup;

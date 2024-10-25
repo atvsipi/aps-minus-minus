@@ -43,6 +43,13 @@ export class Controller {
 
 export class Nearest extends Controller {
     protected target: Vector | null = null;
+    protected onlyPlayer: boolean;
+
+    constructor(onlyPlayer: boolean = false) {
+        super();
+
+        this.onlyPlayer = onlyPlayer;
+    }
 
     public think(): ControllerThink {
         if (this.isThinkTime()) {
@@ -77,6 +84,8 @@ export class Nearest extends Controller {
             if (Entity.isSameTeam(entity, this.entity)) continue;
 
             if (entity.master && !entity.setting.independent) continue;
+
+            if (this.onlyPlayer && entity.setting.food) continue;
 
             if (entity.setting.isFixed) continue;
 
