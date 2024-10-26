@@ -155,6 +155,8 @@ export class Gun {
 
                 const bullet = new Entity();
 
+                this.body.room.insert(bullet);
+
                 bullet.init(EntityClass[this.setting.properties.type]);
 
                 bullet.setting.skill.damage += this.setting.properties.skill.damage - 1;
@@ -176,8 +178,6 @@ export class Gun {
                     delete this.children[index];
                     delete this.body.children[bodyIndex];
                 });
-
-                this.body.room.insert(bullet);
 
                 const angle = Vector.addAngle({x: 1, y: 1}, this.body.angle + this.setting.angle).normalize();
 

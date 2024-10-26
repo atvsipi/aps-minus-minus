@@ -19,7 +19,7 @@ const makeGun = (angle: number): GunClassType => ({
     alpha: 1,
     layer: -1,
     properties: {
-        type: 'Bullet',
+        type: 'TriBoss1Bullet',
         autofire: false,
         altFire: false,
         delaySpawn: 0,
@@ -108,6 +108,40 @@ const makeGun2 = (angle: number): GunClassType => ({
     },
 });
 
+const makeGun3 = (angle: number): GunClassType => ({
+    offset: 0,
+    direction: 0,
+    length: 4,
+    width: 7,
+    aspect: 1,
+    angle,
+    color: Color.LightGrey,
+    border: Color.AutoBorder,
+    strokeWidth: 4,
+    alpha: 0,
+    layer: -10,
+    properties: {
+        type: 'Bullet',
+        autofire: false,
+        altFire: false,
+        delaySpawn: 0,
+        maxChildren: false,
+        independentChildren: false,
+        destroyOldestChild: false,
+        skill: {
+            reload: 0.1,
+            recoil: 1,
+            size: 1.4,
+            health: 1,
+            damage: 1,
+            pen: 1,
+            speed: 6,
+            range: 2,
+            spray: 1,
+        },
+    },
+});
+
 Class.TriBoss1 = {
     tier: 0,
     label: 'TriBoss1',
@@ -125,6 +159,9 @@ Class.TriBoss1 = {
         makeGun((4 * Math.PI) / 3),
         makeGun1((4 * Math.PI) / 3),
         makeGun2((4 * Math.PI) / 3),
+        makeGun3(0),
+        makeGun3((2 * Math.PI) / 3),
+        makeGun3((4 * Math.PI) / 3),
     ],
     props: [
         {
@@ -206,3 +243,83 @@ Class.TriBoss1 = {
 };
 
 Class.Basic.upgrades.push('TriBoss1');
+
+Class.TriBoss1Bullet = {
+    showHealth: false,
+    showName: false,
+    showScore: false,
+    giveScore: false,
+    sides: 0,
+    size: 5,
+    skill: {
+        speed: 0.5,
+        health: 0.1,
+        regen: 0,
+        damage: 2,
+        pen: 5,
+        range: null,
+        pushability: 1,
+        fov: 90,
+    },
+    bullet: true,
+    hardBullet: false,
+    props: [
+        {
+            offset: new Vector(0, 0),
+            layer: -1,
+            fixedAngle: true,
+            size: 200,
+            color: Color.Blue,
+            strokeWidth: 0,
+            alpha: 0.3,
+            sides: 0,
+            angle: 0,
+        },
+        {
+            offset: new Vector(0, 0),
+            layer: 10,
+            fixedAngle: true,
+            size: 16,
+            color: Color.Grey2,
+            border: Color.Grey2,
+            strokeWidth: 0,
+            alpha: 1,
+            sides: 0,
+            angle: 0,
+            spin: 0,
+        },
+        {
+            offset: new Vector(0, 0),
+            layer: 11,
+            fixedAngle: true,
+            size: 14,
+            color: Color.Blue,
+            strokeWidth: 4,
+            alpha: 1,
+            sides: 3,
+            angle: 0,
+            spin: 0.01,
+        },
+        {
+            offset: new Vector(0, 0),
+            layer: 11,
+            fixedAngle: true,
+            size: 16,
+            color: Color.Grey2,
+            border: Color.Grey2,
+            strokeWidth: 4,
+            alpha: 0,
+            sides: 0,
+            angle: 0,
+            spin: 0.01,
+        },
+    ],
+    turrets: [
+        {
+            offset: new Vector(0, 0),
+            angle: 0,
+            fixedAngle: true,
+            type: 'test',
+        },
+    ],
+};
