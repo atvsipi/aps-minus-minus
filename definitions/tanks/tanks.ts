@@ -1,5 +1,5 @@
 import {Class, GunClassType} from '@/entity/class';
-import {CircleMove, GoToMasterTarget, MasterCircleMove, Nearest} from '@/entity/controller';
+import {CircleMove, ControllerMaker, GoToMasterTarget, MasterCircleMove, Nearest} from '@/entity/controller';
 import {Vector} from '@/physics/vector';
 import {Color} from '@/definitions/color';
 
@@ -251,7 +251,7 @@ Class.test1 = {
             },
         },
     ],
-    controllers: [new Nearest()],
+    controllers: [new ControllerMaker(Nearest)],
 };
 
 Class.Twin = {
@@ -602,7 +602,7 @@ Class.Drone = {
         pushability: 1,
     },
     sides: 3,
-    controllers: [new MasterCircleMove(), new Nearest(), new GoToMasterTarget()],
+    controllers: [new ControllerMaker(MasterCircleMove), new ControllerMaker(Nearest), new ControllerMaker(GoToMasterTarget)],
     size: 5,
     bullet: true,
     hardBullet: true,
@@ -623,7 +623,7 @@ Class.Drone1 = {
         pushability: 1,
     },
     sides: 3,
-    controllers: [new MasterCircleMove(), new Nearest(), new GoToMasterTarget()],
+    controllers: [new ControllerMaker(MasterCircleMove), new ControllerMaker(Nearest), new ControllerMaker(GoToMasterTarget)],
     size: 5,
     bullet: true,
     hardBullet: true,
@@ -681,5 +681,5 @@ Class.bot = {
     ],
     miniMapType: 'team',
     color: Color.Lavender,
-    controllers: [new CircleMove(), new Nearest()],
+    controllers: [new ControllerMaker(CircleMove), new ControllerMaker(Nearest)],
 };

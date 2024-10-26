@@ -1,7 +1,7 @@
 import {Color} from '@/definitions/color';
 import {Team} from '@/definitions/team';
 import {Class} from '@/entity/class';
-import {CircleMove, Nearest} from '@/entity/controller';
+import {CircleMove, ControllerMaker, Nearest} from '@/entity/controller';
 import {Entity} from '@/entity/entity';
 
 Class.Wall = {
@@ -59,7 +59,7 @@ Class.BaseDrone = {
         pushability: 10,
     },
     sides: 3,
-    controllers: [new CircleMove(), new Nearest(true)],
+    controllers: [new ControllerMaker(CircleMove), new ControllerMaker(Nearest, true)],
     size: 3,
 };
 
@@ -160,7 +160,7 @@ Class.ArenaCloser = {
             },
         },
     ],
-    controllers: [new Nearest(true)],
+    controllers: [new ControllerMaker(Nearest, true)],
     alpha: 1,
     miniMapType: 'always',
     color: Color.Yellow,

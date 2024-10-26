@@ -41,6 +41,20 @@ export class Controller {
     }
 }
 
+export class ControllerMaker<T extends new (...args: ConstructorParameters<T>) => Controller> {
+    public controller: T;
+    public args: ConstructorParameters<T>;
+
+    constructor(controller: T, ...args: ConstructorParameters<T>) {
+        this.controller = controller;
+        this.args = args;
+    }
+
+    public make() {
+        return new this.controller(...this.args);
+    }
+}
+
 export class Nearest extends Controller {
     protected target: Vector | null = null;
     protected onlyPlayer: boolean;

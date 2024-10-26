@@ -1,6 +1,6 @@
 import {Color} from '@/definitions/color';
 import {Class} from '@/entity/class';
-import {CircleMove} from '@/entity/controller';
+import {CircleMove, ControllerMaker} from '@/entity/controller';
 import {Vector} from '@/physics/vector';
 
 Class.Food = {
@@ -27,7 +27,7 @@ Class.Food = {
     miniMapType: 'none',
     guns: [],
     color: Color.Gold,
-    controllers: [new CircleMove()],
+    controllers: [new ControllerMaker(CircleMove)],
 };
 
 Class.Triangle = {
@@ -53,7 +53,7 @@ Class.Triangle = {
     food: true,
     guns: [],
     color: Color.Orange,
-    controllers: [new CircleMove()],
+    controllers: [new ControllerMaker(CircleMove)],
 };
 
 Class.Pentagon = {
@@ -79,7 +79,7 @@ Class.Pentagon = {
     food: true,
     guns: [],
     color: Color.Lavender,
-    controllers: [new CircleMove()],
+    controllers: [new ControllerMaker(CircleMove)],
 };
 
 Class.Hexagon = {
@@ -105,7 +105,7 @@ Class.Hexagon = {
     food: true,
     guns: [],
     color: Color.Aqua,
-    controllers: [new CircleMove()],
+    controllers: [new ControllerMaker(CircleMove)],
 };
 
 Class.ShinyPentagon = {
@@ -131,7 +131,7 @@ Class.ShinyPentagon = {
     food: true,
     guns: [],
     color: Color.LightGreen,
-    controllers: [new CircleMove()],
+    controllers: [new ControllerMaker(CircleMove)],
 };
 
 Class.AlphaPentagon = {
@@ -179,7 +179,7 @@ Class.AlphaPentagon = {
     food: true,
     guns: [],
     color: Color.Lavender,
-    controllers: [new CircleMove()],
+    controllers: [new ControllerMaker(CircleMove)],
 };
 
 Class.AlphaTriangle = {
@@ -227,7 +227,7 @@ Class.AlphaTriangle = {
     food: true,
     guns: [],
     color: Color.Orange,
-    controllers: [new CircleMove()],
+    controllers: [new ControllerMaker(CircleMove)],
 };
 
 Class.MonsterTriangle = {
@@ -275,5 +275,5 @@ Class.MonsterTriangle = {
     food: true,
     guns: [],
     color: Color.Orange,
-    controllers: [new CircleMove()],
+    controllers: [new ControllerMaker(CircleMove)],
 };

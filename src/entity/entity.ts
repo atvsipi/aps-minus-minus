@@ -6,7 +6,7 @@ import {Gun} from './gun';
 import {EventEmitter} from 'events';
 import {EntityClass, ProcessedClass} from './class';
 import {RoomConfig} from '../room/room-config';
-import {Controller} from './controller';
+import {Controller, ControllerMaker} from './controller';
 import {Prop} from './props';
 import {TurretSetting} from './turret';
 import type {World} from '../room/world';
@@ -31,7 +31,7 @@ export interface EntitySetting {
     bullet: boolean;
     food: boolean;
     independent: boolean;
-    controllers: Controller[];
+    controllers: ControllerMaker<new () => Controller>[];
     skill: {
         speed: number;
         health: number;
@@ -169,6 +169,8 @@ export class Entity extends EventEmitter {
     public props: Prop[] = [];
     public turrets: Turret[] = [];
 
+    public controllers: Controller[] = [];
+
     public allUpgrades: ProcessedClass[] = [];
     public upgrades: ProcessedClass[] = [];
 
@@ -266,6 +268,10 @@ export class Entity extends EventEmitter {
         this.score = Class.score;
         this.health = Class.skill.health;
 
+        for (const maker of this.setting.controllers) {
+            this.controllers.push(maker.make());
+        }
+
         if (this.setting.name !== null) this.name = this.setting.name;
 
         this.guns = [];
@@ -348,7 +354,7 @@ export class Entity extends EventEmitter {
 
         const speed = this.setting.skill.speed;
 
-        for (const controller of this.setting.controllers) {
+        for (const controller of this.controllers) {
             if (controller.entity !== this) controller.entity = this;
 
             const think = controller.think();

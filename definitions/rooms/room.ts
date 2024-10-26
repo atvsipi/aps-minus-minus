@@ -1,5 +1,6 @@
 import {Color} from '@/definitions/color';
 import {Team} from '@/definitions/team';
+import {Nearest} from '@/entity/controller';
 import {RoomLoop} from '@/room/room-loop';
 import {Tile, TileMaker, Tiles} from '@/room/tile';
 import {BaseTile} from '@/room/tiles';
@@ -33,6 +34,15 @@ const nest = new TileMaker({
     spawnInterval: 1000,
 });
 
+const boss = new TileMaker({
+    spawn: [{type: 'TriBoss1', weight: 100}],
+    afterSpawn(tile, entity) {
+        entity.controllers.push(new Nearest());
+    },
+    spawnTimes: 1,
+    spawnInterval: 1000 * 10,
+});
+
 const babl = BaseTile(Team.Blue);
 const bagr = BaseTile(Team.Green);
 
@@ -44,7 +54,7 @@ export default {
             [babl, babl, babl, babl, babl, babl, babl, babl],
             [____, ____, ____, ____, ____, ____, ____, ____],
             [____, ____, nest, nest, nest, nest, ____, ____],
-            [____, ____, nest, nest, nest, nest, ____, ____],
+            [____, ____, nest, nest, boss, nest, ____, ____],
             [____, ____, nest, nest, nest, nest, ____, ____],
             [____, ____, nest, nest, nest, nest, ____, ____],
             [____, ____, ____, ____, ____, ____, ____, ____],

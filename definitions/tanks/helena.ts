@@ -3,7 +3,7 @@ import {Class, GunClassType} from '@/entity/class';
 
 import './tanks';
 import {Vector} from '@/physics/vector';
-import {Nearest} from '@/entity/controller';
+import {ControllerMaker, Nearest} from '@/entity/controller';
 
 // Design by @Helena - discord i.want.helenussy
 
@@ -291,7 +291,7 @@ Class.TriBoss1Bullet = {
         speed: 0.5,
         health: 0.1,
         regen: 0,
-        damage: 2,
+        damage: 1,
         pen: 5,
         range: null,
         pushability: 1,
@@ -386,7 +386,7 @@ Class.TriBoss1Bullet1 = {
         speed: 0.5,
         health: 0.1,
         regen: 0,
-        damage: 2,
+        damage: 1,
         pen: 5,
         range: null,
         pushability: 1,
@@ -443,7 +443,7 @@ Class.TriBoss1Bullet1AutoGun = {
                     recoil: 1,
                     size: 0.6,
                     health: 1,
-                    damage: 1.2,
+                    damage: 0.4,
                     pen: 1,
                     speed: 6,
                     range: 2,
@@ -452,7 +452,7 @@ Class.TriBoss1Bullet1AutoGun = {
             },
         },
     ],
-    controllers: [new Nearest()],
+    controllers: [new ControllerMaker(Nearest)],
 };
 
 Class.TriBoss1Bullet2 = {
@@ -466,7 +466,7 @@ Class.TriBoss1Bullet2 = {
         speed: 0.5,
         health: 0.1,
         regen: 0,
-        damage: 2,
+        damage: 1,
         pen: 5,
         range: null,
         pushability: 1,

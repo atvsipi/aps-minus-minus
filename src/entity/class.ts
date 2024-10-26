@@ -1,7 +1,7 @@
 import {Color} from '../definitions/color';
 import {Vector} from '../physics/vector';
 import {Logger} from '../util/logger';
-import type {Controller} from './controller';
+import type {Controller, ControllerMaker} from './controller';
 import type {Entity, EntitySetting} from './entity';
 import type {GunSetting} from './gun';
 import type {PropSetting} from './props';
@@ -87,7 +87,7 @@ export interface ClassType {
     hardBullet?: boolean;
     bullet?: boolean;
     independent?: boolean;
-    controllers?: Controller[];
+    controllers?: ControllerMaker<new () => Controller>[];
     skill?: {
         speed?: number;
         health?: number;
