@@ -165,9 +165,9 @@ export class Gun {
                 const index = this.children.push(bullet);
                 const bodyIndex = this.body.children.push(bullet);
 
-                bullet.setting.skill.damage += this.setting.properties.skill.damage - 1;
-                bullet.setting.skill.health += this.setting.properties.skill.health - 1;
-                bullet.setting.skill.pen += this.setting.properties.skill.pen - 1;
+                bullet.setting.skill.damage += this.setting.properties.skill.damage;
+                bullet.setting.skill.health += this.setting.properties.skill.health;
+                bullet.setting.skill.pen += this.setting.properties.skill.pen;
                 bullet.setting.size *= this.setting.properties.skill.size;
 
                 if (this.setting.properties.independentChildren) bullet.setting.independent = true;
