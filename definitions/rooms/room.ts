@@ -1,6 +1,7 @@
+import {Color} from '@/definitions/color';
 import {Team} from '@/definitions/team';
 import {RoomLoop} from '@/room/room-loop';
-import {Tile, TileMaker} from '@/room/tile';
+import {Tile, TileMaker, Tiles} from '@/room/tile';
 import {BaseTile} from '@/room/tiles';
 
 const ____ = new TileMaker({
@@ -9,8 +10,15 @@ const ____ = new TileMaker({
         {type: 'Triangle', weight: 50},
         {type: 'AlphaTriangle', weight: 12},
     ],
-    spawnTimes: 1,
+    spawnTimes: 10,
     spawnInterval: 1000,
+    afterSpawn(tile, entity) {
+        if (tile.setting.spawnTimes === 10 && Math.random() > 0.9) {
+            tile.setting.spawnTimes = 40;
+        } else if (tile.setting.spawnTimes === 40 && Math.random() > 0.95) {
+            tile.setting.spawnTimes = 10;
+        }
+    },
 });
 
 const nest = new TileMaker({
@@ -21,7 +29,7 @@ const nest = new TileMaker({
         {type: 'ShinyPentagon', weight: 1},
         {type: 'MonsterTriangle', weight: 0.5},
     ],
-    spawnTimes: 1,
+    spawnTimes: 6,
     spawnInterval: 1000,
 });
 
@@ -32,7 +40,7 @@ export default {
     name: 'room',
     room: class extends RoomLoop {
         public teams: Team[] = [Team.Blue, Team.Green];
-        public tileMap: (Tile | TileMaker)[][] = [
+        public tileMap: Tiles[][] = [
             [babl, babl, babl, babl, babl, babl, babl, babl],
             [____, ____, ____, ____, ____, ____, ____, ____],
             [____, ____, nest, nest, nest, nest, ____, ____],

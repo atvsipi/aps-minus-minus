@@ -64,6 +64,7 @@ export class Tile {
                     if (this.setting.afterSpawn) this.setting.afterSpawn(this, entity);
 
                     this.room.insert(entity);
+                    this.entities.push(entity);
                 }
             }, this.setting.spawnInterval || 500);
         }
@@ -99,3 +100,5 @@ export class TileMaker {
         }
     }
 }
+
+export type Tiles = Tile | TileMaker;

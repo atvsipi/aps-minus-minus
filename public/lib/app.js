@@ -589,15 +589,15 @@ const render = (timestamp) => {
     ctx.fillStyle = Color.White;
     ctx.fillRect(0, 0, world.width, world.height);
 
-    ctx.strokeStyle = 'rgb(0,0,0,0.1)';
+    ctx.strokeStyle = 'rgb(0,0,0,0.05)';
 
-    for (let y = 0; y <= world.height; y += 40) {
+    for (let y = 0; y <= world.height; y += 20) {
         ctx.beginPath();
         ctx.moveTo(0, y);
         ctx.lineTo(world.width, y);
         ctx.stroke();
     }
-    for (let x = 0; x <= world.width; x += 40) {
+    for (let x = 0; x <= world.width; x += 20) {
         ctx.beginPath();
         ctx.moveTo(x, 0);
         ctx.lineTo(x, world.height);

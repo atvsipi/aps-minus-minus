@@ -6,7 +6,7 @@ import {World} from './world';
 import {RandomPosGenerator} from '../util/random';
 import {ConnectedVector, FixedVector, Vector, VectorLike} from '../physics/vector';
 import {Team} from '../definitions/team';
-import {Tile, TileMaker} from './tile';
+import {Tile, TileMaker, Tiles} from './tile';
 import {Normal} from './tiles';
 
 export class RoomLoop extends World {
@@ -14,7 +14,7 @@ export class RoomLoop extends World {
 
     public teamTile: {[key: string]: Tile[]} = {};
     public teams: Team[] = [Team.Room];
-    public tileMap: (Tile | TileMaker)[][] = [
+    public tileMap: Tiles[][] = [
         [Normal, Normal, Normal, Normal],
         [Normal, Normal, Normal, Normal],
         [Normal, Normal, Normal, Normal],
