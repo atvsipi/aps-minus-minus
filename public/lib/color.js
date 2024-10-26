@@ -1,4 +1,4 @@
-export const Color = {
+/*export const Color = {
     Teal: '#7ad3db',
     LightGreen: '#b9e87e',
     Orange: '#e7896d',
@@ -24,9 +24,9 @@ export const Color = {
     Tangerine: '#ec7b0f',
     Brown: '#895918',
     Cyan: '#13808e',
-};
+};*/
 
-/*export const Color = {
+export const Color = {
     Teal: '#6cfffa',
     LightGreen: '#85e37d',
     Orange: '#fc7676',
@@ -52,7 +52,7 @@ export const Color = {
     Tangerine: '#ec7b0f',
     Brown: '#895918',
     Cyan: '#13808e',
-};*/
+};
 
 export const numColor = [
     Color.Teal,

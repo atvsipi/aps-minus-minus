@@ -237,3 +237,22 @@ export class ConnectedVector extends Vector {
         this.offset = offset;
     }
 }
+
+export class FixedVector extends ConnectedVector {
+    constructor(x?: number, y?: number);
+    constructor(vector: VectorLike);
+
+    constructor(x: number | VectorLike = 0, y: number = 0) {
+        let _x: number, _y: number;
+
+        if (typeof x === 'number') {
+            _x = x;
+            _y = y;
+        } else {
+            _x = x.x;
+            _y = x.y;
+        }
+
+        super({x: _x, y: _y}, {x: 0, y: 0});
+    }
+}

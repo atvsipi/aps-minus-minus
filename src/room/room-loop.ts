@@ -4,13 +4,34 @@ import {Entity} from '../entity/entity';
 import {RoomConfig} from './room-config';
 import {World} from './world';
 import {RandomPosGenerator} from '../util/random';
-import {ConnectedVector, Vector, VectorLike} from '../physics/vector';
+import {ConnectedVector, FixedVector, Vector, VectorLike} from '../physics/vector';
 import {Team} from '../definitions/team';
+import {Tile, TileMaker} from './tile';
+import {Normal} from './tiles';
 
 export class RoomLoop extends World {
-    protected randomPosGenerator = new RandomPosGenerator();
+    public randomPosGenerator = new RandomPosGenerator();
 
-    protected teamArea: {[key: string]: [VectorLike, VectorLike]} = {};
+    public teamTile: {[key: string]: Tile[]} = {};
+    public teams: Team[] = [Team.Room];
+    public tileMap: (Tile | TileMaker)[][] = [
+        [Normal, Normal, Normal, Normal],
+        [Normal, Normal, Normal, Normal],
+        [Normal, Normal, Normal, Normal],
+        [Normal, Normal, Normal, Normal],
+    ];
+
+    public tiles: Tile[] = [];
+
+    public initTile() {
+        const size = new Vector(RoomConfig.width / this.tileMap.length, RoomConfig.height / this.tileMap[0].length);
+
+        for (let i = 0; i < this.tileMap.length; i++) {
+            for (let j = 0; j < this.tileMap[0].length; j++) {
+                this.tiles.push(this.tileMap[i][j].init(this, size.clone().mult({x: i, y: j}), size.clone().mult({x: i + 1, y: j + 1})));
+            }
+        }
+    }
 
     public spawn(name: string) {
         const entity = new Entity();
@@ -19,7 +40,17 @@ export class RoomLoop extends World {
 
         entity.name = name;
 
-        RoomConfig.spawn(entity);
+        entity.team = this.teams[~~(Math.random() * this.teams.length)];
+
+        const tile = this.teamTile[entity.team] ? this.teamTile[entity.team][~~(Math.random() * this.teamTile[entity.team].length)] : null;
+
+        const {x, y} = this.randomPosGenerator.getRandomPos(
+            {x: tile ? tile.min.x : 0, y: tile ? tile.min.x : 0},
+            {x: tile ? tile.max.x : RoomConfig.width, y: tile ? tile.max.x : RoomConfig.height},
+        );
+
+        entity.pos.x = x;
+        entity.pos.y = y;
 
         return entity;
     }
@@ -70,82 +101,6 @@ export class RoomLoop extends World {
                     {x: d.x + wallEntity.setting.size, y: d.y + wallEntity.setting.size},
                 ]);
             }
-        }
-    }
-
-    protected create2TDMBase() {
-        const initialSize = Math.floor(RoomConfig.width * 0.1);
-        const numberOfSquaresInHeight = Math.floor(RoomConfig.height / initialSize);
-        const baseSize = Math.floor(RoomConfig.height / numberOfSquaresInHeight);
-        const size = baseSize * 0.5 * Math.SQRT2;
-        const rows = Math.ceil(RoomConfig.height / baseSize);
-
-        const createBase = (team: Team, startX: number, startY: number, deltaY: number) => {
-            for (let row = 0; row < rows; row++) {
-                const entity = new Entity();
-                entity.init('Base');
-                entity.team = team;
-                entity.setting.size = size;
-                entity.pos = new Vector(startX, startY + row * deltaY);
-                this.insert(entity);
-
-                const drone = new Entity();
-
-                drone.init('BaseDroneMaker');
-                drone.team = team;
-                drone.pos = new ConnectedVector(entity.pos.clone(), new Vector());
-
-                this.insert(drone);
-            }
-        };
-
-        createBase(Team.Blue, baseSize / 2, baseSize / 2, baseSize);
-        this.teamArea[Team.Blue] = [
-            {x: 0, y: 0},
-            {x: baseSize, y: RoomConfig.height},
-        ];
-
-        createBase(Team.Green, RoomConfig.width - baseSize / 2, baseSize / 2, baseSize);
-        this.teamArea[Team.Green] = [
-            {x: RoomConfig.width - baseSize, y: 0},
-            {x: RoomConfig.width, y: RoomConfig.height},
-        ];
-    }
-
-    protected create4TDMBase() {
-        const baseSize = RoomConfig.height * 0.1;
-        const size = baseSize * 0.5 * Math.SQRT2;
-
-        const teams = [Team.Red, Team.Green, Team.Blue, Team.Purple];
-        const positions = [
-            new Vector(0 + baseSize / 2, 0 + baseSize / 2), // Top-left (Red)
-            new Vector(RoomConfig.width - baseSize / 2, 0 + baseSize / 2), // Top-right (Green)
-            new Vector(0 + baseSize / 2, RoomConfig.height - baseSize / 2), // Bottom-left (Blue)
-            new Vector(RoomConfig.width - baseSize / 2, RoomConfig.height - baseSize / 2), // Bottom-right (Purple)
-        ];
-
-        for (let i = 0; i < teams.length; i++) {
-            const entity = new Entity();
-
-            entity.init('Base');
-            entity.team = teams[i];
-            entity.setting.size = size;
-            entity.pos = positions[i];
-
-            this.insert(entity);
-
-            const drone = new Entity();
-
-            drone.init('BaseDroneMaker');
-            drone.team = teams[i];
-            drone.pos = entity.pos;
-
-            this.insert(drone);
-
-            this.teamArea[teams[i]] = [
-                {x: positions[i].x - baseSize / 2, y: positions[i].y - baseSize / 2}, // Top-left corner of the area
-                {x: positions[i].x + baseSize / 2, y: positions[i].y + baseSize / 2}, // Bottom-right corner of the area
-            ];
         }
     }
 }

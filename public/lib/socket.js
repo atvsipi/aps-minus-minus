@@ -133,25 +133,27 @@ const socketOnMessage = async ({data}) => {
             entity.id = msg.readBigUint();
             entity.health = msg.readFloat();
             entity.angle = msg.readFloat();
-            if (isNew) {
-                entity.pos.x = msg.readFloat();
-                entity.pos.y = msg.readFloat();
-            } else {
-                entity.serverPos.x = msg.readFloat();
-                entity.serverPos.y = msg.readFloat();
-            }
-            if (msg.readBoolean()) {
-                entity.vel.x = msg.readFloat();
-                entity.vel.y = msg.readFloat();
-            }
-
-            entity.score = msg.readBigUint();
-            entity.size = msg.readFloat();
 
             if (msg.readBoolean()) {
                 entity.offset.x = msg.readFloat();
                 entity.offset.y = msg.readFloat();
+            } else {
+                if (isNew) {
+                    entity.pos.x = msg.readFloat();
+                    entity.pos.y = msg.readFloat();
+                } else {
+                    entity.serverPos.x = msg.readFloat();
+                    entity.serverPos.y = msg.readFloat();
+                }
             }
+
+            /*if (msg.readBoolean()) {
+                entity.vel.x = msg.readFloat();
+                entity.vel.y = msg.readFloat();
+            }*/
+
+            entity.score = msg.readBigUint();
+            entity.size = msg.readFloat();
 
             idToEntity.set(entity.id, entity);
 
@@ -176,20 +178,22 @@ const socketOnMessage = async ({data}) => {
             entity.id = id;
             entity.health = msg.readFloat();
             entity.angle = msg.readFloat();
-            entity.pos.x = msg.readFloat();
-            entity.pos.y = msg.readFloat();
-            if (msg.readBoolean()) {
-                entity.vel.x = msg.readFloat();
-                entity.vel.y = msg.readFloat();
-            }
-
-            entity.score = msg.readBigUint();
-            entity.size = msg.readFloat();
 
             if (msg.readBoolean()) {
                 entity.offset.x = msg.readFloat();
                 entity.offset.y = msg.readFloat();
+            } else {
+                entity.pos.x = msg.readFloat();
+                entity.pos.y = msg.readFloat();
             }
+
+            /*if (msg.readBoolean()) {
+                entity.vel.x = msg.readFloat();
+                entity.vel.y = msg.readFloat();
+            }*/
+
+            entity.score = msg.readBigUint();
+            entity.size = msg.readFloat();
 
             idToEntity.set(id, entity);
             entities.add(entity);

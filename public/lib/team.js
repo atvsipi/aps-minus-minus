@@ -7,7 +7,7 @@ export const TeamColor = {
     Room: Color.Yellow,
     Dread: Color.White,
     Red: Color.Red,
-    Purple: Color.Purple,
+    Purple: Color.Magenta,
     Green: Color.Green,
     Blue: Color.Blue,
     Brown: Color.Brown,

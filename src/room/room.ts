@@ -11,11 +11,12 @@ const rooms = await folderImport<{
 
 export let Room = class Room extends RoomLoop {};
 
-Room =
-    rooms.find(({default: exports}) => {
-        const room = RoomConfig.room;
+const find = rooms.find(({default: exports}) => {
+    const room = RoomConfig.room;
 
-        return room === exports?.name;
-    })?.default?.room || class Room extends RoomLoop {};
+    return room === exports?.name;
+})?.default;
+
+Room = find?.room || class Room extends RoomLoop {};
 
 export const room = new Room();

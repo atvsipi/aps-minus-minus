@@ -404,7 +404,7 @@ export class Entity extends EventEmitter {
 
     public static isEntityVisible(entity: Entity, other: Entity): boolean {
         const distance = Vector.distance(entity.pos, other.pos);
-        const fov = entity.setting.skill.fov + (entity.size + other.size) / 2;
+        const fov = entity.setting.skill.fov * 0.6;
 
         return distance <= fov;
     }

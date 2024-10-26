@@ -289,7 +289,7 @@ function drawEntityShape(obj) {
         ctx.roundRect(x, y, width, height, radius);
         ctx.fill();
 
-        const fillWidth = Math.min(1, Math.max(0, obj.health / (obj.maxHealth || 100))) * width;
+        const fillWidth = 2 + Math.min(1, Math.max(0, obj.health / (obj.maxHealth || 100))) * (width - 2);
         ctx.beginPath();
         ctx.fillStyle = Color.Green;
         ctx.roundRect(x + 1, y + 0.75, fillWidth - 2, height - 1.5, radius);
@@ -336,7 +336,7 @@ const drawProp = (entity, prop) => {
 
     ctx.fill();
     ctx.globalAlpha = 1;
-    if (obj.strokeWidth > 0) ctx.stroke();
+    if (prop.strokeWidth > 0) ctx.stroke();
     ctx.closePath();
     ctx.restore();
 };

@@ -402,23 +402,24 @@ function EntityData(entity: Entity, msg: Protocol.Writer, active: boolean = fals
     msg.writeBigUint(entity.id);
     msg.writeFloat(entity.health);
     msg.writeFloat(entity.angle);
-    msg.writeFloat(entity.pos.x);
-    msg.writeFloat(entity.pos.y);
-    if (entity.active || entity.tick < 10 || active) {
+    if (entity instanceof Turret) {
+        msg.writeBoolean(true);
+        msg.writeFloat(entity.pos.offset.x);
+        msg.writeFloat(entity.pos.offset.y);
+    } else {
+        msg.writeBoolean(false);
+        msg.writeFloat(entity.pos.x);
+        msg.writeFloat(entity.pos.y);
+    }
+    /*if (entity.active || entity.tick < 10 || active) {
         msg.writeBoolean(true);
         msg.writeFloat(entity.vel.x);
         msg.writeFloat(entity.vel.y);
     } else {
         msg.writeBoolean(false);
-    }
+    }*/
     msg.writeBigUint(entity.score);
     msg.writeFloat(entity.size);
-
-    if (entity instanceof Turret) {
-        msg.writeBoolean(true);
-        msg.writeFloat(entity.pos.offset.x);
-        msg.writeFloat(entity.pos.offset.y);
-    } else msg.writeBoolean(false);
 
     return msg;
 }
