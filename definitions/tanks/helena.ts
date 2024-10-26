@@ -3,6 +3,7 @@ import {Class, GunClassType} from '@/entity/class';
 
 import './tanks';
 import {Vector} from '@/physics/vector';
+import {Nearest} from '@/entity/controller';
 
 // Design by @Helena - discord i.want.helenussy
 
@@ -53,7 +54,7 @@ const makeGun1 = (angle: number): GunClassType => ({
     alpha: 1,
     layer: -1,
     properties: {
-        type: 'Bullet',
+        type: 'TriBoss1Bullet1',
         autofire: false,
         altFire: false,
         delaySpawn: 0,
@@ -68,7 +69,7 @@ const makeGun1 = (angle: number): GunClassType => ({
             damage: 1.2,
             pen: 1,
             speed: 6,
-            range: 2,
+            range: 20,
             spray: 1,
         },
     },
@@ -87,7 +88,7 @@ const makeGun2 = (angle: number): GunClassType => ({
     alpha: 1,
     layer: -1,
     properties: {
-        type: 'Bullet',
+        type: 'TriBoss1Bullet1',
         autofire: false,
         altFire: false,
         delaySpawn: 0,
@@ -102,7 +103,7 @@ const makeGun2 = (angle: number): GunClassType => ({
             damage: 1.2,
             pen: 1,
             speed: 6,
-            range: 2,
+            range: 20,
             spray: 1,
         },
     },
@@ -121,7 +122,7 @@ const makeGun3 = (angle: number): GunClassType => ({
     alpha: 0,
     layer: -10,
     properties: {
-        type: 'Bullet',
+        type: 'TriBoss1Bullet2',
         autofire: false,
         altFire: false,
         delaySpawn: 0,
@@ -142,13 +143,47 @@ const makeGun3 = (angle: number): GunClassType => ({
     },
 });
 
+const makeGun4 = (angle: number): GunClassType => ({
+    offset: -10,
+    direction: 0,
+    length: 12,
+    width: 12,
+    aspect: 1.1,
+    angle: angle,
+    color: Color.LightGrey,
+    border: Color.AutoBorder,
+    strokeWidth: 4,
+    alpha: 1,
+    layer: -1,
+    properties: {
+        type: 'Bullet',
+        autofire: true,
+        altFire: false,
+        delaySpawn: 0,
+        maxChildren: false,
+        independentChildren: false,
+        destroyOldestChild: false,
+        skill: {
+            reload: 0.1,
+            recoil: 1,
+            size: 2,
+            health: 1,
+            damage: 1.2,
+            pen: 1,
+            speed: 6,
+            range: 2,
+            spray: 1,
+        },
+    },
+});
+
 Class.TriBoss1 = {
     tier: 0,
     label: 'TriBoss1',
     name: 'TriBoss1',
     sides: 3,
     size: 60,
-    color: Color.Blue,
+    color: Color.TeamColor,
     guns: [
         makeGun(0),
         makeGun1(0),
@@ -191,7 +226,7 @@ Class.TriBoss1 = {
             layer: 10,
             fixedAngle: false,
             size: 14,
-            color: Color.Blue,
+            color: Color.Pink,
             border: Color.Grey2,
             alpha: 1,
             sides: 3,
@@ -213,7 +248,7 @@ Class.TriBoss1 = {
             layer: 10,
             fixedAngle: false,
             size: 6,
-            color: Color.Blue,
+            color: Color.Pink,
             border: Color.Grey2,
             alpha: 1,
             sides: 3,
@@ -234,12 +269,13 @@ Class.TriBoss1 = {
             layer: 10,
             fixedAngle: false,
             size: 3,
-            color: Color.Blue,
+            color: Color.Pink,
             alpha: 1,
             sides: 3,
             angle: 0,
         },
     ],
+    miniMapType: 'always',
 };
 
 Class.Basic.upgrades.push('TriBoss1');
@@ -268,8 +304,8 @@ Class.TriBoss1Bullet = {
             offset: new Vector(0, 0),
             layer: -1,
             fixedAngle: true,
-            size: 200,
-            color: Color.Blue,
+            size: 100,
+            color: Color.Pink,
             strokeWidth: 0,
             alpha: 0.3,
             sides: 0,
@@ -293,7 +329,7 @@ Class.TriBoss1Bullet = {
             layer: 11,
             fixedAngle: true,
             size: 14,
-            color: Color.Blue,
+            color: Color.Pink,
             strokeWidth: 4,
             alpha: 1,
             sides: 3,
@@ -319,7 +355,148 @@ Class.TriBoss1Bullet = {
             offset: new Vector(0, 0),
             angle: 0,
             fixedAngle: true,
-            type: 'test',
+            type: 'TriBoss1BulletA',
         },
     ],
+};
+
+Class.TriBoss1BulletA = {
+    size: 50,
+    color: Color.Pink,
+    showHealth: false,
+    showName: false,
+    showScore: false,
+    sides: 0,
+    alpha: 0,
+    skill: {
+        damage: 1,
+        health: 10000000,
+        regen: 100,
+    },
+};
+
+Class.TriBoss1Bullet1 = {
+    showHealth: false,
+    showName: false,
+    showScore: false,
+    giveScore: false,
+    sides: -4,
+    size: 8,
+    skill: {
+        speed: 0.5,
+        health: 0.1,
+        regen: 0,
+        damage: 2,
+        pen: 5,
+        range: null,
+        pushability: 1,
+        fov: 90,
+    },
+    bullet: true,
+    hardBullet: true,
+    turrets: [
+        {
+            offset: new Vector(0, 0),
+            angle: 0,
+            fixedAngle: true,
+            type: 'TriBoss1Bullet1AutoGun',
+        },
+    ],
+};
+
+Class.TriBoss1Bullet1AutoGun = {
+    size: 7,
+    showHealth: false,
+    showName: false,
+    showScore: false,
+    sides: 0,
+    alpha: 1,
+    color: Color.Grey,
+    skill: {
+        damage: 0.1,
+        health: 10000000,
+        regen: 100,
+    },
+    guns: [
+        {
+            offset: -5,
+            direction: 0,
+            length: 26,
+            width: 26,
+            aspect: 1,
+            angle: 0,
+            color: Color.LightGrey,
+            border: Color.AutoBorder,
+            strokeWidth: 4,
+            alpha: 1,
+            layer: -1,
+            properties: {
+                type: 'Bullet',
+                autofire: false,
+                altFire: false,
+                delaySpawn: 0,
+                maxChildren: false,
+                independentChildren: false,
+                destroyOldestChild: false,
+                skill: {
+                    reload: 0.1,
+                    recoil: 1,
+                    size: 0.6,
+                    health: 1,
+                    damage: 1.2,
+                    pen: 1,
+                    speed: 6,
+                    range: 2,
+                    spray: 1,
+                },
+            },
+        },
+    ],
+    controllers: [new Nearest()],
+};
+
+Class.TriBoss1Bullet2 = {
+    showHealth: false,
+    showName: false,
+    showScore: false,
+    giveScore: false,
+    sides: 3,
+    size: 16,
+    skill: {
+        speed: 0.5,
+        health: 0.1,
+        regen: 0,
+        damage: 2,
+        pen: 5,
+        range: null,
+        pushability: 1,
+        fov: 90,
+    },
+    guns: [makeGun4(0), makeGun4((2 * Math.PI) / 3), makeGun4((4 * Math.PI) / 3)],
+    props: [
+        {
+            offset: new Vector(0, 0),
+            layer: -1,
+            fixedAngle: false,
+            size: 28,
+            color: Color.Grey2,
+            border: Color.Grey2,
+            alpha: 1,
+            sides: 3,
+            angle: 0,
+        },
+        {
+            offset: new Vector(0, 0),
+            layer: 10,
+            fixedAngle: false,
+            size: 14,
+            color: Color.Grey2,
+            border: Color.Grey2,
+            alpha: 1,
+            sides: 3,
+            angle: 0,
+        },
+    ],
+    bullet: true,
+    hardBullet: false,
 };

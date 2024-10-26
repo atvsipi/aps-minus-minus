@@ -155,9 +155,15 @@ export class Gun {
 
                 const bullet = new Entity();
 
-                this.body.room.insert(bullet);
+                bullet.team = this.body.team;
+                bullet.team2 = this.body.team2;
+                bullet.pos = pos;
 
                 bullet.init(EntityClass[this.setting.properties.type]);
+
+                bullet.master = this.body;
+                const index = this.children.push(bullet);
+                const bodyIndex = this.body.children.push(bullet);
 
                 bullet.setting.skill.damage += this.setting.properties.skill.damage - 1;
                 bullet.setting.skill.health += this.setting.properties.skill.health - 1;
@@ -166,13 +172,9 @@ export class Gun {
 
                 if (this.setting.properties.independentChildren) bullet.setting.independent = true;
 
-                bullet.team = this.body.team;
-                bullet.team2 = this.body.team2;
-                bullet.pos = pos;
+                this.body.room.insert(bullet);
 
-                bullet.master = this.body;
-                const index = this.children.push(bullet);
-                const bodyIndex = this.body.children.push(bullet);
+                bullet.initTurret();
 
                 bullet.on('dead', () => {
                     delete this.children[index];

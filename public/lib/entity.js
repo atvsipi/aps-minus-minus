@@ -39,8 +39,8 @@ export class Entity {
     isLoaded = false;
 
     update() {
-        for (const prop of this.props) {
-            prop.update();
+        for (let i = 0; i < this.props.length; i++) {
+            this.props[i].update();
         }
     }
 }

@@ -179,7 +179,7 @@ export class Entity extends EventEmitter {
     public strokeWidth: number = 4;
     public alpha: number = 1;
 
-    public team: Team = Math.random() > 0.5 ? Team.Blue : Team.Green;
+    public team: Team = Team.Room;
     public team2: number = 0;
 
     public tick: number = 0;
@@ -229,8 +229,8 @@ export class Entity extends EventEmitter {
     }
 
     public init(Class: ProcessedClass | string) {
-        if (this.turrets.length > 0) {
-            for (const turret of this.turrets) this.room.remove(turret);
+        if (this.room && this.turrets.length > 0) {
+            for (let i = 0; i < this.turrets.length; i++) this.room.remove(this.turrets[i]);
         }
 
         if (typeof Class === 'string') Class = EntityClass[Class];
@@ -293,9 +293,14 @@ export class Entity extends EventEmitter {
         for (const turretSetting of Class.turrets) {
             const turret = new Turret(this, turretSetting);
 
-            turret.init(EntityClass[turretSetting.type]);
+            turret.team = this.team;
+            turret.team2 = this.team2;
 
-            this.room.insert(turret);
+            if (this.room) {
+                turret.init(EntityClass[turretSetting.type]);
+
+                this.room.insert(turret);
+            }
 
             this.turrets.push(turret);
         }
@@ -310,6 +315,14 @@ export class Entity extends EventEmitter {
         if (this.upgrades.length > 0) this.upgradeAdded = true;
 
         this.changed = true;
+    }
+
+    public initTurret() {
+        for (const turret of this.turrets) {
+            turret.init(EntityClass[turret.turretSetting.type]);
+
+            this.room.insert(turret);
+        }
     }
 
     public update() {
