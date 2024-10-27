@@ -49,7 +49,7 @@ export class Tile {
             setInterval(() => {
                 this.entities = this.entities.filter((entity) => !entity.die);
 
-                if (!this.setting.spawnTimes || this.entities.length <= this.setting.spawnTimes) {
+                if (!this.setting.spawnTimes || this.entities.length < this.setting.spawnTimes) {
                     const entity = new Entity();
 
                     entity.init(randomFood(this.setting.spawn));

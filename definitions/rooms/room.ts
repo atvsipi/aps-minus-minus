@@ -39,8 +39,8 @@ const boss = new TileMaker({
     afterSpawn(tile, entity) {
         entity.controllers.push(new Nearest());
     },
-    spawnTimes: 1,
-    spawnInterval: 1000 * 10,
+    spawnTimes: 10,
+    spawnInterval: 1000 * 60 * 10,
 });
 
 const babl = BaseTile(Team.Blue);

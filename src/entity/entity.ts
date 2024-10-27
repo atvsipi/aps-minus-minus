@@ -204,6 +204,10 @@ export class Entity extends EventEmitter {
         return this.size * this.setting.mass;
     }
 
+    public get maxHealth() {
+        return this.setting.skill.health + this.score * 0.0004;
+    }
+
     public get isMaster() {
         if (this.setting.independent || !this.master) return true;
 
@@ -344,7 +348,7 @@ export class Entity extends EventEmitter {
             if (this.upgrades.length > 0) this.upgradeAdded = true;
         }
 
-        if (this.health < this.setting.skill.health) {
+        if (this.health < this.maxHealth) {
             this.health += this.setting.skill.regen;
 
             if (this.tick - this.lastTickAttacked > 60 * 70) {
@@ -369,7 +373,8 @@ export class Entity extends EventEmitter {
             if (think.power !== null) this.control.power = think.power;
         }
 
-        for (const gun of this.guns) gun.update();
+        const gunLength = this.guns.length;
+        for (let i = 0; i < gunLength; i++) this.guns[i].update();
 
         if (this.control.main && this.control.target) {
             const target = this.control.target;

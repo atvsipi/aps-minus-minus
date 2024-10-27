@@ -73,10 +73,10 @@ const decodeSides = (msg) => {
     } else {
         const length = type - 2;
 
-        sides = [];
+        sides = new Array(length);
 
         for (let i = 0; i < length; i++) {
-            sides.push([msg.readFloat(), msg.readFloat()]);
+            sides[i] = [msg.readFloat(), msg.readFloat()];
         }
     }
 
@@ -134,6 +134,10 @@ const socketOnMessage = async ({data}) => {
             entity.health = msg.readFloat();
             entity.angle = msg.readFloat();
 
+            if (entity.maxHealth && entity.health > entity.maxHealth) {
+                entity.maxHealth = entity.health;
+            }
+
             if (msg.readBoolean()) {
                 entity.offset.x = msg.readFloat();
                 entity.offset.y = msg.readFloat();
@@ -178,6 +182,10 @@ const socketOnMessage = async ({data}) => {
             entity.id = id;
             entity.health = msg.readFloat();
             entity.angle = msg.readFloat();
+
+            if (entity.maxHealth && entity.health > entity.maxHealth) {
+                entity.maxHealth = entity.health;
+            }
 
             if (msg.readBoolean()) {
                 entity.offset.x = msg.readFloat();
@@ -290,13 +298,13 @@ const socketOnMessage = async ({data}) => {
 
             obj.sides = decodeSides(msg);
 
-            obj.guns = [];
-
             const length = msg.readUint();
+
+            obj.guns = new Array(length);
 
             for (let i = 0; i < length; i++) {
                 let color;
-                obj.guns.push({
+                obj.guns[i] = {
                     offset: msg.readFloat(),
                     direction: msg.readFloat(),
                     length: msg.readFloat(),
@@ -308,18 +316,18 @@ const socketOnMessage = async ({data}) => {
                     strokeWidth: msg.readFloat(),
                     alpha: msg.readFloat(),
                     layer: msg.readInt(),
-                });
+                };
             }
 
             obj.guns.sort((a, b) => a - b);
 
-            obj.props = [];
-
             const propLength = msg.readUint();
+
+            obj.props = new Array(propLength);
 
             for (let i = 0; i < propLength; i++) {
                 let color;
-                obj.props.push({
+                obj.props[i] = {
                     _offset: new Vector(msg.readFloat(), msg.readFloat()),
                     angle: msg.readFloat(),
                     fixedAngle: msg.readBoolean(),
@@ -332,7 +340,7 @@ const socketOnMessage = async ({data}) => {
                     strokeWidth: msg.readFloat(),
                     alpha: msg.readFloat(),
                     layer: msg.readInt(),
-                });
+                };
             }
 
             obj.props.sort((a, b) => a - b);
@@ -355,7 +363,7 @@ const socketOnMessage = async ({data}) => {
 
         case 9: {
             const length = msg.readUint();
-            entity.upgrades = [];
+            entity.upgrades = new Array(length);
             for (let i = 0; i < length; i++) {
                 const upgrade = {};
 
@@ -375,20 +383,20 @@ const socketOnMessage = async ({data}) => {
                 } else {
                     const length = type - 2;
 
-                    upgrade.sides = [];
+                    upgrade.sides = new Array(length);
 
                     for (let i = 0; i < length; i++) {
-                        upgrade.sides.push([msg.readFloat(), msg.readFloat()]);
+                        upgrade.sides[i] = [msg.readFloat(), msg.readFloat()];
                     }
                 }
 
-                upgrade.guns = [];
-
                 const gunArrayLength = msg.readUint();
+
+                upgrade.guns = new Array(gunArrayLength);
 
                 for (let j = 0; j < gunArrayLength; j++) {
                     let color;
-                    upgrade.guns.push({
+                    upgrade.guns[j] = {
                         offset: msg.readFloat(),
                         direction: msg.readFloat(),
                         length: msg.readFloat(),
@@ -400,16 +408,16 @@ const socketOnMessage = async ({data}) => {
                         strokeWidth: msg.readFloat(),
                         alpha: msg.readFloat(),
                         layer: msg.readInt(),
-                    });
+                    };
                 }
-
-                upgrade.props = [];
 
                 const propLength = msg.readUint();
 
+                upgrade.props = new Array(propLength);
+
                 for (let i = 0; i < propLength; i++) {
                     let color;
-                    upgrade.props.push({
+                    upgrade.props[i] = {
                         _offset: new Vector(msg.readFloat(), msg.readFloat()),
                         angle: msg.readFloat(),
                         fixedAngle: msg.readBoolean(),
@@ -422,10 +430,10 @@ const socketOnMessage = async ({data}) => {
                         strokeWidth: msg.readFloat(),
                         alpha: msg.readFloat(),
                         layer: msg.readInt(),
-                    });
+                    };
                 }
 
-                entity.upgrades.push(upgrade);
+                entity.upgrades[i] = upgrade;
             }
 
             break;

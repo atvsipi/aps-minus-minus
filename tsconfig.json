@@ -4,7 +4,7 @@
         "sourceMap": true,
         "noImplicitAny": true,
         "module": "es2022",
-        "target": "ESNext",
+        "target": "ES2023",
         "strict": false,
         "jsx": "react",
         "allowJs": true,

@@ -68,8 +68,8 @@ export class World extends EventEmitter {
     protected doDamage(entity: Entity, other: Entity, god: boolean) {
         if (Entity.isSameTeam(entity, other)) return;
 
-        other.health -= entity.setting.skill.damage;
-        other.emit('damage', entity.setting.skill.damage);
+        other.health -= entity.setting.skill.damage / 2;
+        other.emit('damage', entity.setting.skill.damage / 2);
         other.lastTickAttacked = other.tick;
         if (other.health <= 0) {
             other.emit('dead', entity);
@@ -80,8 +80,8 @@ export class World extends EventEmitter {
         }
 
         if (!god) {
-            entity.health -= other.setting.skill.damage;
-            entity.emit('damage', other.setting.skill.damage);
+            entity.health -= other.setting.skill.damage / 2;
+            entity.emit('damage', other.setting.skill.damage / 2);
             entity.lastTickAttacked = entity.tick;
             if (entity.health <= 0) {
                 entity.emit('dead', other);
@@ -163,20 +163,36 @@ export class World extends EventEmitter {
                     }
                 }
 
+                const correctionVector = Vector.sub(other.pos, entity.pos)
+                    .normalize()
+                    .mult(((entity.size + other.size) * 0.6 - Vector.distance(entity.pos, other.pos)) / 2);
+
+                other.pos.add(correctionVector);
+                entity.pos.sub(correctionVector);
+
                 const normal = Vector.sub(other.pos, entity.pos).normalize();
 
                 const relativeVelocity = Vector.sub(other.vel, entity.vel);
                 const velocityAlongNormal = relativeVelocity.dot(normal);
 
-                const impulse = normal
-                    .clone()
-                    .mult(
-                        (-(1 + Math.min(entity.setting.skill.pushability, other.setting.skill.pushability) * restitution) * velocityAlongNormal) /
-                            (1 / entity.mass + 1 / other.mass),
-                    );
+                if (velocityAlongNormal < 0) {
+                    const impulse = normal
+                        .clone()
+                        .mult(
+                            (-(1 + Math.min(entity.setting.skill.pushability, other.setting.skill.pushability) * restitution) * velocityAlongNormal) /
+                                (1 / entity.mass + 1 / other.mass),
+                        );
 
-                entity.vel.sub(impulse.clone().mult(1 / entity.mass));
-                other.vel.add(impulse.clone().mult(1 / other.mass));
+                    entity.vel.sub(impulse.clone().mult(1 / entity.mass));
+                    other.vel.add(impulse.clone().mult(1 / other.mass));
+                }
+
+                const overlapThreshold = 0.1; // Small threshold to avoid jittering
+                const overlap = Math.max(overlapThreshold - Vector.sub(other.pos, entity.pos).mag, 0);
+                const correction = normal.clone().mult(overlap / (1 / entity.mass + 1 / other.mass));
+
+                entity.pos.sub(correction.clone().mult(1 / entity.mass));
+                other.pos.add(correction.clone().mult(1 / other.mass));
             }
         }
 

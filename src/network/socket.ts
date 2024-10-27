@@ -386,14 +386,19 @@ function EntityMockup(entity: Entity, msg: Protocol.Writer) {
 
     msg.writeString(entity.setting.label);
 
-    Mockup(
-        entity.alpha,
-        entity.strokeWidth,
-        entity.setting.sides,
-        entity.guns.map((gun) => gun.setting),
-        entity.props.map((prop) => prop.setting),
-        msg,
-    );
+    const gunLength = entity.guns.length;
+    const guns = new Array(gunLength);
+    for (let i = 0; i < gunLength; i++) {
+        guns[i] = entity.guns[i].setting;
+    }
+
+    const propLength = entity.props.length;
+    const props = new Array(propLength);
+    for (let i = 0; i < propLength; i++) {
+        props[i] = entity.props[i].setting;
+    }
+
+    Mockup(entity.alpha, entity.strokeWidth, entity.setting.sides, guns, props, msg);
 
     return msg;
 }

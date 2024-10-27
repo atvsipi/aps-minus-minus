@@ -2,7 +2,7 @@ import fs from 'fs/promises';
 import path from 'path';
 
 export async function folderImport<T extends {default?: any} & any>(folder: string): Promise<T[]> {
-    const folderPath = path.join(__dirname, '../', folder);
+    const folderPath = path.join(import.meta.dirname, '../', folder);
 
     try {
         const files = await fs.readdir(folderPath);

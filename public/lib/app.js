@@ -609,6 +609,11 @@ const render = (timestamp) => {
         const distance = Vector.distance(window.entity.pos, entity.pos);
         const fov = window.entity.fov + (window.entity.size + entity.size) / 2;
 
+        if (entity.fadeStart) {
+            entities.delete(entity);
+            idToEntity.delete(entity.id);
+        }
+
         if (distance > fov) continue;
 
         ctx.save();
