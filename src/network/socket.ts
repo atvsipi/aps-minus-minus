@@ -101,6 +101,8 @@ export function message(uuid: string, data: Uint8Array, send: (msg: Uint8Array |
 
                 entity.socket.sendMsg(RoomConfig.welcomeMessage);
 
+                Logger.info('User spawned. name: ' + entity.name);
+
                 break;
             }
 
@@ -587,6 +589,23 @@ setInterval(() => {
         entity.changed = false;
     }
 }, 1000 / 60);
+
+setInterval(() => {
+    for (const user of users) {
+        const msg = new Protocol.Writer();
+
+        msg.writeUint(11);
+
+        msg.writeUint(room.leaderboard.scores.size);
+
+        for (const [, {title, score}] of room.leaderboard.scores) {
+            msg.writeString(title);
+            msg.writeBigUint(score);
+        }
+
+        user[1].send(msg.make());
+    }
+}, 1000);
 
 room.on('remove', (obj: Entity) => {
     for (const user of users) {

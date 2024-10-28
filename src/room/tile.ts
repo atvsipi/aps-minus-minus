@@ -29,7 +29,8 @@ export class Tile {
 
     public setting: TileSetting;
 
-    public entities: Entity[] = [];
+    public entities: Set<Entity> = new Set();
+    public entitySize: number = 0;
 
     constructor(setting: TileSetting) {
         this.setting = setting;
@@ -47,9 +48,7 @@ export class Tile {
 
         if (this.setting.spawn?.length > 0) {
             setInterval(() => {
-                this.entities = this.entities.filter((entity) => !entity.die);
-
-                if (!this.setting.spawnTimes || this.entities.length < this.setting.spawnTimes) {
+                if (!this.setting.spawnTimes || this.entitySize < this.setting.spawnTimes) {
                     const entity = new Entity();
 
                     entity.init(randomFood(this.setting.spawn));
@@ -64,7 +63,14 @@ export class Tile {
                     if (this.setting.afterSpawn) this.setting.afterSpawn(this, entity);
 
                     this.room.insert(entity);
-                    this.entities.push(entity);
+                    this.entities.add(entity);
+
+                    this.entitySize++;
+
+                    entity.on('remove', () => {
+                        this.entitySize--;
+                        this.entities.delete(entity);
+                    });
                 }
             }, this.setting.spawnInterval || 500);
         }

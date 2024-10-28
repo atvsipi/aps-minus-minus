@@ -22,6 +22,10 @@ setInterval(() => {
     room.update();
 }, RoomConfig.tick);
 
+setInterval(() => {
+    room.leaderboard.update();
+}, 1000);
+
 room.initTile();
 
 setTimeout(CloseArena, 1000 * 60 * 60 * 3);

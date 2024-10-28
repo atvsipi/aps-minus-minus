@@ -13,13 +13,6 @@ const ____ = new TileMaker({
     ],
     spawnTimes: 10,
     spawnInterval: 1000,
-    afterSpawn(tile, entity) {
-        if (tile.setting.spawnTimes === 10 && Math.random() > 0.9) {
-            tile.setting.spawnTimes = 40;
-        } else if (tile.setting.spawnTimes === 40 && Math.random() > 0.95) {
-            tile.setting.spawnTimes = 10;
-        }
-    },
 });
 
 const nest = new TileMaker({
@@ -34,15 +27,6 @@ const nest = new TileMaker({
     spawnInterval: 1000,
 });
 
-const boss = new TileMaker({
-    spawn: [{type: 'TriBoss1', weight: 100}],
-    afterSpawn(tile, entity) {
-        entity.controllers.push(new Nearest());
-    },
-    spawnTimes: 10,
-    spawnInterval: 1000 * 60 * 10,
-});
-
 const babl = BaseTile(Team.Blue);
 const bagr = BaseTile(Team.Green);
 
@@ -54,7 +38,7 @@ export default {
             [babl, babl, babl, babl, babl, babl, babl, babl],
             [____, ____, ____, ____, ____, ____, ____, ____],
             [____, ____, nest, nest, nest, nest, ____, ____],
-            [____, ____, nest, nest, boss, nest, ____, ____],
+            [____, ____, nest, nest, nest, nest, ____, ____],
             [____, ____, nest, nest, nest, nest, ____, ____],
             [____, ____, nest, nest, nest, nest, ____, ____],
             [____, ____, ____, ____, ____, ____, ____, ____],

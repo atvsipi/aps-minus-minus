@@ -1,3 +1,35 @@
+export class BufferPool {
+    static pools = new Map();
+    static MAX_POOL_SIZE = 1000;
+    static POOL_SIZES = [128, 256, 512, 1024, 2048, 4096, 8192];
+
+    static acquire(minSize) {
+        const size = this.POOL_SIZES.find((s) => s >= minSize) || minSize;
+        let pool = this.pools.get(size);
+
+        if (!pool || pool.length === 0) {
+            return new Uint8Array(size);
+        }
+
+        return pool.pop();
+    }
+
+    static release(buffer) {
+        const size = buffer.length;
+        if (!this.POOL_SIZES.includes(size)) return;
+
+        let pool = this.pools.get(size);
+        if (!pool) {
+            pool = [];
+            this.pools.set(size, pool);
+        }
+
+        if (pool.length < this.MAX_POOL_SIZE) {
+            pool.push(buffer);
+        }
+    }
+}
+
 export class Reader {
     offset = 0;
 
@@ -80,102 +112,88 @@ export class Reader {
 }
 
 export class Writer {
+    static INITIAL_SIZE = 1024;
     offset = 0;
-    writeQueue = [];
-
     textEncoder = new TextEncoder();
 
-    constructor() {}
+    constructor(initialSize = Writer.INITIAL_SIZE) {
+        this.buffer = BufferPool.acquire(initialSize);
+        this.dataView = new DataView(this.buffer.buffer);
+    }
+
+    ensureCapacity(additional) {
+        const required = this.offset + additional;
+        if (required <= this.buffer.length) return;
+
+        const newSize = Math.max(this.buffer.length * 2, required);
+        const newBuffer = BufferPool.acquire(newSize);
+        newBuffer.set(new Uint8Array(this.buffer.buffer, 0, this.offset));
+
+        BufferPool.release(this.buffer);
+        this.buffer = newBuffer;
+        this.dataView = new DataView(this.buffer.buffer);
+    }
 
     writeString(value) {
         const encoded = this.textEncoder.encode(value);
-        const offset = this.offset;
+        this.ensureCapacity(2 + encoded.length);
 
-        this.writeQueue.push(() => {
-            this.dataView.setUint16(offset, encoded.length, true);
+        this.dataView.setUint16(this.offset, encoded.length, true);
+        this.offset += 2;
 
-            for (let i = 0; i < encoded.length; i++) {
-                this.dataView.setUint8(offset + i + 2, encoded[i]);
-            }
-        });
-
-        this.offset += encoded.length + 2;
+        this.buffer.set(encoded, this.offset);
+        this.offset += encoded.length;
 
         return this;
     }
 
     writeInt(value) {
-        const offset = this.offset;
-
-        this.writeQueue.push(() => {
-            this.dataView.setInt32(offset, value, true);
-        });
-
+        this.ensureCapacity(4);
+        this.dataView.setInt32(this.offset, value, true);
         this.offset += 4;
-
         return this;
     }
 
     writeUint(value) {
-        const offset = this.offset;
-
-        this.writeQueue.push(() => {
-            this.dataView.setUint16(offset, value, true);
-        });
-
+        this.ensureCapacity(2);
+        this.dataView.setUint16(this.offset, value, true);
         this.offset += 2;
-
         return this;
     }
 
     writeBigUint(value) {
-        const offset = this.offset;
-
-        this.writeQueue.push(() => {
-            this.dataView.setUint32(offset, value, true);
-        });
-
+        this.ensureCapacity(4);
+        this.dataView.setUint32(this.offset, value, true);
         this.offset += 4;
-
         return this;
     }
 
     writeFloat(value) {
-        const offset = this.offset;
-
-        this.writeQueue.push(() => {
-            this.dataView.setFloat32(offset, value, true);
-        });
-
+        this.ensureCapacity(4);
+        this.dataView.setFloat32(this.offset, value, true);
         this.offset += 4;
-
         return this;
     }
 
     writeBoolean(value) {
-        const offset = this.offset;
-
-        this.writeQueue.push(() => {
-            this.dataView.setUint8(offset, value ? 1 : 0);
-        });
-
+        this.ensureCapacity(1);
+        this.dataView.setUint8(this.offset, value ? 1 : 0);
         this.offset += 1;
-
         return this;
     }
 
     make() {
-        this.dataView = new DataView(new ArrayBuffer(this.offset));
-
-        for (const task of this.writeQueue) task();
-
-        return new Uint8Array(this.dataView.buffer, 0, this.offset);
+        const result = new Uint8Array(this.buffer.buffer, 0, this.offset);
+        BufferPool.release(this.buffer);
+        return result;
     }
 
     reset() {
-        this.writeQueue = [];
-        this.offset;
-
+        this.offset = 0;
         return this;
+    }
+
+    getSize() {
+        return this.offset;
     }
 }

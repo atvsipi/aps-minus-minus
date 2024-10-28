@@ -5,7 +5,7 @@ import {joysticks, drawJoystick} from './mobile.js';
 import {message} from './message.js';
 import {score} from './score.js';
 
-import {avgDataSize, dataRate, socket, entity, entities, idToEntity, world, minimap, start} from './socket.js';
+import {avgDataSize, leaderboard, dataRate, socket, entity, entities, idToEntity, world, minimap, start} from './socket.js';
 
 import {interpolate, reconcile} from './interpolate.js';
 
@@ -438,22 +438,15 @@ const renderInfo = () => {
 
     ctx.save();
 
-    drawText(location.host, Color.Black, Color.White, textSize + 2, {x: canvasSize.width - 10, y: canvasSize.height - 80}, 'right');
+    drawText(location.host, Color.Black, Color.White, textSize + 2, {x: 10, y: canvasSize.height - 80}, 'left');
 
-    drawText(`Client FPS: ${fps.toFixed(2)} fps`, fps < 60 ? Color.Red : Color.Black, Color.White, textSize, {x: canvasSize.width - 10, y: canvasSize.height - 60}, 'right');
+    drawText(`Client FPS: ${fps.toFixed(2)} fps`, fps < 60 ? Color.Red : Color.Black, Color.White, textSize, {x: 10, y: canvasSize.height - 60}, 'left');
 
-    drawText(`Server Tick: ${(1000 / world.tick).toFixed(2)}`, Color.Black, Color.White, textSize, {x: canvasSize.width - 10, y: canvasSize.height - 45}, 'right');
+    drawText(`Server Tick: ${(1000 / world.tick).toFixed(2)}`, Color.Black, Color.White, textSize, {x: 10, y: canvasSize.height - 45}, 'left');
 
-    drawText(`Average Data Size: ${avgDataSize.toFixed(2)} bytes`, Color.Black, Color.White, textSize, {x: canvasSize.width - 10, y: canvasSize.height - 30}, 'right');
+    drawText(`Average Data Size: ${avgDataSize.toFixed(2)} bytes`, Color.Black, Color.White, textSize, {x: 10, y: canvasSize.height - 30}, 'left');
 
-    drawText(
-        `Data Rate: ${dataRate > 0 ? (dataRate / 1024).toFixed(2) : '0'} kb/s`,
-        Color.Black,
-        Color.White,
-        textSize,
-        {x: canvasSize.width - 10, y: canvasSize.height - 15},
-        'right',
-    );
+    drawText(`Data Rate: ${dataRate > 0 ? (dataRate / 1024).toFixed(2) : '0'} kb/s`, Color.Black, Color.White, textSize, {x: 10, y: canvasSize.height - 15}, 'left');
 
     ctx.restore();
 };
@@ -504,14 +497,29 @@ const drawScore = () => {
 };
 
 const drawMiniMap = () => {
-    const minimapScale = 150 / Math.min(world.width, world.height);
+    const leaderboardWidth = 100;
+    const leaderboardHeight = 26 + leaderboard.length * (20 + 14);
+    const leaderboardStartX = canvasSize.width - leaderboardWidth - 10;
+    const leaderboardStartY = 10;
+
+    ctx.fillStyle = Color.Black;
+    drawText('Leaderboard', Color.White, Color.Black, 16, {x: leaderboardStartX + 10, y: leaderboardStartY + 20}, 'center');
+
+    let yOffset = 40;
+    for (const player of leaderboard) {
+        drawText(`${player.title}: ${player.score}`, Color.White, Color.Black, 14, {x: leaderboardStartX + 10, y: leaderboardStartY + yOffset}, 'center');
+        yOffset += 20;
+    }
+
+    const minimapScale = 100 / Math.min(world.width, world.height);
     const minimapWidth = world.width * minimapScale;
     const minimapHeight = world.height * minimapScale;
 
     const minimapStartX = canvasSize.width - minimapWidth - 10;
-    const minimapStartY = 10;
+    const minimapStartY = canvasSize.height - minimapHeight - 10;
 
     ctx.lineWidth = 2;
+
     ctx.globalAlpha = 0.6;
     ctx.fillStyle = Color.White;
     ctx.fillRect(minimapStartX, minimapStartY, minimapWidth, minimapHeight);
@@ -609,12 +617,18 @@ const render = (timestamp) => {
         const distance = Vector.distance(window.entity.pos, entity.pos);
         const fov = window.entity.fov + (window.entity.size + entity.size) / 2;
 
-        if (entity.fadeStart) {
+        if (distance > fov && entity.fadeStart) {
             entities.delete(entity);
             idToEntity.delete(entity.id);
         }
 
-        if (distance > fov) continue;
+        if (distance > fov) {
+            entity.canSee = false;
+
+            continue;
+        }
+
+        if (!entity.canSee) continue;
 
         ctx.save();
         if (entity.masterId && idToEntity.has(entity.masterId)) {

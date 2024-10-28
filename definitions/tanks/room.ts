@@ -51,9 +51,9 @@ Class.BaseDrone = {
     skill: {
         fov: 500,
         speed: 1,
-        health: 1,
+        health: 60,
         regen: 0,
-        damage: 0.01,
+        damage: 1,
         pen: 5,
         range: null,
         pushability: 10,

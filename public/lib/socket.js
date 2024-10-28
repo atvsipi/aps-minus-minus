@@ -22,6 +22,7 @@ export let world = {};
 let mockups = [];
 
 export let minimap = [];
+export let leaderboard = [];
 
 export let name = '';
 
@@ -163,6 +164,8 @@ const socketOnMessage = async ({data}) => {
 
             entities.add(entity);
 
+            entity.canSee = true;
+
             if (isNew) {
                 socket.send(new Writer().writeUint(2).writeBigUint(entity.id).make());
             }
@@ -202,6 +205,8 @@ const socketOnMessage = async ({data}) => {
 
             entity.score = msg.readBigUint();
             entity.size = msg.readFloat();
+
+            entity.canSee = true;
 
             idToEntity.set(id, entity);
             entities.add(entity);
@@ -458,6 +463,21 @@ const socketOnMessage = async ({data}) => {
                 }
 
                 minimap.push(map);
+            }
+
+            break;
+        }
+
+        case 11: {
+            leaderboard = [];
+
+            const length = msg.readUint();
+
+            for (let i = 0; i < length; i++) {
+                leaderboard.push({
+                    title: msg.readString(),
+                    score: msg.readBigUint(),
+                });
             }
 
             break;

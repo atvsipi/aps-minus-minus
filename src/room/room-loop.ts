@@ -4,10 +4,11 @@ import {Entity} from '../entity/entity';
 import {RoomConfig} from './room-config';
 import {World} from './world';
 import {RandomPosGenerator} from '../util/random';
-import {ConnectedVector, FixedVector, Vector, VectorLike} from '../physics/vector';
+import {Vector} from '../physics/vector';
 import {Team} from '../definitions/team';
-import {Tile, TileMaker, Tiles} from './tile';
+import {Tile, Tiles} from './tile';
 import {Normal} from './tiles';
+import {Leaderboard} from './leaderboard';
 
 export class RoomLoop extends World {
     public randomPosGenerator = new RandomPosGenerator();
@@ -22,6 +23,8 @@ export class RoomLoop extends World {
     ];
 
     public tiles: Tile[] = [];
+
+    public leaderboard = new Leaderboard(this);
 
     public initTile() {
         const size = new Vector(RoomConfig.width / this.tileMap.length, RoomConfig.height / this.tileMap[0].length);
@@ -40,9 +43,9 @@ export class RoomLoop extends World {
 
         entity.name = name;
 
-        entity.team = this.teams[~~(Math.random() * this.teams.length)];
+        entity.team = this.teams[Math.floor(Math.random() * this.teams.length)];
 
-        const tile = this.teamTile[entity.team] ? this.teamTile[entity.team][~~(Math.random() * this.teamTile[entity.team].length)] : null;
+        const tile = this.teamTile[entity.team] ? this.teamTile[entity.team][Math.floor(Math.random() * this.teamTile[entity.team].length)] : null;
 
         const {x, y} = this.randomPosGenerator.getRandomPos(
             {x: tile ? tile.min.x : 0, y: tile ? tile.min.x : 0},
@@ -55,7 +58,7 @@ export class RoomLoop extends World {
         return entity;
     }
 
-    protected generateLabyrinth(size: number) {
+    public generateLabyrinth(size: number) {
         const padding = 1;
         const maze = new Maze(size, size);
         const wallScale = RoomConfig.height / (size + 2 * padding);

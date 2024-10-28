@@ -184,6 +184,8 @@ Class.TriBoss1 = {
     sides: 3,
     size: 60,
     color: Color.TeamColor,
+    bullet: false,
+    hardBullet: false,
     guns: [
         makeGun(0),
         makeGun1(0),
@@ -278,8 +280,6 @@ Class.TriBoss1 = {
     miniMapType: 'always',
 };
 
-Class.Basic.upgrades.push('TriBoss1');
-
 Class.TriBoss1Bullet = {
     showHealth: false,
     showName: false,
@@ -366,6 +366,7 @@ Class.TriBoss1BulletA = {
     showHealth: false,
     showName: false,
     showScore: false,
+    airplane: true,
     sides: 0,
     alpha: 0,
     skill: {
@@ -411,6 +412,7 @@ Class.TriBoss1Bullet1AutoGun = {
     showScore: false,
     sides: 0,
     alpha: 1,
+    bullet: true,
     color: Color.Grey,
     skill: {
         damage: 0.1,
@@ -498,5 +500,5 @@ Class.TriBoss1Bullet2 = {
         },
     ],
     bullet: true,
-    hardBullet: false,
+    hardBullet: true,
 };

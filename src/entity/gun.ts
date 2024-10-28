@@ -81,7 +81,9 @@ export class Gun {
 
     public body: Entity;
 
-    public children: Entity[] = [];
+    public children: Set<Entity> = new Set();
+    public childrenLength: number = 0;
+    public firstBullet?: Entity;
 
     public lastFireTick = 0;
 
@@ -136,13 +138,13 @@ export class Gun {
     }
 
     public firing() {
-        if (this.maxChildren !== false && this.maxChildren <= this.children.filter((entity) => !entity.die).filter(Boolean).length) {
+        if (this.maxChildren !== false && this.maxChildren <= this.childrenLength) {
             if (this.setting.properties.destroyOldestChild) {
-                const entity = this.children[0];
+                const entity = this.firstBullet;
 
                 this.body.room.remove(entity);
 
-                delete this.children[0];
+                this.children.delete(this.firstBullet);
             } else return;
         }
 
@@ -153,6 +155,9 @@ export class Gun {
                 this.body.emit('fire');
                 const pos = this.calcBulletPos().add(this.body.pos);
 
+                this.childrenLength++;
+                this.body.childrenLength++;
+
                 const bullet = new Entity();
 
                 bullet.team = this.body.team;
@@ -162,11 +167,12 @@ export class Gun {
                 bullet.init(EntityClass[this.setting.properties.type]);
 
                 bullet.master = this.body;
-                const index = this.children.push(bullet);
-                const bodyIndex = this.body.children.push(bullet);
 
-                bullet.setting.skill.damage += this.setting.properties.skill.damage;
-                bullet.setting.skill.health += this.setting.properties.skill.health;
+                this.children.add(bullet);
+                this.body.children.add(bullet);
+
+                bullet.setting.skill.damage += Math.max(0, this.setting.properties.skill.damage - 1);
+                bullet.setting.skill.health += Math.max(0, this.setting.properties.skill.health - 1);
                 bullet.setting.skill.pen += this.setting.properties.skill.pen;
                 bullet.setting.size *= this.setting.properties.skill.size;
 
@@ -176,9 +182,13 @@ export class Gun {
 
                 bullet.initTurret();
 
-                bullet.on('dead', () => {
-                    delete this.children[index];
-                    delete this.body.children[bodyIndex];
+                bullet.on('remove', () => {
+                    this.children.delete(bullet);
+                    this.childrenLength--;
+                    if (this.firstBullet === bullet) this.firstBullet = undefined;
+
+                    this.body.children.delete(bullet);
+                    this.body.childrenLength--;
                 });
 
                 const angle = Vector.addAngle({x: 1, y: 1}, this.body.angle + this.setting.angle).normalize();

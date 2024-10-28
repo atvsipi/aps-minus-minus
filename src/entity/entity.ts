@@ -11,6 +11,8 @@ import {Prop} from './props';
 import {TurretSetting} from './turret';
 import type {World} from '../room/world';
 
+const SIZE_MULTIPLIER = 1.4;
+
 export interface EntitySetting {
     showHealth: boolean;
     showName: boolean;
@@ -80,12 +82,12 @@ export class Entity extends EventEmitter {
         min: [number, number];
         max: [number, number];
     } = () => {
-        const size = this.size / 2;
+        const size = this.size * 0.5 * SIZE_MULTIPLIER;
 
         return {
             active: true,
-            min: [this.pos.x - size * 1.4, this.pos.y - size * 1.4],
-            max: [this.pos.x + size * 1.4, this.pos.y + size * 1.4],
+            min: [this.pos.x - size, this.pos.y - size],
+            max: [this.pos.x + size, this.pos.y + size],
         };
     };
 
@@ -187,7 +189,9 @@ export class Entity extends EventEmitter {
     public tick: number = 0;
 
     public master?: Entity;
-    public children: Entity[] = [];
+
+    public children: Set<Entity> = new Set();
+    public childrenLength: number = 0;
 
     public lastSend = {
         angle: 0,
@@ -422,13 +426,30 @@ export class Entity extends EventEmitter {
         this.acc.mult(0);
     }
 
+    public destroy(): void {
+        this.emit('destroyed');
+
+        this.master = undefined;
+
+        this.controllers = [];
+        this.guns = [];
+        this.props = [];
+
+        const length = this.turrets.length;
+        for (let i = 0; i < length; i++) {
+            this.turrets[i].destroy();
+        }
+
+        this.turrets = [];
+    }
+
     public static isSameTeam(entity: Entity, other: Entity) {
         return entity.team === other.team && ((entity.team2 === 0 && other.team2 === 0) || entity.team2 === other.team2);
     }
 
     public static isEntityVisible(entity: Entity, other: Entity): boolean {
         const distance = Vector.distance(entity.pos, other.pos);
-        const fov = entity.setting.skill.fov * 0.6;
+        const fov = entity.setting.skill.fov;
 
         return distance <= fov;
     }
