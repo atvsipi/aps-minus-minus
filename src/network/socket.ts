@@ -285,7 +285,7 @@ function EntityInfo(entity: Entity, msg: Protocol.Writer) {
 
     if (entity instanceof Turret) {
         msg.writeBoolean(true);
-        msg.writeBigUint(entity.master.id);
+        msg.writeBigUint(entity.master.id || 0);
     } else msg.writeBoolean(false);
 
     msg.writeUint(entity.mockupId);
@@ -427,6 +427,7 @@ function EntityData(entity: Entity, msg: Protocol.Writer, active: boolean = fals
     }*/
     msg.writeBigUint(entity.score);
     msg.writeFloat(entity.size);
+    msg.writeBigUint(Math.max(0, entity.tick - entity.lastTickAttacked));
 
     return msg;
 }

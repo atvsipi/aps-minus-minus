@@ -22,6 +22,7 @@ const nest = new TileMaker({
         {type: 'AlphaPentagon', weight: 10},
         {type: 'ShinyPentagon', weight: 1},
         {type: 'MonsterTriangle', weight: 0.5},
+        {type: 'King', weight: 0.2},
     ],
     spawnTimes: 6,
     spawnInterval: 1000,

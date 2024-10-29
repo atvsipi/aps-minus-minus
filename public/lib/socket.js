@@ -159,6 +159,7 @@ const socketOnMessage = async ({data}) => {
 
             entity.score = msg.readBigUint();
             entity.size = msg.readFloat();
+            entity.attackTime = msg.readBigUint();
 
             idToEntity.set(entity.id, entity);
 
@@ -205,6 +206,7 @@ const socketOnMessage = async ({data}) => {
 
             entity.score = msg.readBigUint();
             entity.size = msg.readFloat();
+            entity.attackTime = msg.readBigUint();
 
             entity.canSee = true;
 

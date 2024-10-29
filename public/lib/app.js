@@ -4,6 +4,7 @@ import {Vector} from './vector.js';
 import {joysticks, drawJoystick} from './mobile.js';
 import {message} from './message.js';
 import {score} from './score.js';
+import {RGBColor} from './rgb.js';
 
 import {avgDataSize, leaderboard, dataRate, socket, entity, entities, idToEntity, world, minimap, start} from './socket.js';
 
@@ -597,7 +598,7 @@ const render = (timestamp) => {
     ctx.fillStyle = Color.White;
     ctx.fillRect(0, 0, world.width, world.height);
 
-    ctx.strokeStyle = 'rgb(0,0,0,0.05)';
+    ctx.strokeStyle = 'rgb(0,0,0,0.02)';
 
     for (let y = 0; y <= world.height; y += 20) {
         ctx.beginPath();
@@ -648,9 +649,33 @@ const render = (timestamp) => {
                 continue;
             }
             ctx.globalAlpha = 1 - fadeProgress;
+            const scale = 1 + fadeProgress * 0.5;
+            ctx.scale(scale, scale);
         } else {
             ctx.globalAlpha = entity.alpha;
         }
+
+        /*if (entity.attackTime < 20 && entity.attackTime > 0) {
+            let attackColorAlpha = 0;
+
+            const timeSinceAttack = entity.attackTime;
+            const totalDuration = 20;
+            const peakTime = 10;
+
+            if (timeSinceAttack <= peakTime) {
+                attackColorAlpha = Math.max(0, (timeSinceAttack / peakTime) ** 2 - 0.2);
+            } else {
+                const remainingTime = totalDuration - timeSinceAttack;
+                const fallDuration = totalDuration - peakTime;
+                attackColorAlpha = Math.max(0, (remainingTime / fallDuration) ** 3 - 0.4);
+            }
+
+            entity.effectColor = RGBColor.fromHex(entity.color).mix(RGBColor.fromHex(Color.Red), attackColorAlpha).hex;
+            entity.effectBorder = RGBColor.fromHex(entity.effectColor).mix(RGBColor.fromHex(Color.Black), 0.7).hex;
+        } else {*/
+        entity.effectColor = entity.color;
+        entity.effectBorder = entity.border;
+        //}
 
         ctx.lineWidth = 2;
         ctx.lineJoin = 'round';
@@ -667,8 +692,8 @@ const render = (timestamp) => {
             }
         }
 
-        ctx.fillStyle = entity.color;
-        ctx.strokeStyle = entity.border;
+        ctx.fillStyle = entity.effectColor;
+        ctx.strokeStyle = entity.effectBorder;
 
         drawEntityShape(entity);
 

@@ -10,6 +10,7 @@ export class Entity {
     serverPos = new Vector();
     vel = new Vector();
     offset = new Vector();
+    attackTime = 0;
     level = 0;
     score = 0;
     levelScore = 0;

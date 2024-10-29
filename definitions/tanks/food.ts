@@ -277,3 +277,30 @@ Class.MonsterTriangle = {
     color: Color.Orange,
     controllers: [new ControllerMaker(CircleMove)],
 };
+
+Class.King = {
+    parent: 'Food',
+    label: 'King',
+    name: 'King',
+    sides: 6,
+    size: 20,
+    showHealth: true,
+    showName: true,
+    showScore: false,
+    giveScore: true,
+    killMessage: true,
+    skill: {
+        speed: 0.2,
+        health: 340,
+        regen: 0.001,
+        damage: 2,
+        pen: 1,
+        range: null,
+        pushability: 1,
+    },
+    score: 200000,
+    food: true,
+    guns: [],
+    color: Color.Orange,
+    controllers: [new ControllerMaker(CircleMove)],
+};

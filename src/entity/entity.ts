@@ -63,7 +63,7 @@ export class Entity extends EventEmitter {
 
     public health: number = 100;
 
-    public lastTickAttacked: number = -10;
+    public lastTickAttacked: number = 60;
 
     public changed: boolean = false;
 

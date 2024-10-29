@@ -28,4 +28,4 @@ setInterval(() => {
 
 room.initTile();
 
-setTimeout(CloseArena, 1000 * 60 * 60 * 3);
+setTimeout(CloseArena, 1000 * 60 * 60);
