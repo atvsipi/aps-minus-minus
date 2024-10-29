@@ -10,6 +10,7 @@ import {setInterval} from 'timers';
 import {GunSetting} from '../entity/gun';
 import {Color} from '../definitions/color';
 import {PropSetting} from '../entity/props';
+import {SkillType} from '../entity/skill';
 
 const users = new Map<
     string,
@@ -234,6 +235,37 @@ export function message(uuid: string, data: Uint8Array, send: (msg: Uint8Array |
 
                 user.body.socket.sendMsg('You have upgraded to ' + user.body.setting.label + '.');
 
+                break;
+            }
+
+            // Skill
+            case 8: {
+                if (!users.has(uuid)) break;
+
+                const user = users.get(uuid);
+                if (!user.body) break;
+
+                const skillType = msg.readString() as SkillType;
+                const success = user.body.skillManager.upgradeSkill(skillType);
+
+                if (success) {
+                    const msg = new Protocol.Writer();
+                    msg.writeUint(12);
+                    msg.writeUint(user.body.skillManager.getSkillPoints());
+
+                    const skills = user.body.skillManager.getAllSkills();
+                    msg.writeUint(skills.length);
+
+                    for (const skill of skills) {
+                        msg.writeString(skill.type);
+                        msg.writeUint(skill.level);
+                        msg.writeUint(skill.maxLevel);
+                        msg.writeString(skill.name);
+                        msg.writeString(skill.description);
+                    }
+
+                    send(msg.make());
+                }
                 break;
             }
 
@@ -475,6 +507,17 @@ setInterval(() => {
 
         msg.writeUint(1);
         EntityData(entity, msg);
+        msg.writeUint(entity.skillManager.getSkillPoints());
+        const skills = entity.skillManager.getAllSkills();
+        msg.writeUint(skills.length);
+
+        for (const skill of skills) {
+            msg.writeString(skill.type);
+            msg.writeUint(skill.level);
+            msg.writeUint(skill.maxLevel);
+            msg.writeString(skill.name);
+            msg.writeString(skill.description);
+        }
 
         user[1].send(msg.make());
 

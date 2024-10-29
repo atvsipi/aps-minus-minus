@@ -16,6 +16,13 @@ export const DefaultRoomConfig = {
     levelScore(level: number) {
         return Math.ceil(level ** 3 * 0.3);
     },
+    levelSkill(level: number) {
+        if (level < 2) return false;
+        if (level <= 40) return true;
+        if (level <= 45 && level > 0) return true;
+
+        return false;
+    },
     physics(entity: Entity) {
         if (entity.setting.bullet && !entity.setting.hardBullet) return;
         if (entity.setting.airplane) return;

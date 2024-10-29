@@ -85,3 +85,5 @@ export const numColor = [
 ];
 
 export const upgradeColor = [Color.Blue, Color.Green, Color.Red, Color.Magenta, Color.Gold, Color.Orange, Color.Lavender, Color.Aqua, Color.Pink];
+
+export const skillColor = [Color.Pink, Color.Aqua, Color.Lavender, Color.Orange, Color.Gold, Color.Magenta, Color.Red, Color.Green, Color.Blue];

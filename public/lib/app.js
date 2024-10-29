@@ -1,4 +1,4 @@
-import {Color, upgradeColor} from './color.js';
+import {Color, skillColor, upgradeColor} from './color.js';
 import {Writer} from './protocol.js';
 import {Vector} from './vector.js';
 import {joysticks, drawJoystick} from './mobile.js';
@@ -67,7 +67,15 @@ function handleClick(x, y) {
             if (entity.upgrades[i].startX <= x && entity.upgrades[i].endX >= x && entity.upgrades[i].startY <= y && entity.upgrades[i].endY >= y) {
                 entity.upgrades = [];
                 socket.send(new Writer().writeUint(7).writeUint(i).make());
+                return true;
+            }
+        }
+    }
 
+    if (entity && entity.skills) {
+        for (const skill of entity.skills) {
+            if (skill.upgradeButton && skill.upgradeButton.startX <= x && skill.upgradeButton.endX >= x && skill.upgradeButton.startY <= y && skill.upgradeButton.endY >= y) {
+                socket.send(new Writer().writeUint(8).writeString(skill.type).make());
                 return true;
             }
         }
@@ -434,24 +442,6 @@ const renderUpgrades = () => {
     }
 };
 
-const renderInfo = () => {
-    const textSize = 12;
-
-    ctx.save();
-
-    drawText(location.host, Color.Black, Color.White, textSize + 2, {x: 10, y: canvasSize.height - 80}, 'left');
-
-    drawText(`Client FPS: ${fps.toFixed(2)} fps`, fps < 60 ? Color.Red : Color.Black, Color.White, textSize, {x: 10, y: canvasSize.height - 60}, 'left');
-
-    drawText(`Server Tick: ${(1000 / world.tick).toFixed(2)}`, Color.Black, Color.White, textSize, {x: 10, y: canvasSize.height - 45}, 'left');
-
-    drawText(`Average Data Size: ${avgDataSize.toFixed(2)} bytes`, Color.Black, Color.White, textSize, {x: 10, y: canvasSize.height - 30}, 'left');
-
-    drawText(`Data Rate: ${dataRate > 0 ? (dataRate / 1024).toFixed(2) : '0'} kb/s`, Color.Black, Color.White, textSize, {x: 10, y: canvasSize.height - 15}, 'left');
-
-    ctx.restore();
-};
-
 const drawMessages = () => {
     message.update();
 
@@ -497,22 +487,8 @@ const drawScore = () => {
     drawText(`Level ${score.level} ${entity.label}`, Color.White, Color.Black, 14, {x: canvasSize.width / 2, y: canvasSize.height - 23}, 'center', false);
 };
 
-const drawMiniMap = () => {
-    const leaderboardWidth = 100;
-    const leaderboardHeight = 26 + leaderboard.length * (20 + 14);
-    const leaderboardStartX = canvasSize.width - leaderboardWidth - 10;
-    const leaderboardStartY = 10;
-
-    ctx.fillStyle = Color.Black;
-    drawText('Leaderboard', Color.White, Color.Black, 16, {x: leaderboardStartX + 10, y: leaderboardStartY + 20}, 'center');
-
-    let yOffset = 40;
-    for (const player of leaderboard) {
-        drawText(`${player.title}: ${player.score}`, Color.White, Color.Black, 14, {x: leaderboardStartX + 10, y: leaderboardStartY + yOffset}, 'center');
-        yOffset += 20;
-    }
-
-    const minimapScale = 100 / Math.min(world.width, world.height);
+const drawMiniMapAndInfo = () => {
+    const minimapScale = 130 / Math.min(world.width, world.height);
     const minimapWidth = world.width * minimapScale;
     const minimapHeight = world.height * minimapScale;
 
@@ -549,6 +525,127 @@ const drawMiniMap = () => {
         ctx.fill();
         ctx.closePath();
     }
+
+    const textSize = 12;
+
+    const infoStartX = canvasSize.width - 10;
+    const infoStartY = minimapStartY;
+
+    drawText(location.host, Color.Black, Color.White, textSize + 2, {x: infoStartX, y: infoStartY - 80}, 'right');
+
+    drawText(`Client FPS: ${fps.toFixed(2)} fps`, fps < 60 ? Color.Red : Color.Black, Color.White, textSize, {x: infoStartX, y: infoStartY - 60}, 'right');
+    drawText(`Server Tick: ${(1000 / world.tick).toFixed(2)}`, Color.Black, Color.White, textSize, {x: infoStartX, y: infoStartY - 45}, 'right');
+
+    drawText(`Average Data Size: ${avgDataSize.toFixed(2)} bytes`, Color.Black, Color.White, textSize, {x: infoStartX, y: infoStartY - 30}, 'right');
+
+    drawText(`Data Rate: ${dataRate > 0 ? (dataRate / 1024).toFixed(2) : '0'} kb/s`, Color.Black, Color.White, textSize, {x: infoStartX, y: infoStartY - 15}, 'right');
+};
+
+const drawLeaderboard = () => {
+    const leaderboardWidth = 100;
+    const leaderboardStartX = canvasSize.width - leaderboardWidth - 10;
+    const leaderboardStartY = 10;
+
+    ctx.fillStyle = Color.Black;
+    drawText('Leaderboard', Color.White, Color.Black, 16, {x: leaderboardStartX + 10, y: leaderboardStartY + 20}, 'center');
+
+    let yOffset = 25;
+    for (const player of leaderboard) {
+        yOffset += 20;
+        drawText(`${player.title}: ${player.score}`, Color.White, Color.Black, 14, {x: leaderboardStartX + 10, y: leaderboardStartY + yOffset}, 'center');
+    }
+};
+
+const renderSkills = () => {
+    if (!entity || entity.health <= 0) return;
+
+    const skillPoints = entity.skillPoints || 0;
+    const skills = entity.skills || [];
+
+    if (skills.length === 0) return;
+
+    const width = 200;
+    const height = 25;
+    const padding = 5;
+    const cornerRadius = 4;
+
+    const startX = 10;
+    const startY = canvasSize.height - 10 - skills.length * (padding + height);
+
+    ctx.save();
+    ctx.globalAlpha = 0.9;
+
+    if (skillPoints > 0) {
+        drawText('x' + skillPoints, Color.White, Color.Black, 16, {x: startX + width + 5, y: startY - 10}, 'left');
+    }
+
+    const length = skills.length;
+    for (let i = 0; i < length; i++) {
+        const skill = skills[i];
+        const y = startY + i * (height + padding);
+        const hasUpgradeButton = skillPoints > 0 && skill.level < skill.maxLevel;
+        const color = skillColor[i % skillColor.length];
+
+        ctx.fillStyle = Color.Black;
+        ctx.beginPath();
+        ctx.roundRect(startX, y, width, height, cornerRadius);
+        ctx.fill();
+
+        if (skill.level > 0) {
+            const progressWidth = width * (skill.level / skill.maxLevel);
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.roundRect(startX, y, progressWidth, height, cornerRadius);
+            ctx.fill();
+        }
+
+        const totalBoxes = skill.maxLevel;
+        const boxWidth = width / totalBoxes;
+
+        for (let j = 1; j < totalBoxes; j++) {
+            const x = startX + boxWidth * j;
+            ctx.fillStyle = Color.Grey2;
+            ctx.fillRect(x - 1, y, 2, height);
+        }
+
+        if (hasUpgradeButton) {
+            const buttonSize = height;
+            const buttonX = startX + width + 5;
+            const buttonY = y;
+
+            skill.upgradeButton = {
+                startX: buttonX,
+                startY: buttonY,
+                endX: buttonX + buttonSize,
+                endY: buttonY + buttonSize,
+            };
+
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.roundRect(buttonX, buttonY, buttonSize, buttonSize, 4);
+            ctx.fill();
+
+            ctx.fillStyle = '#000';
+            ctx.font = 'bold 20px Ubuntu';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('+', buttonX + buttonSize * 0.5, buttonY + buttonSize * 0.5);
+        }
+
+        ctx.fillStyle = '#fff';
+        ctx.font = '14px Ubuntu';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(skill.name, startX + 10, y + height * 0.5);
+
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        ctx.font = '12px Ubuntu';
+        ctx.textAlign = 'right';
+        ctx.fillText(`x${skill.level}`, startX + width - 5, y + height * 0.5);
+    }
+
+    ctx.globalAlpha = 1;
+    ctx.restore();
 };
 
 const correction = (entity, deltaTime) => {
@@ -718,13 +815,15 @@ const render = (timestamp) => {
     drawMessages();
 
     if (entity.health > 0) {
-        renderInfo();
-
         drawScore();
 
-        drawMiniMap();
+        drawMiniMapAndInfo();
+
+        drawLeaderboard();
 
         renderUpgrades();
+
+        renderSkills();
 
         ctx.restore();
 

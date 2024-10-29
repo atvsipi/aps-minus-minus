@@ -161,6 +161,20 @@ const socketOnMessage = async ({data}) => {
             entity.size = msg.readFloat();
             entity.attackTime = msg.readBigUint();
 
+            entity.skillPoints = msg.readUint();
+            const skillCount = msg.readUint();
+            entity.skills = new Array(skillCount);
+
+            for (let i = 0; i < skillCount; i++) {
+                entity.skills[i] = {
+                    type: msg.readString(),
+                    level: msg.readUint(),
+                    maxLevel: msg.readUint(),
+                    name: msg.readString(),
+                    description: msg.readString(),
+                };
+            }
+
             idToEntity.set(entity.id, entity);
 
             entities.add(entity);
@@ -482,6 +496,23 @@ const socketOnMessage = async ({data}) => {
                 });
             }
 
+            break;
+        }
+
+        case 12: {
+            entity.skillPoints = msg.readUint();
+            const skillCount = msg.readUint();
+            entity.skills = new Array(skillCount);
+
+            for (let i = 0; i < skillCount; i++) {
+                entity.skills[i] = {
+                    type: msg.readString(),
+                    level: msg.readUint(),
+                    maxLevel: msg.readUint(),
+                    name: msg.readString(),
+                    description: msg.readString(),
+                };
+            }
             break;
         }
 

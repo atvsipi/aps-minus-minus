@@ -9,6 +9,7 @@ import {RoomConfig} from '../room/room-config';
 import {Controller, ControllerMaker} from './controller';
 import {Prop} from './props';
 import {TurretSetting} from './turret';
+import {SkillManager} from './skill';
 import type {World} from '../room/world';
 
 const SIZE_MULTIPLIER = 1.4;
@@ -68,6 +69,8 @@ export class Entity extends EventEmitter {
     public changed: boolean = false;
 
     public mockupId: number = 0;
+
+    public skillManager: SkillManager;
 
     public socket: {
         send: (msg: Uint8Array) => void;
@@ -236,6 +239,7 @@ export class Entity extends EventEmitter {
 
     constructor() {
         super();
+        this.skillManager = new SkillManager(this);
     }
 
     public init(Class: ProcessedClass | string) {
@@ -328,6 +332,10 @@ export class Entity extends EventEmitter {
 
         if (this.upgrades.length > 0) this.upgradeAdded = true;
 
+        // Update base stats and reapply skill effects after initialization
+        this.skillManager.updateBaseStats();
+        this.skillManager['applyAllSkillEffects']();
+
         this.changed = true;
     }
 
@@ -350,6 +358,8 @@ export class Entity extends EventEmitter {
             this.levelScore = RoomConfig.levelScore(this.level);
             this.upgrades = this.allUpgrades.filter((upgrade) => upgrade.tier <= this.level);
             if (this.upgrades.length > 0) this.upgradeAdded = true;
+
+            if (RoomConfig.levelSkill(this.level)) this.skillManager.addSkillPoints(1);
         }
 
         if (this.health < this.maxHealth) {
