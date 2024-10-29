@@ -133,6 +133,7 @@ const socketOnMessage = async ({data}) => {
 
             entity.id = msg.readBigUint();
             entity.health = msg.readFloat();
+            entity.shield = msg.readFloat();
             entity.angle = msg.readFloat();
 
             if (entity.maxHealth && entity.health > entity.maxHealth) {
@@ -199,6 +200,7 @@ const socketOnMessage = async ({data}) => {
 
             entity.id = id;
             entity.health = msg.readFloat();
+            entity.shield = msg.readFloat();
             entity.angle = msg.readFloat();
 
             if (entity.maxHealth && entity.health > entity.maxHealth) {
@@ -259,6 +261,7 @@ const socketOnMessage = async ({data}) => {
             obj.team = msg.readUint();
 
             obj.maxHealth = msg.readFloat();
+            obj.maxShield = msg.readFloat();
 
             obj.showHealth = msg.readBoolean();
             obj.showName = msg.readBoolean();

@@ -284,7 +284,7 @@ function drawEntityShape(obj) {
         }
     }
 
-    if (obj.showHealth && obj.health < (obj.maxHealth || 100)) {
+    if (obj.showHealth && (obj.health < (obj.maxHealth || 100) || obj.shield < obj.maxShield)) {
         const radius = 3;
 
         const width = obj.size * 2.3;
@@ -303,6 +303,14 @@ function drawEntityShape(obj) {
         ctx.fillStyle = Color.Green;
         ctx.roundRect(x + 1, y + 0.75, fillWidth - 2, height - 1.5, radius);
         ctx.fill();
+
+        const shieldWidth = 2 + Math.min(1, Math.max(0, obj.shield / obj.maxShield)) * (width - 2);
+        ctx.beginPath();
+        ctx.globalAlpha = 0.5;
+        ctx.fillStyle = Color.Blue;
+        ctx.roundRect(x + 1, y + 0.75, shieldWidth - 2, height - 1.5, radius);
+        ctx.fill();
+        ctx.globalAlpha = 1;
     }
 }
 

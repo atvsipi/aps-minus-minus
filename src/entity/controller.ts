@@ -170,12 +170,19 @@ export class MasterCircleMove extends Controller {
 
     protected angle: number = Math.random() * Math.PI * 2;
     protected target: Vector = new Vector(0, 0);
+    protected radius: number = 30;
+    protected rotationSpeed: number = Math.PI / 10;
 
     public think(): ControllerThink {
         if (this.isThinkTime()) {
-            this.target = this.entity.masterPos.clone().normalize().mult(30).rotate(this.angle);
-
-            this.angle -= Math.PI / 100;
+            if (this.entity.master) {
+                const masterPos = this.entity.master.pos;
+                this.target = new Vector(masterPos.x + Math.cos(this.angle) * this.radius, masterPos.y + Math.sin(this.angle) * this.radius);
+                this.angle -= this.rotationSpeed;
+            } else {
+                this.target = new Vector(this.entity.pos.x + Math.cos(this.angle) * this.radius, this.entity.pos.y + Math.sin(this.angle) * this.radius);
+                this.angle -= this.rotationSpeed;
+            }
         }
 
         return {

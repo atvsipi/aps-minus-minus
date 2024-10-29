@@ -5,6 +5,7 @@ import {Vector} from './vector.js';
 export class Entity {
     id = 0;
     health = 100;
+    shield = 10;
     angle = 0;
     pos = new Vector();
     serverPos = new Vector();
@@ -20,6 +21,7 @@ export class Entity {
 
     team = Team[0];
     maxHealth = 100;
+    maxShield = 1100;
     showHealth = true;
     showName = true;
     showScore = true;

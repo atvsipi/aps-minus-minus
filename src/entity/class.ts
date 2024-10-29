@@ -97,6 +97,8 @@ export interface ClassType {
         range?: number | null;
         pushability?: number;
         fov?: number;
+        shield?: number;
+        shieldRegen?: number;
     };
     color?: Color | string;
     border?: Color | string;
@@ -214,6 +216,8 @@ const defaultEntity: ProcessedClass = {
         range: null,
         pushability: 1,
         fov: 800,
+        shield: 20,
+        shieldRegen: 0.05,
     },
     color: Color.TeamColor,
     border: Color.AutoBorder,

@@ -44,6 +44,8 @@ export interface EntitySetting {
         range: number | null;
         pushability: number;
         fov: number;
+        shield: number;
+        shieldRegen: number;
     };
     upgrades: string[];
     on: {[key: string]: (body: Entity, ...args: unknown[]) => unknown};
@@ -63,6 +65,7 @@ export class Entity extends EventEmitter {
     public levelScore: number = 0;
 
     public health: number = 100;
+    public shield: number = 0;
 
     public lastTickAttacked: number = 60;
 
@@ -165,6 +168,8 @@ export class Entity extends EventEmitter {
             range: null,
             pushability: 1,
             fov: 90,
+            shield: 10,
+            shieldRegen: 10,
         },
         upgrades: [],
         on: {},
@@ -213,6 +218,10 @@ export class Entity extends EventEmitter {
 
     public get maxHealth() {
         return this.setting.skill.health + this.score * 0.0004;
+    }
+
+    public get maxShield() {
+        return this.setting.skill.shieldRegen + this.score * 0.0004;
     }
 
     public get isMaster() {
@@ -266,7 +275,7 @@ export class Entity extends EventEmitter {
         this.setting.bullet = Class.bullet;
         this.setting.hardBullet = Class.hardBullet;
         this.setting.food = Class.food;
-        this.setting.skill = Class.skill;
+        this.setting.skill = structuredClone(Class.skill);
         this.setting.independent = Class.independent;
         this.setting.controllers = Class.controllers;
         this.setting.hitType = Class.hitType;
@@ -279,6 +288,7 @@ export class Entity extends EventEmitter {
         this.alpha = Class.alpha;
         this.score = Class.score;
         this.health = Class.skill.health;
+        this.shield = Class.skill.shield;
 
         for (const maker of this.setting.controllers) {
             this.controllers.push(maker.make());
@@ -332,9 +342,8 @@ export class Entity extends EventEmitter {
 
         if (this.upgrades.length > 0) this.upgradeAdded = true;
 
-        // Update base stats and reapply skill effects after initialization
         this.skillManager.updateBaseStats();
-        this.skillManager['applyAllSkillEffects']();
+        this.skillManager.applyAllSkillEffects();
 
         this.changed = true;
     }
@@ -367,6 +376,14 @@ export class Entity extends EventEmitter {
 
             if (this.tick - this.lastTickAttacked > 60 * 70) {
                 this.health += 5;
+            }
+        }
+
+        if (this.shield < this.maxShield) {
+            this.shield += this.setting.skill.shieldRegen;
+
+            if (this.tick - this.lastTickAttacked > 60 * 70) {
+                this.shield += 5;
             }
         }
 

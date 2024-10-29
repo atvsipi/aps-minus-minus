@@ -7,6 +7,7 @@ export enum SkillType {
     Damage = 'Damage',
     Penetration = 'Penetration',
     Range = 'Range',
+    Shield = 'Shield',
 }
 
 export interface Skill {
@@ -77,6 +78,14 @@ export class SkillManager {
             name: 'Bullet Range',
             description: 'Increases bullet range',
         });
+
+        this.skills.set(SkillType.Shield, {
+            type: SkillType.Shield,
+            level: 0,
+            maxLevel: 10,
+            name: 'Shield',
+            description: 'Increases shield capacity',
+        });
     }
 
     public updateBaseStats() {
@@ -87,6 +96,7 @@ export class SkillManager {
             damage: this.entity.setting.skill.damage,
             pen: this.entity.setting.skill.pen,
             range: this.entity.setting.skill.range || 0,
+            shield: this.entity.setting.skill.shield || 0,
         };
     }
 
@@ -112,7 +122,7 @@ export class SkillManager {
         return true;
     }
 
-    private applyAllSkillEffects() {
+    public applyAllSkillEffects() {
         this.entity.setting.skill.health = this.baseStats.health;
         this.entity.setting.skill.regen = this.baseStats.regen;
         this.entity.setting.skill.speed = this.baseStats.speed;
@@ -120,6 +130,10 @@ export class SkillManager {
         this.entity.setting.skill.pen = this.baseStats.pen;
         if (this.baseStats.range) {
             this.entity.setting.skill.range = this.baseStats.range;
+        }
+        if (this.skills.get(SkillType.Shield).level > 0) {
+            const multiplier = 1 + this.skills.get(SkillType.Shield).level * 0.1;
+            this.entity.setting.skill.shield = this.baseStats.shield * multiplier;
         }
 
         for (const [type, skill] of this.skills) {

@@ -172,8 +172,14 @@ export class World extends EventEmitter {
         }
     }
 
-    private applyDamage(entity: Entity, other: Entity, damage: number): void {
-        entity.health -= damage;
+    protected applyDamage(entity: Entity, other: Entity, damage: number): void {
+        const remainingDamage = Math.max(0, damage - entity.shield);
+        entity.shield = Math.max(0, entity.shield - damage);
+
+        if (remainingDamage > 0) {
+            entity.health -= remainingDamage;
+        }
+
         entity.emit('damage', damage);
         entity.lastTickAttacked = entity.tick;
 

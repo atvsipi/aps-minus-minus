@@ -292,6 +292,7 @@ function EntityInfo(entity: Entity, msg: Protocol.Writer) {
     msg.writeUint(entity.team);
 
     msg.writeFloat(entity.setting.skill.health);
+    msg.writeFloat(entity.setting.skill.shield);
 
     msg.writeBoolean(entity.setting.showHealth);
     msg.writeBoolean(entity.setting.showName);
@@ -440,6 +441,7 @@ function EntityMockup(entity: Entity, msg: Protocol.Writer) {
 function EntityData(entity: Entity, msg: Protocol.Writer, active: boolean = false) {
     msg.writeBigUint(entity.id);
     msg.writeFloat(entity.health);
+    msg.writeFloat(entity.shield);
     msg.writeFloat(entity.angle);
     if (entity instanceof Turret) {
         msg.writeBoolean(true);
