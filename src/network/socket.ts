@@ -285,7 +285,7 @@ function EntityInfo(entity: Entity, msg: Protocol.Writer) {
 
     if (entity instanceof Turret) {
         msg.writeBoolean(true);
-        msg.writeBigUint(entity.master.id || 0);
+        msg.writeBigUint(entity.master?.id || 0);
     } else msg.writeBoolean(false);
 
     msg.writeUint(entity.mockupId);

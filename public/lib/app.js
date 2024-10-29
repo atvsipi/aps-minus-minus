@@ -652,30 +652,23 @@ const render = (timestamp) => {
             const scale = 1 + fadeProgress * 0.5;
             ctx.scale(scale, scale);
         } else {
-            ctx.globalAlpha = entity.alpha;
+            if (entity.alpha === 1 && entity.attackTime < 20 && entity.attackTime > 0) {
+                let attackColorAlpha = 0;
+
+                const timeSinceAttack = entity.attackTime;
+                const totalDuration = 20;
+                const peakTime = 5;
+
+                if (timeSinceAttack <= peakTime) {
+                    attackColorAlpha = Math.max(0, (timeSinceAttack / peakTime) ** 2 - 0.2);
+                } else {
+                    const remainingTime = totalDuration - timeSinceAttack;
+                    const fallDuration = totalDuration - peakTime;
+                    attackColorAlpha = Math.max(0, (remainingTime / fallDuration) ** 3 - 0.4);
+                }
+                ctx.globalAlpha = 1 - attackColorAlpha * 0.5;
+            } else ctx.globalAlpha = entity.alpha;
         }
-
-        /*if (entity.attackTime < 20 && entity.attackTime > 0) {
-            let attackColorAlpha = 0;
-
-            const timeSinceAttack = entity.attackTime;
-            const totalDuration = 20;
-            const peakTime = 10;
-
-            if (timeSinceAttack <= peakTime) {
-                attackColorAlpha = Math.max(0, (timeSinceAttack / peakTime) ** 2 - 0.2);
-            } else {
-                const remainingTime = totalDuration - timeSinceAttack;
-                const fallDuration = totalDuration - peakTime;
-                attackColorAlpha = Math.max(0, (remainingTime / fallDuration) ** 3 - 0.4);
-            }
-
-            entity.effectColor = RGBColor.fromHex(entity.color).mix(RGBColor.fromHex(Color.Red), attackColorAlpha).hex;
-            entity.effectBorder = RGBColor.fromHex(entity.effectColor).mix(RGBColor.fromHex(Color.Black), 0.7).hex;
-        } else {*/
-        entity.effectColor = entity.color;
-        entity.effectBorder = entity.border;
-        //}
 
         ctx.lineWidth = 2;
         ctx.lineJoin = 'round';
@@ -692,8 +685,8 @@ const render = (timestamp) => {
             }
         }
 
-        ctx.fillStyle = entity.effectColor;
-        ctx.strokeStyle = entity.effectBorder;
+        ctx.fillStyle = entity.color;
+        ctx.strokeStyle = entity.border;
 
         drawEntityShape(entity);
 
