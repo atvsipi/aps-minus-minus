@@ -10,6 +10,7 @@ export interface ControllerThink {
     main: boolean | null;
     fire: boolean | null;
     alt: boolean | null;
+    angle?: number;
     power?: number;
 }
 
@@ -170,7 +171,7 @@ export class MasterCircleMove extends Controller {
 
     protected angle: number = Math.random() * Math.PI * 2;
     protected target: Vector = new Vector(0, 0);
-    protected radius: number = 30;
+    protected radius: number = 50;
     protected rotationSpeed: number = Math.PI / 10;
 
     public think(): ControllerThink {
@@ -217,5 +218,119 @@ export class GoToMasterTarget extends Controller {
             alt: false,
             power: 0.7 + Math.random() * 1,
         };
+    }
+}
+
+export class Minion extends Controller {
+    public acceptsFromTop: boolean = false;
+
+    protected angle: number = Math.random() * Math.PI * 2;
+    protected target: Vector = new Vector(0, 0);
+    protected radius: number = 50;
+    protected rotationSpeed: number = Math.PI / 15;
+
+    protected mode: boolean = false;
+
+    public think(): ControllerThink {
+        if (this.isThinkTime()) {
+            if (this.entity.master && this.entity.master.source) {
+                this.acceptsFromTop = false;
+
+                const masterTargetPos = this.entity.master.source.clone();
+                const distance = Vector.distance(this.entity.pos, masterTargetPos.clone().add(this.entity.master.pos));
+
+                if (distance > this.radius + 20) {
+                    this.target = masterTargetPos;
+                    this.mode = true;
+                } else {
+                    const offsetX = Math.cos(this.angle) * this.radius;
+                    const offsetY = Math.sin(this.angle) * this.radius;
+                    this.target = new Vector(masterTargetPos.x + offsetX, masterTargetPos.y + offsetY);
+                    this.angle -= this.rotationSpeed;
+                    this.mode = false;
+                }
+            } else {
+                this.acceptsFromTop = true;
+            }
+        }
+
+        return {
+            target: this.target.clone().add(this.entity.masterPos).sub(this.entity.pos),
+            angle: this.mode ? undefined : this.angle + Math.PI,
+            goal: null,
+            main: true,
+            fire: true,
+            alt: false,
+            power: 0.8,
+        };
+    }
+}
+
+export class MinionNearest extends Controller {
+    public acceptsFromTop: boolean = false;
+
+    protected angle: number = Math.random() * Math.PI * 2;
+    protected targetAngle: number = 0;
+    protected target: Vector | null = null;
+    protected radius: number = 20;
+    protected rotationSpeed: number = Math.PI / 15;
+
+    public think(): ControllerThink {
+        if (this.isThinkTime()) {
+            let nearest = this.findNearest();
+
+            if (nearest) {
+                const offsetX = Math.cos(this.angle) * this.radius;
+                const offsetY = Math.sin(this.angle) * this.radius;
+                this.target = new Vector(nearest.pos.x + offsetX, nearest.pos.y + offsetY);
+                this.angle -= this.rotationSpeed;
+                this.targetAngle = nearest.pos.clone().sub(this.entity.pos).angle();
+            } else {
+                this.target = null;
+            }
+        }
+
+        if (this.target === null) {
+            return {
+                target: null,
+                angle: this.angle,
+                goal: null,
+                main: true,
+                fire: true,
+                alt: false,
+                power: 0.8,
+            };
+        }
+
+        return {
+            target: this.target.clone().sub(this.entity.pos),
+            angle: this.targetAngle,
+            goal: null,
+            main: true,
+            fire: true,
+            alt: false,
+            power: 0.8,
+        };
+    }
+
+    private findNearest(): Entity | null {
+        let nearestDistance = Infinity;
+        let nearest: Entity | null = null;
+
+        for (const entity of room.entities) {
+            if (entity === this.entity) continue;
+            if (Entity.isSameTeam(entity, this.entity)) continue;
+            if (entity.master && !entity.setting.independent) continue;
+            if (entity.setting.isFixed) continue;
+            if (!Entity.isEntityVisible(this.entity, entity)) continue;
+
+            const distance = Vector.distance(this.entity.pos, entity.pos);
+            if (distance < nearestDistance) {
+                nearestDistance = distance;
+                nearest = entity;
+            }
+        }
+
+        return nearest;
     }
 }

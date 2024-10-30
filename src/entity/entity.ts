@@ -9,7 +9,7 @@ import {RoomConfig} from '../room/room-config';
 import {Controller, ControllerMaker} from './controller';
 import {Prop} from './props';
 import {TurretSetting} from './turret';
-import {SkillManager} from './skill';
+import {SkillManager, SkillType} from './skill';
 import type {World} from '../room/world';
 
 const SIZE_MULTIPLIER = 1.4;
@@ -47,6 +47,16 @@ export interface EntitySetting {
         shield: number;
         shieldRegen: number;
     };
+    userSkill: Partial<
+        Record<
+            SkillType,
+            {
+                level: number;
+                maxLevel: number;
+                name: string;
+            }
+        >
+    >;
     upgrades: string[];
     on: {[key: string]: (body: Entity, ...args: unknown[]) => unknown};
 }
@@ -115,6 +125,7 @@ export class Entity extends EventEmitter {
         main: boolean;
         fire: boolean;
         alt: boolean;
+        angle?: number;
         power: number;
     } = {
         target: null,
@@ -171,6 +182,7 @@ export class Entity extends EventEmitter {
             shield: 10,
             shieldRegen: 10,
         },
+        userSkill: {},
         upgrades: [],
         on: {},
     };
@@ -276,6 +288,7 @@ export class Entity extends EventEmitter {
         this.setting.hardBullet = Class.hardBullet;
         this.setting.food = Class.food;
         this.setting.skill = structuredClone(Class.skill);
+        this.setting.userSkill = structuredClone(Class.userSkill);
         this.setting.independent = Class.independent;
         this.setting.controllers = Class.controllers;
         this.setting.hitType = Class.hitType;
@@ -342,6 +355,20 @@ export class Entity extends EventEmitter {
 
         if (this.upgrades.length > 0) this.upgradeAdded = true;
 
+        const skillPoints = this.skillManager.skillPoints + this.skillManager.usedSkillPoints;
+
+        this.skillManager.skills = new Map();
+        this.skillManager.skillPoints = skillPoints;
+        this.skillManager.usedSkillPoints = 0;
+
+        for (const type in this.setting.userSkill) {
+            const skillType = +type as SkillType;
+
+            const skill = this.setting.userSkill[skillType];
+
+            this.skillManager.skills.set(skillType, {type: skillType, ...skill});
+        }
+
         this.skillManager.updateBaseStats();
         this.skillManager.applyAllSkillEffects();
 
@@ -401,6 +428,7 @@ export class Entity extends EventEmitter {
             if (think.main !== null) this.control.main = think.main;
             if (think.alt !== null) this.control.alt = think.alt;
             if (think.fire !== null) this.control.fire = think.fire;
+            this.control.angle = think.angle;
             if (think.power !== null) this.control.power = think.power;
         }
 
@@ -410,7 +438,7 @@ export class Entity extends EventEmitter {
         if (this.control.main && this.control.target) {
             const target = this.control.target;
 
-            this.angle = target.angle();
+            this.angle = this.control.angle === undefined ? target.angle() : this.control.angle;
 
             this.vel.add(
                 target

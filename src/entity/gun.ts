@@ -20,6 +20,7 @@ export interface GunSetting {
         type: string;
         autofire: boolean;
         altFire: boolean;
+        cantFire: boolean;
         delaySpawn: number;
         maxChildren: false | number;
         independentChildren: boolean;
@@ -56,6 +57,7 @@ export class Gun {
             type: 'Bullet',
             autofire: false,
             altFire: false,
+            cantFire:false,
             delaySpawn: 0,
             maxChildren: false,
             independentChildren: false,
@@ -138,6 +140,8 @@ export class Gun {
     }
 
     public firing() {
+        if(this.setting.properties.cantFire) return
+
         if (this.maxChildren !== false && this.maxChildren <= this.childrenLength) {
             if (this.setting.properties.destroyOldestChild) {
                 const entity = this.firstBullet;
@@ -181,6 +185,8 @@ export class Gun {
                 this.body.room.insert(bullet);
 
                 bullet.initTurret();
+                this.body.skillManager.bulletSkill(bullet);
+                bullet.skillManager.applyAllSkillEffects();
 
                 bullet.on('remove', () => {
                     this.children.delete(bullet);
@@ -197,10 +203,10 @@ export class Gun {
 
                 this.body.vel.sub(new Vector(angle).mult(this.setting.properties.skill.speed / 10));
 
-                if (this.setting.properties.skill.range)
+                if (this.setting.properties.skill.range || bullet.setting.skill.range)
                     setTimeout(() => {
                         this.body.room.remove(bullet);
-                    }, this.setting.properties.skill.range * 1000);
+                    }, (this.setting.properties.skill.range + bullet.setting.skill.range) * 1000);
             }, this.setting.properties.delaySpawn);
         }
     }

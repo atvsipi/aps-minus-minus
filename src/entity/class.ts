@@ -1,10 +1,12 @@
 import {Color} from '../definitions/color';
 import {Vector} from '../physics/vector';
 import {Logger} from '../util/logger';
+import {BASIC_SKILLS} from './basic-skills';
 import type {Controller, ControllerMaker} from './controller';
 import type {Entity, EntitySetting} from './entity';
 import type {GunSetting} from './gun';
 import type {PropSetting} from './props';
+import {SkillType} from './skill';
 import type {TurretSetting} from './turret';
 
 export interface GunClassType {
@@ -23,6 +25,7 @@ export interface GunClassType {
         type?: string;
         autofire?: boolean;
         altFire?: boolean;
+        cantFire?: boolean;
         delaySpawn?: number;
         maxChildren?: false | number;
         independentChildren?: boolean;
@@ -100,6 +103,16 @@ export interface ClassType {
         shield?: number;
         shieldRegen?: number;
     };
+    userSkill?: Partial<
+        Record<
+            SkillType,
+            {
+                level: number;
+                maxLevel: number;
+                name: string;
+            }
+        >
+    >;
     color?: Color | string;
     border?: Color | string;
     strokeWidth?: number;
@@ -141,6 +154,7 @@ const defaultGun: GunSetting = {
         type: 'Bullet',
         autofire: false,
         altFire: false,
+        cantFire: false,
         delaySpawn: 0,
         maxChildren: false,
         independentChildren: false,
@@ -219,6 +233,7 @@ const defaultEntity: ProcessedClass = {
         shield: 20,
         shieldRegen: 0.05,
     },
+    userSkill: {...BASIC_SKILLS},
     color: Color.TeamColor,
     border: Color.AutoBorder,
     strokeWidth: 4,
@@ -237,49 +252,66 @@ let Cache: {[key: string]: ProcessedClass} = {};
 
 let mockups = 1;
 
-function ProcessClass(name: string, entityClass: ClassType, basic: ProcessedClass) {
+function deepCopy<T>(obj: T): T {
+    if (obj === null || typeof obj !== 'object') {
+        return obj;
+    }
+
+    if (Array.isArray(obj)) {
+        return obj.map(deepCopy) as any;
+    }
+
+    const result: any = {};
+    for (const key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+            result[key] = deepCopy(obj[key]);
+        }
+    }
+    return result;
+}
+
+function ProcessClass(name: string, entityClass: ClassType, basic: ProcessedClass): ProcessedClass {
     if (Cache[name]) return Cache[name];
 
-    let processed = Object.assign({}, basic, entityClass);
+    let base: ProcessedClass;
 
-    if (entityClass.skill) processed.skill = Object.assign({}, basic.skill, entityClass.skill);
+    if (entityClass.parent) {
+        const parent = Class[entityClass.parent];
+        if (!parent) {
+            throw new Error(`Parent class "${entityClass.parent}" not found for "${name}"`);
+        }
+
+        const parentProcessed = ProcessClass(entityClass.parent, parent, defaultEntity);
+        base = deepCopy(parentProcessed);
+    } else {
+        base = deepCopy(basic);
+    }
+
+    let processed: ProcessedClass = Object.assign({}, base, entityClass);
+
+    if (entityClass.skill) {
+        processed.skill = Object.assign({}, base.skill, entityClass.skill);
+    }
 
     if (entityClass.guns) {
-        processed.guns = [];
-
-        for (const gun of entityClass.guns) {
+        processed.guns = entityClass.guns.map((gun) => {
             const processedGun = Object.assign({}, defaultGun, gun);
-            if (gun.properties?.skill) processedGun.properties.skill = Object.assign({}, defaultGun.properties.skill, gun.properties.skill);
-
-            processed.guns.push(processedGun);
-        }
+            if (gun.properties) {
+                processedGun.properties = Object.assign({}, defaultGun.properties, gun.properties);
+                if (gun.properties.skill) {
+                    processedGun.properties.skill = Object.assign({}, defaultGun.properties.skill, gun.properties.skill);
+                }
+            }
+            return processedGun;
+        });
     }
 
     if (entityClass.props) {
-        processed.props = [];
-
-        for (const prop of entityClass.props) {
-            const processedProp = Object.assign({}, defaultProp, prop);
-
-            processed.props.push(processedProp);
-        }
+        processed.props = entityClass.props.map((prop) => Object.assign({}, defaultProp, prop));
     }
 
     if (entityClass.turrets) {
-        processed.turrets = [];
-
-        for (const turret of entityClass.turrets) {
-            const processedTurret = Object.assign({}, defaultTurret, turret);
-
-            processed.turrets.push(processedTurret);
-        }
-    }
-
-    if (entityClass.parent) {
-        const parent = entityClass.parent;
-        processed.parent = undefined;
-
-        processed = ProcessClass(name, processed, ProcessClass(parent, Class[parent], defaultEntity));
+        processed.turrets = entityClass.turrets.map((turret) => Object.assign({}, defaultTurret, turret));
     }
 
     processed.mockupId = mockups++;

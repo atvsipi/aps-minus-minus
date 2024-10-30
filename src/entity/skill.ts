@@ -1,13 +1,17 @@
+import {Logger} from '@/util/logger';
 import {Entity} from './entity';
 
 export enum SkillType {
-    MaxHealth = 'MaxHealth',
-    HealthRegen = 'HealthRegen',
-    MovementSpeed = 'MovementSpeed',
-    Damage = 'Damage',
-    Penetration = 'Penetration',
-    Range = 'Range',
-    Shield = 'Shield',
+    MaxHealth,
+    HealthRegen,
+    MovementSpeed,
+    BodyDamage,
+    BulletDamage,
+    BulletPenetration,
+    BulletRange,
+    Range,
+    Shield,
+    ShieldRegen,
 }
 
 export interface Skill {
@@ -15,77 +19,20 @@ export interface Skill {
     level: number;
     maxLevel: number;
     name: string;
-    description: string;
 }
 
 export class SkillManager {
     private entity: Entity;
-    private skillPoints: number = 0;
-    private skills: Map<SkillType, Skill> = new Map();
     private baseStats: {[key: string]: number} = {};
+
+    public skillPoints: number = 0;
+    public usedSkillPoints: number = 0;
+    public skills: Map<SkillType, Skill> = new Map();
+
+    private bulletSkills: Partial<Record<SkillType, number>> = {};
 
     constructor(entity: Entity) {
         this.entity = entity;
-        this.initializeSkills();
-        this.updateBaseStats();
-    }
-
-    private initializeSkills() {
-        this.skills.set(SkillType.MaxHealth, {
-            type: SkillType.MaxHealth,
-            level: 0,
-            maxLevel: 10,
-            name: 'Max Health',
-            description: 'Increases maximum health',
-        });
-
-        this.skills.set(SkillType.HealthRegen, {
-            type: SkillType.HealthRegen,
-            level: 0,
-            maxLevel: 10,
-            name: 'Health Regeneration',
-            description: 'Increases health regeneration rate',
-        });
-
-        this.skills.set(SkillType.MovementSpeed, {
-            type: SkillType.MovementSpeed,
-            level: 0,
-            maxLevel: 10,
-            name: 'Movement Speed',
-            description: 'Increases movement speed',
-        });
-
-        this.skills.set(SkillType.Damage, {
-            type: SkillType.Damage,
-            level: 0,
-            maxLevel: 10,
-            name: 'Bullet Damage',
-            description: 'Increases bullet damage',
-        });
-
-        this.skills.set(SkillType.Penetration, {
-            type: SkillType.Penetration,
-            level: 0,
-            maxLevel: 10,
-            name: 'Bullet Penetration',
-            description: 'Increases bullet penetration',
-        });
-
-        this.skills.set(SkillType.Range, {
-            type: SkillType.Range,
-            level: 0,
-            maxLevel: 15,
-            name: 'Bullet Range',
-            description: 'Increases bullet range',
-        });
-
-        this.skills.set(SkillType.Shield, {
-            type: SkillType.Shield,
-            level: 0,
-            maxLevel: 10,
-            name: 'Shield',
-            description: 'Increases shield capacity',
-        });
     }
 
     public updateBaseStats() {
@@ -97,6 +44,7 @@ export class SkillManager {
             pen: this.entity.setting.skill.pen,
             range: this.entity.setting.skill.range || 0,
             shield: this.entity.setting.skill.shield || 0,
+            shieldRegen: this.entity.setting.skill.shieldRegen || 0,
         };
     }
 
@@ -118,8 +66,38 @@ export class SkillManager {
 
         skill.level++;
         this.skillPoints--;
+        this.usedSkillPoints++;
         this.applyAllSkillEffects();
         return true;
+    }
+
+    private calculateSkillMultiplier(level: number): number {
+        return 1 + Math.log(level + 1) * 0.15;
+    }
+
+    public bulletSkill(bullet: Entity) {
+        for (const type in this.bulletSkills) {
+            const skillType = +type as SkillType;
+
+            if (bullet.skillManager.skills.has(skillType)) {
+                const skill = bullet.skillManager.skills.get(skillType);
+
+                skill.level = this.bulletSkills[skillType];
+            } else {
+                bullet.skillManager.skills.set(skillType, {
+                    type: skillType,
+                    level: this.bulletSkills[skillType],
+                    maxLevel: 0,
+                    name: '',
+                });
+            }
+        }
+    }
+
+    private addToBulletSkill(type: SkillType) {
+        if (!this.bulletSkills[type]) this.bulletSkills[type] = 0;
+
+        this.bulletSkills[type] += 1;
     }
 
     public applyAllSkillEffects() {
@@ -131,34 +109,48 @@ export class SkillManager {
         if (this.baseStats.range) {
             this.entity.setting.skill.range = this.baseStats.range;
         }
-        if (this.skills.get(SkillType.Shield).level > 0) {
-            const multiplier = 1 + this.skills.get(SkillType.Shield).level * 0.1;
-            this.entity.setting.skill.shield = this.baseStats.shield * multiplier;
-        }
+        this.entity.setting.skill.shield = this.baseStats.shield;
+        this.entity.setting.skill.shieldRegen = this.baseStats.shieldRegen;
+
+        this.bulletSkills = {};
 
         for (const [type, skill] of this.skills) {
             if (skill.level > 0) {
-                const multiplier = 1 + skill.level * 0.1;
+                const multiplier = this.calculateSkillMultiplier(skill.level);
+                const baseMultiplier = 0.7;
+
                 switch (type) {
                     case SkillType.MaxHealth:
-                        this.entity.setting.skill.health = this.baseStats.health * multiplier;
+                        this.entity.setting.skill.health = this.baseStats.health * (1 + (multiplier - 1) * baseMultiplier);
                         break;
                     case SkillType.HealthRegen:
-                        this.entity.setting.skill.regen = this.baseStats.regen * multiplier;
+                        this.entity.setting.skill.regen = this.baseStats.regen * (1 + (multiplier - 1) * baseMultiplier);
                         break;
                     case SkillType.MovementSpeed:
-                        this.entity.setting.skill.speed = this.baseStats.speed * multiplier;
+                        this.entity.setting.skill.speed = this.baseStats.speed * (1 + (multiplier - 1) * baseMultiplier);
                         break;
-                    case SkillType.Damage:
-                        this.entity.setting.skill.damage = this.baseStats.damage * multiplier;
+                    case SkillType.BodyDamage:
+                        this.entity.setting.skill.damage = this.baseStats.damage * (1 + (multiplier - 1) * baseMultiplier);
                         break;
-                    case SkillType.Penetration:
-                        this.entity.setting.skill.pen = this.baseStats.pen * multiplier;
+                    case SkillType.BulletDamage:
+                        this.addToBulletSkill(SkillType.BodyDamage);
+                        break;
+                    case SkillType.BulletPenetration:
+                        this.addToBulletSkill(SkillType.BodyDamage);
+                        break;
+                    case SkillType.BulletRange:
+                        this.addToBulletSkill(SkillType.Range);
                         break;
                     case SkillType.Range:
-                        if (this.baseStats.range) {
-                            this.entity.setting.skill.range = this.baseStats.range * multiplier;
-                        }
+                        if (!this.bulletSkills[SkillType.BulletDamage]) this.bulletSkills[SkillType.BulletDamage] = 0;
+
+                        this.bulletSkills[SkillType.BulletDamage] += 1;
+                        break;
+                    case SkillType.Shield:
+                        this.entity.setting.skill.shield = this.baseStats.shield * (1 + (multiplier - 1) * baseMultiplier);
+                        break;
+                    case SkillType.ShieldRegen:
+                        this.entity.setting.skill.shieldRegen = this.baseStats.shieldRegen * (1 + (multiplier - 1) * baseMultiplier);
                         break;
                 }
             }

@@ -245,7 +245,7 @@ export function message(uuid: string, data: Uint8Array, send: (msg: Uint8Array |
                 const user = users.get(uuid);
                 if (!user.body) break;
 
-                const skillType = msg.readString() as SkillType;
+                const skillType = msg.readUint() as SkillType;
                 const success = user.body.skillManager.upgradeSkill(skillType);
 
                 if (success) {
@@ -257,11 +257,10 @@ export function message(uuid: string, data: Uint8Array, send: (msg: Uint8Array |
                     msg.writeUint(skills.length);
 
                     for (const skill of skills) {
-                        msg.writeString(skill.type);
+                        msg.writeUint(skill.type);
                         msg.writeUint(skill.level);
                         msg.writeUint(skill.maxLevel);
                         msg.writeString(skill.name);
-                        msg.writeString(skill.description);
                     }
 
                     send(msg.make());
@@ -514,11 +513,10 @@ setInterval(() => {
         msg.writeUint(skills.length);
 
         for (const skill of skills) {
-            msg.writeString(skill.type);
+            msg.writeUint(skill.type);
             msg.writeUint(skill.level);
             msg.writeUint(skill.maxLevel);
             msg.writeString(skill.name);
-            msg.writeString(skill.description);
         }
 
         user[1].send(msg.make());

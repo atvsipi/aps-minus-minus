@@ -75,7 +75,7 @@ function handleClick(x, y) {
     if (entity && entity.skills) {
         for (const skill of entity.skills) {
             if (skill.upgradeButton && skill.upgradeButton.startX <= x && skill.upgradeButton.endX >= x && skill.upgradeButton.startY <= y && skill.upgradeButton.endY >= y) {
-                socket.send(new Writer().writeUint(8).writeString(skill.type).make());
+                socket.send(new Writer().writeUint(8).writeUint(skill.type).make());
                 return true;
             }
         }
@@ -355,6 +355,87 @@ const drawProp = (entity, prop) => {
     ctx.globalAlpha = 1;
     if (prop.strokeWidth > 0) ctx.stroke();
     ctx.closePath();
+    ctx.restore();
+};
+
+const drawEntity = (entity) => {
+    ctx.save();
+    if (entity.masterId && idToEntity.has(entity.masterId)) {
+        const master = idToEntity.get(entity.masterId);
+
+        entity.pos.x = master.pos.x + entity.offset.x;
+        entity.pos.y = master.pos.y + entity.offset.y;
+    }
+    ctx.translate(entity.pos.x, entity.pos.y);
+
+    if (entity.fadeStart) {
+        const fadeProgress = (performance.now() - entity.fadeStart) / fadeDuration;
+        if (fadeProgress >= 1) {
+            entities.delete(entity);
+            idToEntity.delete(entity.id);
+            ctx.restore();
+            return;
+        }
+        ctx.globalAlpha = 1 - fadeProgress;
+        const scale = 1 + fadeProgress * 0.5;
+        ctx.scale(scale, scale);
+    } else {
+        if (entity.alpha === 1 && entity.attackTime < 20 && entity.attackTime > 0) {
+            let attackColorAlpha = 0;
+
+            const timeSinceAttack = entity.attackTime;
+            const totalDuration = 20;
+            const peakTime = 5;
+
+            if (timeSinceAttack <= peakTime) {
+                attackColorAlpha = Math.max(0, (timeSinceAttack / peakTime) ** 2 - 0.2);
+            } else {
+                const remainingTime = totalDuration - timeSinceAttack;
+                const fallDuration = totalDuration - peakTime;
+                attackColorAlpha = Math.max(0, (remainingTime / fallDuration) ** 3 - 0.4);
+            }
+            ctx.globalAlpha = 1 - attackColorAlpha * 0.5;
+        } else ctx.globalAlpha = entity.alpha;
+    }
+
+    ctx.lineWidth = 2;
+    ctx.lineJoin = 'round';
+
+    if (entity.props) {
+        for (const prop of entity.props.filter((prop) => prop.layer < 0)) {
+            drawProp(entity, prop);
+        }
+    }
+
+    if (entity.guns) {
+        for (const gun of entity.guns.filter((gun) => gun.layer < 0)) {
+            drawGun(entity, gun);
+        }
+    }
+
+    ctx.fillStyle = entity.color;
+    ctx.strokeStyle = entity.border;
+
+    drawEntityShape(entity);
+
+    if (entity.props) {
+        for (const prop of entity.props.filter((prop) => prop.layer > -1 && prop.layer < 100)) {
+            drawProp(entity, prop);
+        }
+    }
+
+    if (entity.guns) {
+        for (const gun of entity.guns.filter((gun) => gun.layer > -1)) {
+            drawGun(entity, gun);
+        }
+    }
+
+    if (entity.props) {
+        for (const prop of entity.props.filter((prop) => prop.layer > 100)) {
+            drawProp(entity, prop);
+        }
+    }
+
     ctx.restore();
 };
 
@@ -720,6 +801,8 @@ const render = (timestamp) => {
     window.entity = entity;
 
     for (const entity of entities) {
+        if (entity.masterId) continue;
+
         const distance = Vector.distance(window.entity.pos, entity.pos);
         const fov = window.entity.fov + (window.entity.size + entity.size) / 2;
 
@@ -736,84 +819,37 @@ const render = (timestamp) => {
 
         if (!entity.canSee) continue;
 
-        ctx.save();
-        if (entity.masterId && idToEntity.has(entity.masterId)) {
-            const master = idToEntity.get(entity.masterId);
+        drawEntity(entity);
+    }
 
-            entity.pos.x = master.pos.x + entity.offset.x;
-            entity.pos.y = master.pos.y + entity.offset.y;
-        }
-        ctx.translate(entity.pos.x, entity.pos.y);
+    for (const entity of entities) {
+        if (!entity.masterId) continue;
 
-        if (entity.fadeStart) {
-            const fadeProgress = (performance.now() - entity.fadeStart) / fadeDuration;
-            if (fadeProgress >= 1) {
-                entities.delete(entity);
-                idToEntity.delete(entity.id);
-                ctx.restore();
-                continue;
-            }
-            ctx.globalAlpha = 1 - fadeProgress;
-            const scale = 1 + fadeProgress * 0.5;
-            ctx.scale(scale, scale);
-        } else {
-            if (entity.alpha === 1 && entity.attackTime < 20 && entity.attackTime > 0) {
-                let attackColorAlpha = 0;
+        const distance = Vector.distance(window.entity.pos, entity.pos);
+        const fov = window.entity.fov + (window.entity.size + entity.size) / 2;
 
-                const timeSinceAttack = entity.attackTime;
-                const totalDuration = 20;
-                const peakTime = 5;
-
-                if (timeSinceAttack <= peakTime) {
-                    attackColorAlpha = Math.max(0, (timeSinceAttack / peakTime) ** 2 - 0.2);
-                } else {
-                    const remainingTime = totalDuration - timeSinceAttack;
-                    const fallDuration = totalDuration - peakTime;
-                    attackColorAlpha = Math.max(0, (remainingTime / fallDuration) ** 3 - 0.4);
-                }
-                ctx.globalAlpha = 1 - attackColorAlpha * 0.5;
-            } else ctx.globalAlpha = entity.alpha;
+        if (distance > fov && entity.fadeStart) {
+            entities.delete(entity);
+            idToEntity.delete(entity.id);
+            continue;
         }
 
-        ctx.lineWidth = 2;
-        ctx.lineJoin = 'round';
-
-        if (entity.props) {
-            for (const prop of entity.props.filter((prop) => prop.layer < 0)) {
-                drawProp(entity, prop);
-            }
+        if (distance > fov) {
+            entity.canSee = false;
+            continue;
         }
 
-        if (entity.guns) {
-            for (const gun of entity.guns.filter((gun) => gun.layer < 0)) {
-                drawGun(entity, gun);
-            }
-        }
+        if (!entity.canSee) continue;
 
-        ctx.fillStyle = entity.color;
-        ctx.strokeStyle = entity.border;
+        const master = idToEntity.get(entity.masterId);
+        if (!master) continue;
 
-        drawEntityShape(entity);
+        entity.pos.x = master.pos.x + entity.offset.x;
+        entity.pos.y = master.pos.y + entity.offset.y;
 
-        if (entity.props) {
-            for (const prop of entity.props.filter((prop) => prop.layer > -1 && prop.layer < 100)) {
-                drawProp(entity, prop);
-            }
-        }
+        drawEntity(entity);
 
-        if (entity.guns) {
-            for (const gun of entity.guns.filter((gun) => gun.layer > -1)) {
-                drawGun(entity, gun);
-            }
-        }
-
-        if (entity.props) {
-            for (const prop of entity.props.filter((prop) => prop.layer > 100)) {
-                drawProp(entity, prop);
-            }
-        }
-
-        ctx.restore();
+        if (entity.guns.length > 0) console.log(entity);
     }
 
     ctx.restore();

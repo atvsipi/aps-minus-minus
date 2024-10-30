@@ -39,7 +39,7 @@ export class RoomLoop extends World {
     public spawn(name: string) {
         const entity = new Entity();
 
-        entity.init(EntityClass.Player);
+        entity.init(EntityClass.Basic);
 
         entity.name = name;
 

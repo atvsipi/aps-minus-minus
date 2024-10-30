@@ -168,11 +168,10 @@ const socketOnMessage = async ({data}) => {
 
             for (let i = 0; i < skillCount; i++) {
                 entity.skills[i] = {
-                    type: msg.readString(),
+                    type: msg.readUint(),
                     level: msg.readUint(),
                     maxLevel: msg.readUint(),
                     name: msg.readString(),
-                    description: msg.readString(),
                 };
             }
 
@@ -509,11 +508,10 @@ const socketOnMessage = async ({data}) => {
 
             for (let i = 0; i < skillCount; i++) {
                 entity.skills[i] = {
-                    type: msg.readString(),
+                    type: msg.readUint(),
                     level: msg.readUint(),
                     maxLevel: msg.readUint(),
                     name: msg.readString(),
-                    description: msg.readString(),
                 };
             }
             break;

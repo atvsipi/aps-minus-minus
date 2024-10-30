@@ -502,3 +502,5 @@ Class.TriBoss1Bullet2 = {
     bullet: true,
     hardBullet: true,
 };
+
+//Class.Basic.upgrades.push('TriBoss1');
