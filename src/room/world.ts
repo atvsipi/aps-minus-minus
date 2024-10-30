@@ -51,6 +51,14 @@ export class World extends EventEmitter {
     }
 
     protected handleCollision(entity: Entity, other: Entity): void {
+        if (entity.setting.on.collision) {
+            entity.setting.on.collision(entity, other);
+        }
+
+        if (other.setting.on.collision) {
+            other.setting.on.collision(other, entity);
+        }
+
         if (entity.setting.hitType !== 'auto' || other.setting.hitType !== 'auto') {
             this.handleCustomHitTypes(entity, other);
             return;
@@ -69,8 +77,6 @@ export class World extends EventEmitter {
             [entity, other] = [other, entity];
         }
 
-        this.doDamage(entity, other, false);
-
         if (entity.setting.hitType === 'none' || other.setting.hitType === 'none') {
             return;
         }
@@ -78,6 +84,7 @@ export class World extends EventEmitter {
         if (typeof entity.setting.hitType === 'function') {
             entity.setting.hitType(entity, other);
         }
+
         if (typeof other.setting.hitType === 'function') {
             other.setting.hitType(other, entity);
         }

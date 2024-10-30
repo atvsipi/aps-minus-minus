@@ -211,7 +211,7 @@ const defaultEntity: ProcessedClass = {
     miniMapType: 'none',
     score: 25000,
     name: null,
-    size: 10,
+    size: 15,
     mass: 1,
     sides: 0,
     isFixed: false,

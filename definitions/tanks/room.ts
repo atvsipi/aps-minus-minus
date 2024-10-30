@@ -39,6 +39,8 @@ Class.Base = {
             other.health = 0;
             other.socket.sendMsg('You died a stupid death.');
         }
+
+        return false;
     },
 };
 

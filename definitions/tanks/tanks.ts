@@ -2,6 +2,7 @@ import {Class, GunClassType} from '../../src/entity/class';
 import {CircleMove, ControllerMaker, GoToMasterTarget, MasterCircleMove, Minion, MinionNearest, Nearest} from '../../src/entity/controller';
 import {Vector} from '../../src/physics/vector';
 import {Color} from '../../src/definitions/color';
+import {Entity} from '@/entity/entity';
 
 // Base bullet class
 Class.Bullet = {
@@ -65,7 +66,7 @@ Class.Drone = {
     },
     sides: 3,
     controllers: [new ControllerMaker(MasterCircleMove), new ControllerMaker(Nearest), new ControllerMaker(GoToMasterTarget)],
-    size: 5,
+    size: 7,
     bullet: true,
     hardBullet: true,
 };
@@ -380,7 +381,7 @@ Class.Trapper = {
             },
         },
     ],
-    upgrades: ['TriTrapper', 'MegaTrapper', 'AutoTrapper'],
+    upgrades: ['TriTrapper', 'MegaTrapper'],
 };
 
 Class.TriTrapper = {
@@ -469,19 +470,6 @@ Class.MegaTrapper = {
     upgrades: [],
 };
 
-Class.AutoTrapper = {
-    parent: 'Trapper',
-    label: 'Auto Trapper',
-    turrets: [
-        {
-            offset: new Vector(0, 0),
-            angle: 0,
-            type: 'AutoTurret',
-        },
-    ],
-    upgrades: [],
-};
-
 Class.AutoTurret = {
     size: 8,
     guns: [
@@ -511,26 +499,34 @@ Class.Overseer = {
         {
             offset: -5,
             length: 14,
-            width: 20,
+            width: 22,
+            aspect: 1.3,
             angle: Math.PI / 2,
             properties: {
                 type: 'Drone',
-                maxChildren: 4,
+                maxChildren: 2,
+                autofire: true,
                 skill: {
                     reload: 0.4,
+                    size: 1.2,
+                    range: undefined,
                 },
             },
         },
         {
             offset: -5,
             length: 14,
-            width: 20,
+            width: 22,
+            aspect: 1.3,
             angle: -Math.PI / 2,
             properties: {
                 type: 'Drone',
-                maxChildren: 4,
+                maxChildren: 2,
+                autofire: true,
                 skill: {
                     reload: 0.4,
+                    size: 1.2,
+                    range: undefined,
                 },
             },
         },
@@ -545,41 +541,68 @@ Class.Overlord = {
         {
             offset: -5,
             length: 14,
-            width: 20,
+            width: 22,
             angle: 0,
+            aspect: 1.3,
             properties: {
                 type: 'Drone',
                 maxChildren: 2,
+                autofire: true,
+                skill: {
+                    reload: 0.4,
+                    size: 1.2,
+                    range: undefined,
+                },
             },
         },
         {
             offset: -5,
             length: 14,
-            width: 20,
+            width: 22,
+            aspect: 1.3,
             angle: Math.PI / 2,
             properties: {
                 type: 'Drone',
                 maxChildren: 2,
+                autofire: true,
+                skill: {
+                    reload: 0.4,
+                    size: 1.2,
+                    range: undefined,
+                },
             },
         },
         {
             offset: -5,
             length: 14,
-            width: 20,
+            width: 22,
+            aspect: 1.3,
             angle: Math.PI,
             properties: {
                 type: 'Drone',
                 maxChildren: 2,
+                autofire: true,
+                skill: {
+                    reload: 0.4,
+                    size: 1.2,
+                    range: undefined,
+                },
             },
         },
         {
             offset: -5,
             length: 14,
-            width: 20,
+            width: 22,
+            aspect: 1.3,
             angle: -Math.PI / 2,
             properties: {
                 type: 'Drone',
                 maxChildren: 2,
+                skill: {
+                    reload: 0.4,
+                    size: 1.2,
+                    range: undefined,
+                },
             },
         },
     ],
@@ -593,13 +616,17 @@ Class.Manager = {
         {
             offset: -5,
             length: 14,
-            width: 20,
-            angle: 0,
+            width: 22,
+            aspect: 1.3,
+            angle: Math.PI / 2,
             properties: {
                 type: 'Drone',
                 maxChildren: 6,
+                autofire: true,
                 skill: {
-                    reload: 0.3,
+                    reload: 0.4,
+                    size: 1.2,
+                    range: undefined,
                 },
             },
         },
@@ -691,40 +718,92 @@ Class.Minion = {
 Class.Necromancer = {
     parent: 'Overseer',
     label: 'Necromancer',
+    sides: 4,
+    size: 17,
     guns: [
         {
             offset: -5,
-            length: 14,
-            width: 20,
+            length: 10,
+            width: 18,
+            aspect: 1.1,
             angle: Math.PI / 2,
             properties: {
                 type: 'Square',
-                maxChildren: 16,
+                maxChildren: 7,
+                autofire: true,
                 skill: {
                     reload: 0.2,
+                    range: undefined,
                 },
             },
         },
         {
             offset: -5,
-            length: 14,
-            width: 20,
+            length: 10,
+            width: 18,
+            aspect: 1.1,
             angle: -Math.PI / 2,
             properties: {
                 type: 'Square',
-                maxChildren: 16,
+                maxChildren: 7,
+                autofire: true,
                 skill: {
                     reload: 0.2,
+                    range: undefined,
                 },
             },
         },
     ],
+    on: {
+        collision(body: Entity, other: Entity) {
+            if (other.setting.label === 'Square') {
+                const size = other.setting.size;
+                other.team = body.team;
+                other.team2 = body.team2;
+                other.master = body;
+                other.init('Square');
+                other.setting.size = size;
+            }
+
+            return true;
+        },
+    },
     upgrades: [],
 };
 
 Class.Square = {
     parent: 'Drone',
+    showHealth: false,
+    showName: false,
+    showScore: false,
+    giveScore: false,
+    skill: {
+        fov: 300,
+        speed: 0.2,
+        health: 5,
+        regen: 0,
+        damage: 10,
+        pen: 5,
+        range: null,
+        pushability: 1,
+    },
     sides: 4,
+    controllers: [new ControllerMaker(MasterCircleMove), new ControllerMaker(Nearest), new ControllerMaker(GoToMasterTarget)],
+    size: 8,
+    bullet: true,
+    hardBullet: true,
+    hitType(body, other) {
+        if (other.setting.label === 'Square') {
+            const size = other.setting.size;
+            other.team = body.team;
+            other.team2 = body.team2;
+            other.master = body;
+            other.init('Square');
+            other.setting.size = size;
+        }
+
+        return true;
+    },
 };
 
 // SMASHER TANKS
