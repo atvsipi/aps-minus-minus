@@ -245,7 +245,7 @@ export function message(uuid: string, data: Uint8Array, send: (msg: Uint8Array |
                 const user = users.get(uuid);
                 if (!user.body) break;
 
-                const skillType = msg.readUint() as SkillType;
+                const skillType = msg.readUint() as unknown as SkillType;
                 const success = user.body.skillManager.upgradeSkill(skillType);
 
                 if (success) {
@@ -257,13 +257,20 @@ export function message(uuid: string, data: Uint8Array, send: (msg: Uint8Array |
                     msg.writeUint(skills.length);
 
                     for (const skill of skills) {
-                        msg.writeUint(skill.type);
+                        msg.writeUint(skill.type as unknown as number);
                         msg.writeUint(skill.level);
                         msg.writeUint(skill.maxLevel);
                         msg.writeString(skill.name);
                     }
 
                     send(msg.make());
+
+                    msg.reset();
+
+                    msg.writeUint(5);
+                    EntityInfo(user.body, msg);
+
+                    user.send(msg.make());
                 }
                 break;
             }
@@ -508,16 +515,6 @@ setInterval(() => {
 
         msg.writeUint(1);
         EntityData(entity, msg);
-        msg.writeUint(entity.skillManager.getSkillPoints());
-        const skills = entity.skillManager.getAllSkills();
-        msg.writeUint(skills.length);
-
-        for (const skill of skills) {
-            msg.writeUint(skill.type);
-            msg.writeUint(skill.level);
-            msg.writeUint(skill.maxLevel);
-            msg.writeString(skill.name);
-        }
 
         user[1].send(msg.make());
 
@@ -550,6 +547,23 @@ setInterval(() => {
             msg.writeBigUint(entity.score);
             msg.writeUint(entity.level);
             msg.writeBigUint(entity.levelScore);
+
+            user[1].send(msg.make());
+
+            msg.reset();
+
+            msg.writeUint(12);
+            msg.writeUint(user[1].body.skillManager.getSkillPoints());
+
+            const skills = user[1].body.skillManager.getAllSkills();
+            msg.writeUint(skills.length);
+
+            for (const skill of skills) {
+                msg.writeUint(skill.type as unknown as number);
+                msg.writeUint(skill.level);
+                msg.writeUint(skill.maxLevel);
+                msg.writeString(skill.name);
+            }
 
             user[1].send(msg.make());
         }

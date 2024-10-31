@@ -9,6 +9,8 @@ export enum SkillType {
     BulletDamage,
     BulletPenetration,
     BulletRange,
+    BulletSpeed,
+    BulletReload,
     Range,
     Shield,
     ShieldRegen,
@@ -28,6 +30,8 @@ export class SkillManager {
     public skillPoints: number = 0;
     public usedSkillPoints: number = 0;
     public skills: Map<SkillType, Skill> = new Map();
+
+    public otherSkills: {[key: string]: number} = {};
 
     private bulletSkills: Partial<Record<SkillType, number>> = {};
 
@@ -72,7 +76,11 @@ export class SkillManager {
     }
 
     private calculateSkillMultiplier(level: number): number {
-        return 1 + Math.log(level + 1) * 0.15;
+        return 1 + Math.pow(1.2, level) * 0.35;
+    }
+
+    private calculateSkillMultiplier1(level: number): number {
+        return 0.8 + Math.sqrt(level) * 0.2;
     }
 
     public bulletSkill(bullet: Entity) {
@@ -94,10 +102,10 @@ export class SkillManager {
         }
     }
 
-    private addToBulletSkill(type: SkillType) {
-        if (!this.bulletSkills[type]) this.bulletSkills[type] = 0;
+    private addToBulletSkill(type: SkillType, value: number = 1) {
+        if (this.bulletSkills[type] === undefined) this.bulletSkills[type] = 0;
 
-        this.bulletSkills[type] += 1;
+        this.bulletSkills[type] += value;
     }
 
     public applyAllSkillEffects() {
@@ -113,10 +121,12 @@ export class SkillManager {
         this.entity.setting.skill.shieldRegen = this.baseStats.shieldRegen;
 
         this.bulletSkills = {};
+        this.otherSkills = {};
 
         for (const [type, skill] of this.skills) {
             if (skill.level > 0) {
                 const multiplier = this.calculateSkillMultiplier(skill.level);
+                const multiplier1 = this.calculateSkillMultiplier1(skill.level);
                 const baseMultiplier = 0.7;
 
                 switch (type) {
@@ -133,18 +143,22 @@ export class SkillManager {
                         this.entity.setting.skill.damage = this.baseStats.damage * (1 + (multiplier - 1) * baseMultiplier);
                         break;
                     case SkillType.BulletDamage:
-                        this.addToBulletSkill(SkillType.BodyDamage);
+                        this.addToBulletSkill(SkillType.BodyDamage, skill.level);
                         break;
                     case SkillType.BulletPenetration:
-                        this.addToBulletSkill(SkillType.BodyDamage);
+                        this.addToBulletSkill(SkillType.BodyDamage, skill.level);
                         break;
                     case SkillType.BulletRange:
-                        this.addToBulletSkill(SkillType.Range);
+                        this.addToBulletSkill(SkillType.Range, skill.level);
+                        break;
+                    case SkillType.BulletSpeed:
+                        this.addToBulletSkill(SkillType.MovementSpeed, skill.level);
+                        break;
+                    case SkillType.BulletReload:
+                        this.otherSkills[SkillType.BulletReload] = 1 + (multiplier1 - 1) * baseMultiplier;
                         break;
                     case SkillType.Range:
-                        if (!this.bulletSkills[SkillType.BulletDamage]) this.bulletSkills[SkillType.BulletDamage] = 0;
-
-                        this.bulletSkills[SkillType.BulletDamage] += 1;
+                        this.entity.setting.skill.range = this.baseStats.range * (1 + (multiplier - 1) * baseMultiplier);
                         break;
                     case SkillType.Shield:
                         this.entity.setting.skill.shield = this.baseStats.shield * (1 + (multiplier - 1) * baseMultiplier);

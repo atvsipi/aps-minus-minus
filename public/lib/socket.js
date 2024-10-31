@@ -162,19 +162,6 @@ const socketOnMessage = async ({data}) => {
             entity.size = msg.readFloat();
             entity.attackTime = msg.readBigUint();
 
-            entity.skillPoints = msg.readUint();
-            const skillCount = msg.readUint();
-            entity.skills = new Array(skillCount);
-
-            for (let i = 0; i < skillCount; i++) {
-                entity.skills[i] = {
-                    type: msg.readUint(),
-                    level: msg.readUint(),
-                    maxLevel: msg.readUint(),
-                    name: msg.readString(),
-                };
-            }
-
             idToEntity.set(entity.id, entity);
 
             entities.add(entity);

@@ -1,8 +1,10 @@
+import {RoomConfig} from '@/room/room-config';
 import {Color} from '../definitions/color';
 import {Vector} from '../physics/vector';
 import {EntityClass} from './class';
 import {Controller} from './controller';
 import {Entity} from './entity';
+import {SkillType} from './skill';
 
 export interface GunSetting {
     offset: number;
@@ -57,7 +59,7 @@ export class Gun {
             type: 'Bullet',
             autofire: false,
             altFire: false,
-            cantFire:false,
+            cantFire: false,
             delaySpawn: 0,
             maxChildren: false,
             independentChildren: false,
@@ -140,7 +142,7 @@ export class Gun {
     }
 
     public firing() {
-        if(this.setting.properties.cantFire) return
+        if (this.setting.properties.cantFire) return;
 
         if (this.maxChildren !== false && this.maxChildren <= this.childrenLength) {
             if (this.setting.properties.destroyOldestChild) {
@@ -152,8 +154,11 @@ export class Gun {
             } else return;
         }
 
-        if (this.body.tick - this.lastFireTick > 30 - this.setting.properties.skill.reload) {
+        const reload = (this.setting.properties.skill.reload - (this.body.skillManager.otherSkills[SkillType.BulletReload] || 0) * 0.3) * 60;
+        if (this.body.tick - this.lastFireTick > reload) {
             this.lastFireTick = this.body.tick;
+
+            const delayInTicks = reload * this.setting.properties.delaySpawn;
 
             setTimeout(() => {
                 this.body.emit('fire');
@@ -199,15 +204,15 @@ export class Gun {
 
                 const angle = Vector.addAngle({x: 1, y: 1}, this.body.angle + this.setting.angle).normalize();
 
-                bullet.vel = new Vector(angle).mult(this.setting.properties.skill.speed).add(this.body.vel);
+                bullet.vel = new Vector(angle).mult(bullet.setting.skill.speed + this.setting.properties.skill.speed).add(this.body.vel);
 
-                this.body.vel.sub(new Vector(angle).mult(this.setting.properties.skill.speed / 10));
+                this.body.vel.sub(new Vector(angle).mult(this.setting.properties.skill.speed / 10).mult(this.setting.properties.skill.recoil));
 
-                if (this.setting.properties.skill.range || bullet.setting.skill.range)
+                if (this.setting.properties.skill.range)
                     setTimeout(() => {
                         this.body.room.remove(bullet);
                     }, (this.setting.properties.skill.range + bullet.setting.skill.range) * 1000);
-            }, this.setting.properties.delaySpawn);
+            }, delayInTicks * RoomConfig.tick);
         }
     }
 

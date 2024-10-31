@@ -233,7 +233,7 @@ export class Entity extends EventEmitter {
     }
 
     public get maxShield() {
-        return this.setting.skill.shieldRegen + this.score * 0.0004;
+        return this.setting.skill.shield + this.score * 0.0004;
     }
 
     public get isMaster() {
@@ -288,7 +288,6 @@ export class Entity extends EventEmitter {
         this.setting.hardBullet = Class.hardBullet;
         this.setting.food = Class.food;
         this.setting.skill = structuredClone(Class.skill);
-        this.setting.userSkill = structuredClone(Class.userSkill);
         this.setting.independent = Class.independent;
         this.setting.controllers = Class.controllers;
         this.setting.hitType = Class.hitType;
@@ -355,18 +354,35 @@ export class Entity extends EventEmitter {
 
         if (this.upgrades.length > 0) this.upgradeAdded = true;
 
-        const skillPoints = this.skillManager.skillPoints + this.skillManager.usedSkillPoints;
+        const oldUserSkill = this.setting.userSkill;
+        this.setting.userSkill = structuredClone(Class.userSkill);
 
-        this.skillManager.skills = new Map();
-        this.skillManager.skillPoints = skillPoints;
-        this.skillManager.usedSkillPoints = 0;
-
+        let skillsChanged = false;
         for (const type in this.setting.userSkill) {
             const skillType = +type as SkillType;
+            const newSkill = this.setting.userSkill[skillType];
+            const oldSkill = oldUserSkill[skillType];
 
-            const skill = this.setting.userSkill[skillType];
+            if (!oldSkill || oldSkill.maxLevel !== newSkill.maxLevel || oldSkill.name !== newSkill.name) {
+                skillsChanged = true;
+                break;
+            }
+        }
 
-            this.skillManager.skills.set(skillType, {type: skillType, ...skill});
+        if (skillsChanged) {
+            const skillPoints = this.skillManager.skillPoints + this.skillManager.usedSkillPoints;
+
+            this.skillManager.skills = new Map();
+            this.skillManager.skillPoints = skillPoints;
+            this.skillManager.usedSkillPoints = 0;
+
+            for (const type in this.setting.userSkill) {
+                const skillType = +type as SkillType;
+
+                const skill = this.setting.userSkill[skillType];
+
+                this.skillManager.skills.set(skillType, {type: skillType, ...skill});
+            }
         }
 
         this.skillManager.updateBaseStats();

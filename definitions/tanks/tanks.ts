@@ -3,6 +3,7 @@ import {CircleMove, ControllerMaker, GoToMasterTarget, MasterCircleMove, Minion,
 import {Vector} from '../../src/physics/vector';
 import {Color} from '../../src/definitions/color';
 import {Entity} from '@/entity/entity';
+import {BASIC_SMASHER_SKILLS} from '@/entity/basic-skills';
 
 // Base bullet class
 Class.Bullet = {
@@ -86,7 +87,7 @@ Class.Tank = {
         pen: 10,
         range: null,
         pushability: 1,
-        fov: 400,
+        fov: 500,
     },
     miniMapType: 'team',
 };
@@ -145,17 +146,20 @@ Class.Basic = {
         },
     ],
     miniMapType: 'team',
-    upgrades: ['Twin', 'Sniper', 'MachineGun', 'FlankGuard', 'Trapper', 'Overseer', 'Smasher'],
+    upgrades: ['Twin', 'Sniper', 'MachineGun', 'Destroyer', 'FlankGuard', 'Trapper', 'Overseer', 'Smasher'],
 };
 
 Class.Twin = {
     parent: 'Basic',
     label: 'Twin',
+    skill: {
+        fov: 600,
+    },
     guns: [
         {
-            offset: -5,
-            direction: 9,
-            length: 20,
+            offset: -8,
+            direction: 10,
+            length: 23,
             width: 16,
             aspect: 1,
             angle: 0,
@@ -168,15 +172,15 @@ Class.Twin = {
             },
         },
         {
-            offset: -5,
-            direction: -9,
-            length: 20,
+            offset: -8,
+            direction: -10,
+            length: 23,
             width: 16,
             aspect: 1,
             angle: 0,
             properties: {
                 type: 'Bullet',
-                delaySpawn: 250,
+                delaySpawn: 0.5,
                 skill: {
                     reload: 0.7,
                     damage: 0.8,
@@ -184,7 +188,221 @@ Class.Twin = {
             },
         },
     ],
-    upgrades: ['TripleShot'],
+    upgrades: ['TripleShot', 'Triplet', 'Streamliner', 'OctoTank'],
+};
+
+Class.Streamliner = {
+    parent: 'Basic',
+    label: 'Streamliner',
+    guns: [
+        {
+            offset: -5,
+            length: 26,
+            width: 14,
+            angle: 0,
+            properties: {
+                type: 'Bullet',
+                delaySpawn: 0,
+                skill: {
+                    reload: 1.5,
+                    speed: 1.3,
+                },
+            },
+        },
+        {
+            offset: -5,
+            length: 23,
+            width: 14,
+            angle: 0,
+            properties: {
+                type: 'Bullet',
+                delaySpawn: 1 / 5,
+                skill: {
+                    reload: 1.5,
+                    speed: 1.3,
+                },
+            },
+        },
+        {
+            offset: -5,
+            length: 20,
+            width: 14,
+            angle: 0,
+            properties: {
+                type: 'Bullet',
+                delaySpawn: 2 / 5,
+                skill: {
+                    reload: 1.5,
+                    speed: 1.3,
+                },
+            },
+        },
+        {
+            offset: -5,
+            length: 17,
+            width: 14,
+            angle: 0,
+            properties: {
+                type: 'Bullet',
+                delaySpawn: 3 / 5,
+                skill: {
+                    reload: 1.5,
+                    speed: 1.3,
+                },
+            },
+        },
+        {
+            offset: -5,
+            length: 14,
+            width: 14,
+            angle: 0,
+            properties: {
+                type: 'Bullet',
+                delaySpawn: 4 / 5,
+                skill: {
+                    reload: 1.5,
+                    speed: 1.3,
+                },
+            },
+        },
+    ],
+    skill: {
+        fov: 550,
+    },
+    upgrades: [],
+};
+
+Class.Triplet = {
+    parent: 'Twin',
+    label: 'Triplet',
+    guns: [
+        {
+            offset: -5,
+            length: 20,
+            width: 16,
+            angle: 0,
+            properties: {
+                type: 'Bullet',
+                skill: {
+                    reload: 1,
+                    damage: 0.7,
+                },
+            },
+        },
+        {
+            offset: -5,
+            length: 20,
+            width: 16,
+            angle: 0,
+            properties: {
+                type: 'Bullet',
+                skill: {
+                    reload: 1,
+                    damage: 0.7,
+                },
+            },
+        },
+        {
+            offset: -5,
+            length: 22,
+            width: 16,
+            angle: 0,
+            properties: {
+                type: 'Bullet',
+                skill: {
+                    reload: 1,
+                    damage: 0.7,
+                },
+            },
+        },
+    ],
+    skill: {
+        fov: 550,
+    },
+    upgrades: [],
+};
+
+Class.OctoTank = {
+    parent: 'Basic',
+    label: 'Octo Tank',
+    guns: [
+        {
+            offset: -5,
+            length: 20,
+            width: 16,
+            angle: 0,
+            properties: {
+                type: 'Bullet',
+            },
+        },
+        {
+            offset: -5,
+            length: 20,
+            width: 16,
+            angle: Math.PI / 4,
+            properties: {
+                type: 'Bullet',
+            },
+        },
+        {
+            offset: -5,
+            length: 20,
+            width: 16,
+            angle: Math.PI / 2,
+            properties: {
+                type: 'Bullet',
+            },
+        },
+        {
+            offset: -5,
+            length: 20,
+            width: 16,
+            angle: (3 * Math.PI) / 4,
+            properties: {
+                type: 'Bullet',
+            },
+        },
+        {
+            offset: -5,
+            length: 20,
+            width: 16,
+            angle: Math.PI,
+            properties: {
+                type: 'Bullet',
+            },
+        },
+        {
+            offset: -5,
+            length: 20,
+            width: 16,
+            angle: (5 * Math.PI) / 4,
+            properties: {
+                type: 'Bullet',
+            },
+        },
+        {
+            offset: -5,
+            length: 20,
+            width: 16,
+            angle: (3 * Math.PI) / 2,
+            properties: {
+                type: 'Bullet',
+            },
+        },
+        {
+            offset: -5,
+            length: 20,
+            width: 16,
+            angle: (7 * Math.PI) / 4,
+            properties: {
+                type: 'Bullet',
+            },
+        },
+    ],
+    skill: {
+        fov: 550,
+    },
+    upgrades: [],
 };
 
 Class.Sniper = {
@@ -210,7 +428,63 @@ Class.Sniper = {
         },
     ],
     skill: {
-        fov: 600,
+        fov: 800,
+    },
+    upgrades: ['Assassin'],
+};
+
+Class.Assassin = {
+    parent: 'Sniper',
+    label: 'Assassin',
+    guns: [
+        {
+            offset: -5,
+            length: 30,
+            width: 16,
+            aspect: 1,
+            angle: 0,
+            properties: {
+                type: 'Bullet',
+                skill: {
+                    reload: 0.3,
+                    recoil: 1.4,
+                    damage: 1.8,
+                    speed: 5.5,
+                    range: 3.5,
+                },
+            },
+        },
+    ],
+    skill: {
+        fov: 1000,
+    },
+    upgrades: ['Ranger'],
+};
+
+Class.Ranger = {
+    parent: 'Assassin',
+    label: 'Ranger',
+    guns: [
+        {
+            offset: -5,
+            length: 34,
+            width: 16,
+            aspect: 1,
+            angle: 0,
+            properties: {
+                type: 'Bullet',
+                skill: {
+                    reload: 0.25,
+                    recoil: 1.6,
+                    damage: 2,
+                    speed: 6,
+                    range: 4,
+                },
+            },
+        },
+    ],
+    skill: {
+        fov: 1200,
     },
     upgrades: [],
 };
@@ -237,7 +511,10 @@ Class.MachineGun = {
             },
         },
     ],
-    upgrades: [],
+    skill: {
+        fov: 600,
+    },
+    upgrades: ['GunnerTrapper'],
 };
 
 Class.FlankGuard = {
@@ -246,11 +523,14 @@ Class.FlankGuard = {
     guns: [
         {
             offset: -5,
-            length: 20,
+            length: 22,
             width: 18,
             angle: 0,
             properties: {
                 type: 'Bullet',
+                skill: {
+                    speed: 1,
+                },
             },
         },
         {
@@ -266,6 +546,9 @@ Class.FlankGuard = {
             },
         },
     ],
+    skill: {
+        fov: 650,
+    },
     upgrades: ['TripleShot'],
 };
 
@@ -301,7 +584,112 @@ Class.TripleShot = {
             },
         },
     ],
-    upgrades: ['PentaShot'],
+    skill: {
+        fov: 500,
+    },
+    upgrades: ['PentaShot', 'Spread'],
+};
+
+Class.Spread = {
+    parent: 'Basic',
+    label: 'Spread Shot',
+    guns: [
+        {
+            offset: -5,
+            length: 20,
+            width: 16,
+            angle: (3 * Math.PI) / 10,
+            properties: {
+                type: 'Bullet',
+                skill: {
+                    size: 0.8,
+                    damage: 0.8,
+                },
+            },
+        },
+        {
+            offset: -5,
+            length: 20,
+            width: 16,
+            angle: -(3 * Math.PI) / 10,
+            properties: {
+                type: 'Bullet',
+                skill: {
+                    size: 0.8,
+                    damage: 0.8,
+                },
+            },
+        },
+        {
+            offset: -5,
+            length: 22,
+            width: 16,
+            angle: Math.PI / 5,
+            properties: {
+                type: 'Bullet',
+                skill: {
+                    size: 1,
+                    damage: 1,
+                },
+            },
+        },
+        {
+            offset: -5,
+            length: 22,
+            width: 16,
+            angle: -Math.PI / 5,
+            properties: {
+                type: 'Bullet',
+                skill: {
+                    size: 1,
+                    damage: 1,
+                },
+            },
+        },
+        {
+            offset: -5,
+            length: 24,
+            width: 16,
+            angle: Math.PI / 10,
+            properties: {
+                type: 'Bullet',
+                skill: {
+                    size: 1.2,
+                    damage: 1.3,
+                },
+            },
+        },
+        {
+            offset: -5,
+            length: 24,
+            width: 16,
+            angle: -Math.PI / 10,
+            properties: {
+                type: 'Bullet',
+                skill: {
+                    size: 1.2,
+                    damage: 1.3,
+                },
+            },
+        },
+        {
+            offset: -5,
+            length: 26,
+            width: 16,
+            angle: 0,
+            properties: {
+                type: 'Bullet',
+                skill: {
+                    size: 1.4,
+                    damage: 1.7,
+                },
+            },
+        },
+    ],
+    skill: {
+        fov: 550,
+    },
+    upgrades: [],
 };
 
 Class.PentaShot = {
@@ -310,16 +698,7 @@ Class.PentaShot = {
     guns: [
         {
             offset: -5,
-            length: 20,
-            width: 16,
-            angle: 0,
-            properties: {
-                type: 'Bullet',
-            },
-        },
-        {
-            offset: -5,
-            length: 18,
+            length: 22,
             width: 16,
             angle: Math.PI / 4,
             properties: {
@@ -328,32 +707,146 @@ Class.PentaShot = {
         },
         {
             offset: -5,
-            length: 18,
+            length: 22,
             width: 16,
             angle: -Math.PI / 4,
             properties: {
                 type: 'Bullet',
             },
         },
+
         {
             offset: -5,
-            length: 16,
+            length: 24,
             width: 16,
-            angle: Math.PI / 2,
+            angle: Math.PI / 10,
             properties: {
                 type: 'Bullet',
             },
         },
         {
             offset: -5,
-            length: 16,
+            length: 24,
             width: 16,
-            angle: -Math.PI / 2,
+            angle: -Math.PI / 10,
+            properties: {
+                type: 'Bullet',
+            },
+        },
+        {
+            offset: -5,
+            length: 26,
+            width: 16,
+            angle: 0,
             properties: {
                 type: 'Bullet',
             },
         },
     ],
+    skill: {
+        fov: 500,
+    },
+    upgrades: [],
+};
+
+Class.Destroyer = {
+    parent: 'Basic',
+    label: 'Destroyer',
+    guns: [
+        {
+            offset: -5,
+            length: 24,
+            width: 28,
+            angle: 0,
+            properties: {
+                type: 'Bullet',
+                skill: {
+                    reload: 0.4,
+                    recoil: 2,
+                    size: 1.5,
+                    damage: 2,
+                    speed: 3,
+                    range: 1.5,
+                },
+            },
+        },
+    ],
+    skill: {
+        fov: 550,
+    },
+    upgrades: ['Hybrid', 'Annihilator'],
+};
+
+Class.Hybrid = {
+    parent: 'Destroyer',
+    label: 'Hybrid',
+    guns: [
+        {
+            offset: -5,
+            length: 24,
+            width: 28,
+            angle: 0,
+            properties: {
+                type: 'Bullet',
+                skill: {
+                    reload: 0.4,
+                    recoil: 2,
+                    size: 1.5,
+                    damage: 2,
+                    speed: 3,
+                    range: 1.5,
+                },
+            },
+        },
+        {
+            offset: -5,
+            length: 14,
+            width: 22,
+            aspect: 1.3,
+            angle: Math.PI,
+            properties: {
+                type: 'Drone',
+                maxChildren: 2,
+                autofire: true,
+                skill: {
+                    reload: 0.4,
+                    size: 1.2,
+                    range: undefined,
+                },
+            },
+        },
+    ],
+    skill: {
+        fov: 550,
+    },
+    upgrades: [],
+};
+
+Class.Annihilator = {
+    parent: 'Destroyer',
+    label: 'Annihilator',
+    guns: [
+        {
+            offset: -5,
+            length: 24,
+            width: 34,
+            angle: 0,
+            properties: {
+                type: 'Bullet',
+                skill: {
+                    reload: 0.3,
+                    recoil: 2.5,
+                    size: 2,
+                    damage: 2.5,
+                    speed: 2.5,
+                    range: 1.5,
+                },
+            },
+        },
+    ],
+    skill: {
+        fov: 550,
+    },
     upgrades: [],
 };
 
@@ -381,7 +874,128 @@ Class.Trapper = {
             },
         },
     ],
-    upgrades: ['TriTrapper', 'MegaTrapper'],
+    skill: {
+        fov: 500,
+    },
+    upgrades: ['TriTrapper', 'MegaTrapper', 'GunnerTrapper', 'OverTrapper'],
+};
+
+Class.GunnerTrapper = {
+    parent: 'Trapper',
+    label: 'Gunner Trapper',
+    guns: [
+        {
+            offset: 2,
+            length: 12,
+            width: 20,
+            aspect: 1.3,
+            angle: 0,
+            color: Color.LightGrey,
+            border: Color.AutoBorder,
+            properties: {
+                type: 'Trap',
+                skill: {
+                    reload: 0.8,
+                    speed: 2,
+                    size: 1.2,
+                },
+            },
+        },
+        {
+            offset: -5,
+            length: 18,
+            width: 8,
+            angle: 0,
+            properties: {
+                type: 'Bullet',
+                skill: {
+                    reload: 1,
+                    damage: 0.7,
+                    speed: 3,
+                },
+            },
+        },
+        {
+            offset: -5,
+            length: 18,
+            width: 8,
+            angle: 0,
+            properties: {
+                type: 'Bullet',
+                skill: {
+                    reload: 1,
+                    damage: 0.7,
+                    speed: 3,
+                },
+            },
+        },
+    ],
+    skill: {
+        fov: 550,
+    },
+    upgrades: [],
+};
+
+Class.OverTrapper = {
+    parent: 'Trapper',
+    label: 'Overtrapper',
+    guns: [
+        {
+            offset: 2,
+            length: 12,
+            width: 20,
+            aspect: 1.3,
+            angle: 0,
+            color: Color.LightGrey,
+            border: Color.AutoBorder,
+            properties: {
+                type: 'Trap',
+                skill: {
+                    reload: 0.8,
+                    speed: 2,
+                    size: 1.2,
+                },
+            },
+        },
+        {
+            offset: -5,
+            length: 14,
+            width: 22,
+            aspect: 1.3,
+            angle: Math.PI / 2,
+            properties: {
+                type: 'Drone',
+                maxChildren: 2,
+                autofire: true,
+                skill: {
+                    reload: 0.4,
+                    size: 1.2,
+                    range: undefined,
+                },
+            },
+        },
+        {
+            offset: -5,
+            length: 14,
+            width: 22,
+            aspect: 1.3,
+            angle: -Math.PI / 2,
+            properties: {
+                type: 'Drone',
+                maxChildren: 2,
+                autofire: true,
+                skill: {
+                    reload: 0.4,
+                    size: 1.2,
+                    range: undefined,
+                },
+            },
+        },
+    ],
+    skill: {
+        fov: 550,
+    },
+    upgrades: [],
 };
 
 Class.TriTrapper = {
@@ -440,6 +1054,9 @@ Class.TriTrapper = {
             },
         },
     ],
+    skill: {
+        fov: 500,
+    },
     upgrades: [],
 };
 
@@ -467,6 +1084,9 @@ Class.MegaTrapper = {
             },
         },
     ],
+    skill: {
+        fov: 550,
+    },
     upgrades: [],
 };
 
@@ -531,7 +1151,10 @@ Class.Overseer = {
             },
         },
     ],
-    upgrades: ['Overlord', 'Manager', 'Factory', 'Necromancer'],
+    skill: {
+        fov: 600,
+    },
+    upgrades: ['Overlord', 'Manager', 'Factory', 'Swarmer', 'Necromancer', 'OverTrapper'],
 };
 
 Class.Overlord = {
@@ -606,6 +1229,9 @@ Class.Overlord = {
             },
         },
     ],
+    skill: {
+        fov: 550,
+    },
     upgrades: [],
 };
 
@@ -631,6 +1257,9 @@ Class.Manager = {
             },
         },
     ],
+    skill: {
+        fov: 550,
+    },
     alpha: 0.2,
     upgrades: [],
 };
@@ -673,6 +1302,9 @@ Class.Factory = {
             },
         },
     ],
+    skill: {
+        fov: 600,
+    },
     upgrades: [],
 };
 
@@ -715,11 +1347,152 @@ Class.Minion = {
     ],
 };
 
+Class.Swarmer = {
+    parent: 'Basic',
+    label: 'Swarmer',
+    guns: [
+        {
+            offset: -5,
+            direction: -8,
+            length: 16,
+            width: 14,
+            aspect: 0.8,
+            angle: 0,
+            properties: {
+                type: 'Swarm',
+                skill: {
+                    reload: 0.5,
+                    size: 1,
+                    range: 4,
+                },
+            },
+        },
+        {
+            offset: -5,
+            direction: 8,
+            length: 16,
+            width: 14,
+            aspect: 0.8,
+            angle: 0,
+            properties: {
+                type: 'Swarm',
+                skill: {
+                    reload: 0.5,
+                    size: 1,
+                    range: 4,
+                },
+            },
+        },
+    ],
+    skill: {
+        fov: 550,
+    },
+    upgrades: ['Battleship'],
+};
+
+Class.Swarm = {
+    parent: 'Drone',
+    showHealth: false,
+    showName: false,
+    showScore: false,
+    giveScore: false,
+    skill: {
+        fov: 200,
+        speed: 0.4,
+        health: 3,
+        regen: 0,
+        damage: 7,
+        pen: 3,
+        range: null,
+        pushability: 0.5,
+    },
+    sides: 3,
+    controllers: [new ControllerMaker(MasterCircleMove), new ControllerMaker(Nearest), new ControllerMaker(GoToMasterTarget)],
+    size: 5,
+    bullet: true,
+    hardBullet: false,
+};
+
+Class.Battleship = {
+    parent: 'Overseer',
+    label: 'Battleship',
+    guns: [
+        {
+            offset: -5,
+            direction: -8,
+            length: 16,
+            width: 14,
+            aspect: 0.8,
+            angle: 0,
+            properties: {
+                type: 'Swarm',
+                skill: {
+                    reload: 0.5,
+                    size: 1,
+                    range: 4,
+                },
+            },
+        },
+        {
+            offset: -5,
+            direction: 8,
+            length: 16,
+            width: 14,
+            aspect: 0.8,
+            angle: 0,
+            properties: {
+                type: 'Swarm',
+                skill: {
+                    reload: 0.5,
+                    size: 1,
+                    range: 4,
+                },
+            },
+        },
+        {
+            offset: -5,
+            direction: -8,
+            length: 16,
+            width: 14,
+            aspect: 0.8,
+            angle: -Math.PI,
+            properties: {
+                type: 'Swarm',
+                skill: {
+                    reload: 0.5,
+                    size: 1,
+                    range: 4,
+                },
+            },
+        },
+        {
+            offset: -5,
+            direction: 8,
+            length: 16,
+            width: 14,
+            aspect: 0.8,
+            angle: -Math.PI,
+            properties: {
+                type: 'Swarm',
+                skill: {
+                    reload: 0.5,
+                    size: 1,
+                    range: 4,
+                },
+            },
+        },
+    ],
+    skill: {
+        fov: 600,
+    },
+    upgrades: [],
+};
+
 Class.Necromancer = {
     parent: 'Overseer',
     label: 'Necromancer',
     sides: 4,
-    size: 17,
+    size: 14,
     guns: [
         {
             offset: -5,
@@ -754,6 +1527,9 @@ Class.Necromancer = {
             },
         },
     ],
+    skill: {
+        fov: 600,
+    },
     on: {
         collision(body: Entity, other: Entity) {
             if (other.setting.label === 'Square') {
@@ -811,6 +1587,7 @@ Class.Square = {
 Class.Smasher = {
     parent: 'Basic',
     label: 'Smasher',
+    userSkill: BASIC_SMASHER_SKILLS,
     sides: 0,
     skill: {
         speed: 1,
@@ -822,19 +1599,12 @@ Class.Smasher = {
     props: [
         {
             offset: new Vector(),
-            size: 30,
+            fixedAngle: true,
+            size: 25,
             sides: -6,
             color: Color.Black,
             layer: -1,
-            spin: 0.01,
-        },
-        {
-            offset: new Vector(),
-            size: 30,
-            sides: -6,
-            color: Color.Black,
-            layer: -1,
-            spin: -0.01,
+            spin: 0.02,
         },
     ],
     guns: [],
@@ -848,41 +1618,41 @@ Class.Spike = {
         {
             offset: new Vector(),
             fixedAngle: true,
-            size: 35,
+            size: 29,
             sides: 3,
             color: Color.Black,
             layer: -1,
-            spin: 0.01,
+            spin: 0.02,
         },
         {
             offset: new Vector(),
             fixedAngle: true,
             angle: -Math.PI / 2,
-            size: 35,
+            size: 29,
             sides: 3,
             color: Color.Black,
             layer: -1,
-            spin: 0.01,
+            spin: 0.02,
         },
         {
             offset: new Vector(),
             fixedAngle: true,
             angle: Math.PI / 2,
-            size: 35,
+            size: 29,
             sides: 3,
             color: Color.Black,
             layer: -1,
-            spin: 0.01,
+            spin: 0.02,
         },
         {
             offset: new Vector(),
             fixedAngle: true,
             angle: (Math.PI * 2) / 2,
-            size: 35,
+            size: 29,
             sides: 3,
             color: Color.Black,
             layer: -1,
-            spin: 0.01,
+            spin: 0.02,
         },
     ],
     skill: {
@@ -898,19 +1668,21 @@ Class.Landmine = {
     props: [
         {
             offset: new Vector(),
-            size: 28,
+            fixedAngle: true,
+            size: 25,
             sides: -6,
             color: Color.Black,
             layer: -1,
-            spin: 0.01,
+            spin: 0.02,
         },
         {
             offset: new Vector(),
-            size: 28,
+            fixedAngle: true,
+            size: 25,
             sides: -6,
             color: Color.Black,
             layer: -1,
-            spin: -0.01,
+            spin: 0.03,
         },
     ],
     skill: {
@@ -925,19 +1697,12 @@ Class.MegaSmasher = {
     props: [
         {
             offset: new Vector(),
-            size: 34,
+            fixedAngle: true,
+            size: 28,
             sides: -6,
             color: Color.Black,
             layer: -1,
-            spin: 0.01,
-        },
-        {
-            offset: new Vector(),
-            size: 34,
-            sides: -6,
-            color: Color.Black,
-            layer: -1,
-            spin: -0.01,
+            spin: 0.02,
         },
     ],
     skill: {
