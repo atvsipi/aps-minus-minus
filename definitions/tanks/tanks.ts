@@ -277,10 +277,25 @@ Class.Triplet = {
     label: 'Triplet',
     guns: [
         {
-            offset: -5,
-            length: 20,
+            offset: -10,
+            length: 25,
             width: 16,
             angle: 0,
+            direction: -11,
+            properties: {
+                type: 'Bullet',
+                skill: {
+                    reload: 1,
+                    damage: 0.7,
+                },
+            },
+        },
+        {
+            offset: -10,
+            length: 25,
+            width: 16,
+            angle: 0,
+            direction: 11,
             properties: {
                 type: 'Bullet',
                 skill: {
@@ -291,20 +306,7 @@ Class.Triplet = {
         },
         {
             offset: -5,
-            length: 20,
-            width: 16,
-            angle: 0,
-            properties: {
-                type: 'Bullet',
-                skill: {
-                    reload: 1,
-                    damage: 0.7,
-                },
-            },
-        },
-        {
-            offset: -5,
-            length: 22,
+            length: 24,
             width: 16,
             angle: 0,
             properties: {
@@ -504,7 +506,7 @@ Class.MachineGun = {
                 skill: {
                     reload: 2,
                     recoil: 0.8,
-                    size: 0.8,
+                    size: 1,
                     damage: 0.7,
                     spray: 2,
                 },
@@ -714,7 +716,6 @@ Class.PentaShot = {
                 type: 'Bullet',
             },
         },
-
         {
             offset: -5,
             length: 24,
